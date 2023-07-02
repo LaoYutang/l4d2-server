@@ -1,0 +1,5 @@
+left4dead2\addons\sourcemod\extensions\voicehook.ext.dll
+left4dead2\addons\sourcemod\extensions\voicehook.ext.so
+left4dead2\addons\sourcemod\gamedata\voiceannounce_ex.games.txt
+left4dead2\addons\sourcemod\scripting\voiceannounce_ex.sp
+left4dead2\addons\sourcemod\scripting\include\voiceannounce_ex.inc

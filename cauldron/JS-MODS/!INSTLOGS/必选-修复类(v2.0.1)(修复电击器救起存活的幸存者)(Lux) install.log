@@ -1,0 +1,4 @@
+left4dead2\addons\sourcemod\gamedata\defib_fix.txt
+left4dead2\addons\sourcemod\plugins\Defib_Fix.smx
+left4dead2\addons\sourcemod\scripting\Defib_Fix.sp
+left4dead2\addons\sourcemod\scripting\include\Defib_Fix.inc

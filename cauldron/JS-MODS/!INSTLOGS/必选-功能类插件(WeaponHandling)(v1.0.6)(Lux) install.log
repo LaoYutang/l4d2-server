@@ -1,0 +1,5 @@
+left4dead2\addons\sourcemod\gamedata\WeaponHandling.txt
+left4dead2\addons\sourcemod\plugins\WeaponHandling.smx
+left4dead2\addons\sourcemod\scripting\WeaponHandling.sp
+left4dead2\addons\sourcemod\scripting\include\weaponhandling.inc
+left4dead2\cfg\sourcemod\WeaponHandling.cfg
