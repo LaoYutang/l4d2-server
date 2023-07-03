@@ -1,0 +1,4 @@
+left4dead2\addons\sourcemod\gamedata\survivor_chat_select.txt
+left4dead2\addons\sourcemod\plugins\survivor_chat_select.smx
+left4dead2\addons\sourcemod\scripting\survivor_chat_select.sp
+left4dead2\cfg\sourcemod\plugin.survivor_chat_select.cfg
