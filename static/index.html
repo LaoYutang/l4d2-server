@@ -18,12 +18,26 @@
     <button id="restart" onclick="restartHandler()">重启服务器</button>
     <button id="clear" onclick="clearHandler()">清空地图目录</button>
 
+    <br></br>
+
+    <div>已上传地图</div>
+    <div id="list"></div>
     <script>
       const upload = document.getElementById("upload")
       const restart = document.getElementById("restart")
       const clear = document.getElementById("clear")
       const password = document.getElementById("password")
       const map = document.getElementById("map")
+      const list = document.getElementById("list")
+
+      fetch("/list", {
+        method: "post"
+      }).then(async res => {
+        const text = await res.text()
+        list.innerText = text
+      }).catch(err => {
+        alert(err)
+      })
 
       const uploadHandler = () => {
         if (map.files.length ===0) {
@@ -36,20 +50,18 @@
           const text = await res.text()
           alert(text)
         }).catch(err => {
-          console.log(err)
           alert(err)
         }).finally(() => {
           showBtns()
         })
-
       }
+
       const restartHandler = () => {
         hiddenBtns()
         fetchServer("/restart").then(async res => {
           const text = await res.text()
           alert(text)
         }).catch(err => {
-          console.log(err)
           alert(err)
         }).finally(() => {
           showBtns()
@@ -62,7 +74,6 @@
           const text = await res.text()
           alert(text)
         }).catch(err => {
-          console.log(err)
           alert(err)
         }).finally(() => {
           showBtns()
