@@ -8,6 +8,9 @@ RUN go build
 
 FROM alpine:latest
 
+EXPOSE 27020
+
 COPY --from=builder /data/l4d2-manager /
+COPY ./static /static
 
 ENTRYPOINT ["/l4d2-manager"]
