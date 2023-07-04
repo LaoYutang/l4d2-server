@@ -16,22 +16,24 @@ func Clear(c *gin.Context) {
 	}
 
 	fileList := strings.Split(string(fileBytes), "\n")
-	fileList = fileList[:len(fileList)-1]
 	errFileList := []string{}
 	for _, file := range fileList {
+		if len(file) == 0 {
+			continue
+		}
 		if err := os.Remove(BasePath + file); err != nil {
 			errFileList = append(errFileList, file)
 		}
 	}
 
 	if len(errFileList) > 0 {
-		os.WriteFile(BasePath+"maplist.txt", []byte(strings.Join(errFileList, "\n")), 0666)
+		os.WriteFile(BasePath+"maplist.txt", []byte(strings.Join(errFileList, "\n")+"\n"), 0666)
 		c.String(http.StatusInternalServerError, "以下文件删除失败："+strings.Join(errFileList, ","))
 		return
 	}
 
-	if err := os.Remove(BasePath + "maplist.txt"); err != nil {
-		c.String(http.StatusInternalServerError, "删除地图记录文件失败")
+	if err := os.WriteFile(BasePath+"maplist.txt", []byte{}, 0666); err != nil {
+		c.String(http.StatusInternalServerError, "清空记录文件失败")
 		return
 	}
 
