@@ -6,7 +6,7 @@ WORKDIR /data
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 RUN go build
 
-FROM alpine:latest
+FROM docker:20.10.24-cli-alpine3.17
 
 EXPOSE 27020
 

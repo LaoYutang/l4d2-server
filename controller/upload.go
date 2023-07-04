@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,21 @@ func Upload(c *gin.Context) {
 	if !reg.Match([]byte(file.Filename)) {
 		c.String(http.StatusInternalServerError, "错误的文件类型，只支持vpk文件")
 		return
+	}
+
+	_, statErr := os.Stat(BasePath + "maplist.txt")
+	if os.IsExist(statErr) {
+		maps, readErr := os.ReadFile(BasePath + "maplist.txt")
+		if readErr != nil {
+			c.String(http.StatusInternalServerError, "获取地图记录文件失败")
+			return
+		}
+		for _, mapName := range strings.Split(string(maps), "\n") {
+			if mapName == file.Filename {
+				c.String(http.StatusBadRequest, "地图已经存在")
+				return
+			}
+		}
 	}
 
 	if err := c.SaveUploadedFile(file, BasePath+file.Filename); err != nil {
