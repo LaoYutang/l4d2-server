@@ -17,6 +17,7 @@ func main() {
 	router.POST("/upload", middlewares.Auth(), controller.Upload)
 	router.POST("/restart", middlewares.Auth(), controller.Restart)
 	router.POST("/clear", middlewares.Auth(), controller.Clear)
+	router.POST("/list", controller.List)
 
 	router.Run(":27020")
 }
