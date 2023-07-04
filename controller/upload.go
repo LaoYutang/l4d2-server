@@ -25,7 +25,7 @@ func Upload(c *gin.Context) {
 	}
 
 	_, statErr := os.Stat(BasePath + "maplist.txt")
-	if os.IsExist(statErr) {
+	if !os.IsNotExist(statErr) {
 		maps, readErr := os.ReadFile(BasePath + "maplist.txt")
 		if readErr != nil {
 			c.String(http.StatusInternalServerError, "获取地图记录文件失败")
