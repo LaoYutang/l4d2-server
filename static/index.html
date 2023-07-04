@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>L4D2地图管理</title>
+  </head>
+  <body>
+
+    <label>密码</label>
+    <input id="password" type="password"></input>
+    <br></br>
+    <label>地图</label>
+    <input id="map" type="file" accept=".vpk"></input>
+    <br></br>
+    <button id="upload" onclick="uploadHandler()">上传地图</button>
+    <button id="restart" onclick="restartHandler()">重启服务器</button>
+    <button id="clear" onclick="clearHandler()">清空地图目录</button>
+
+    <script>
+      const upload = document.getElementById("upload")
+      const restart = document.getElementById("restart")
+      const clear = document.getElementById("clear")
+      const password = document.getElementById("password")
+      const map = document.getElementById("map")
+
+      const uploadHandler = () => {
+        if (map.files.length ===0) {
+          alert("未选择文件！")
+          return
+        }
+        hiddenBtns()
+        alert("点击确认开始上传，过程中按钮将被隐藏")
+        fetchServer("/upload").then(async res => {
+          const text = await res.text()
+          alert(text)
+        }).catch(err => {
+          console.log(err)
+          alert(err)
+        }).finally(() => {
+          showBtns()
+        })
+
+      }
+      const restartHandler = () => {
+        hiddenBtns()
+        fetchServer("/restart").then(async res => {
+          const text = await res.text()
+          alert(text)
+        }).catch(err => {
+          console.log(err)
+          alert(err)
+        }).finally(() => {
+          showBtns()
+        })
+      }
+
+      const clearHandler = () => {
+        hiddenBtns()
+        fetchServer("/clear").then(async res => {
+          const text = await res.text()
+          alert(text)
+        }).catch(err => {
+          console.log(err)
+          alert(err)
+        }).finally(() => {
+          showBtns()
+        })
+      }
+
+      function hiddenBtns () {
+        upload.style.display = "none"
+        restart.style.display = "none"
+        clear.style.display = "none"
+      }
+      function showBtns () {
+        upload.style.display = "inline"
+        restart.style.display = "inline"
+        clear.style.display = "inline"
+      }
+
+      function fetchServer(path) {
+        if (password.value === "") {
+          return Promise.reject("密码不能为空！")
+        }
+        const fd = new FormData()
+        fd.append("password", password.value)
+        if (path === '/upload') {
+          fd.append("map", map.files[0])
+        }
+        
+        return fetch(path, {
+          method: "POST",
+          body: fd,
+        })
+      }
+
+    </script>
+  </body>
+</html>
