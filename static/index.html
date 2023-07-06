@@ -5,6 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>L4D2地图管理</title>
+    <style>
+      .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        z-index: 1000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffffaa;
+      }
+    </style>
   </head>
   <body>
 
@@ -20,8 +34,14 @@
 
     <br></br>
 
-    <div>已上传地图</div>
+    <div>服务器地图列表</div>
     <div id="list"></div>
+
+
+    <div id="loading" class="loading">
+      <img src="./images/loading.gif"></img>
+      <div id="loading-text"></div>
+    </div>
     <script>
       const upload = document.getElementById("upload")
       const restart = document.getElementById("restart")
@@ -30,7 +50,9 @@
       const map = document.getElementById("map")
       const list = document.getElementById("list")
 
-      fetch("/list", {
+      // 更新list
+      const updateList= () => {
+        fetch("/list", {
         method: "post"
       }).then(async res => {
         const text = await res.text()
@@ -38,57 +60,64 @@
       }).catch(err => {
         alert(err)
       })
+      }
+      updateList()
 
       const uploadHandler = () => {
-        if (map.files.length ===0) {
+        if (map.files.length === 0) {
           alert("未选择文件！")
           return
         }
-        hiddenBtns()
-        alert("点击确认开始上传，过程中按钮将被隐藏")
+        showLoading("上传中...")
         fetchServer("/upload").then(async res => {
           const text = await res.text()
+          updateList()
           alert(text)
         }).catch(err => {
           alert(err)
         }).finally(() => {
-          showBtns()
+          hiddenLoading()
         })
       }
 
       const restartHandler = () => {
-        hiddenBtns()
+        const ok = confirm("确认是否重启服务器！")
+        if (!ok) return
+
+        showLoading("重启中...")
         fetchServer("/restart").then(async res => {
           const text = await res.text()
           alert(text)
         }).catch(err => {
           alert(err)
         }).finally(() => {
-          showBtns()
+          hiddenLoading()
         })
       }
 
       const clearHandler = () => {
-        hiddenBtns()
+        const ok = confirm("确认是否清空地图目录！")
+        if (!ok) return
+        showLoading("清理中...")
         fetchServer("/clear").then(async res => {
           const text = await res.text()
+          updateList()
           alert(text)
         }).catch(err => {
           alert(err)
         }).finally(() => {
-          showBtns()
+          hiddenLoading()
         })
       }
 
-      function hiddenBtns () {
-        upload.style.display = "none"
-        restart.style.display = "none"
-        clear.style.display = "none"
+      const loadingText = document.getElementById("loading-text")
+      const loading = document.getElementById("loading")
+      function showLoading (text) {
+        loadingText.innerText = text
+        loading.style.display = "flex"
       }
-      function showBtns () {
-        upload.style.display = "inline"
-        restart.style.display = "inline"
-        clear.style.display = "inline"
+      function hiddenLoading () {
+        loading.style.display = "none"
       }
 
       function fetchServer(path) {

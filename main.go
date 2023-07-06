@@ -13,7 +13,7 @@ func main() {
 
 	router.StaticFS("/", http.Dir("./static"))
 
-	router.MaxMultipartMemory = 1 << 26 // 限制表单内存缓存为64M
+	router.MaxMultipartMemory = 1 << 25 // 限制表单内存缓存为32M
 	router.POST("/upload", middlewares.Auth(), controller.Upload)
 	router.POST("/restart", middlewares.Auth(), controller.Restart)
 	router.POST("/clear", middlewares.Auth(), controller.Clear)
