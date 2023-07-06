@@ -14,13 +14,18 @@ const BasePath = "/addons/"
 func Upload(c *gin.Context) {
 	file, err := c.FormFile("map")
 	if err != nil {
-		c.String(http.StatusBadRequest, "上传文件失败")
+		c.String(http.StatusBadRequest, "文件信息有误")
 		return
 	}
 
 	reg := regexp.MustCompile(`\.vpk$`)
 	if !reg.Match([]byte(file.Filename)) {
-		c.String(http.StatusInternalServerError, "错误的文件类型，只支持vpk文件")
+		c.String(http.StatusBadRequest, "错误的文件类型，只支持vpk文件")
+		return
+	}
+
+	if file.Size > 1<<30 {
+		c.String(http.StatusBadRequest, "文件超过1GB，禁止上传")
 		return
 	}
 
