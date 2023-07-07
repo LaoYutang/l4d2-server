@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -63,4 +64,6 @@ func Upload(c *gin.Context) {
 	}
 
 	c.String(http.StatusOK, "上传成功！")
+
+	runtime.GC()
 }
