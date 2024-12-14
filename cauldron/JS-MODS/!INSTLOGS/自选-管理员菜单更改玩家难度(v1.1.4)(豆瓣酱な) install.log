@@ -1,0 +1,6 @@
+left4dead2\addons\sourcemod\plugins\l4d2_simulation.smx
+left4dead2\addons\sourcemod\scripting\l4d2_simulation.sp
+NEWFLDR|left4dead2\addons\sourcemod\scripting\data\
+NEWFLDR|left4dead2\addons\sourcemod\scripting\data\sqlite\
+left4dead2\addons\sourcemod\scripting\data\sqlite\PlayerDifficulty.sq3
+left4dead2\addons\sourcemod\scripting\include\l4d2_simulation.inc
