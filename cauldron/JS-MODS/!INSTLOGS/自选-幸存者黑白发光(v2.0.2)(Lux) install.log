@@ -1,3 +1,10 @@
+left4dead2\addons\sourcemod\plugins\LMCCore.smx
 left4dead2\addons\sourcemod\plugins\LMC_Black_and_White_Notifier.smx
+left4dead2\addons\sourcemod\scripting\LMCCore.sp
 left4dead2\addons\sourcemod\scripting\LMC_Black_and_White_Notifier.sp
+left4dead2\addons\sourcemod\scripting\include\LMCCore.inc
+left4dead2\addons\sourcemod\scripting\include\LMCL4D1SetTransmit.inc
+left4dead2\addons\sourcemod\scripting\include\LMCL4D2CDeathHandler.inc
+left4dead2\addons\sourcemod\scripting\include\LMCL4D2SetTransmit.inc
+left4dead2\cfg\sourcemod\LMCCore.cfg
 left4dead2\cfg\sourcemod\LMC_Black_and_White_Notifier.cfg

@@ -1,4 +1,4 @@
 left4dead2\addons\sourcemod\gamedata\transition_restore_fix.txt
 left4dead2\addons\sourcemod\plugins\transition_restore_fix.smx
 left4dead2\addons\sourcemod\scripting\transition_restore_fix.sp
-left4dead2\cfg\sourcemod\plugin.transition_restore_fix.cfg
+left4dead2\cfg\sourcemod\transition_restore_fix.cfg
