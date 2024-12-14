@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch: # 添加手动触发器
 
 jobs:
