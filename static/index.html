@@ -56,7 +56,26 @@
         method: "post"
       }).then(async res => {
         const text = await res.text()
-        list.innerText = text
+        maps = text.split("\n")
+        maps.pop()
+        list.innerHTML = ""
+        maps.forEach(map => {
+          const container = document.createElement("div")
+          const span = document.createElement("span")
+          span.innerText = map
+          const del = document.createElement("button")
+          del.innerText = "delete"
+          del.onclick = () => {
+            fetchServer("/remove", map).then(async res => {
+            updateList()
+            alert("删除成功！")
+          }).catch(err => {
+            alert(err)
+          })}
+          container.appendChild(span)
+          container.appendChild(del)
+          list.appendChild(container)
+        })
       }).catch(err => {
         alert(err)
       })
@@ -120,7 +139,7 @@
         loading.style.display = "none"
       }
 
-      function fetchServer(path) {
+      function fetchServer(path, mapName) {
         if (password.value === "") {
           return Promise.reject("密码不能为空！")
         }
@@ -128,6 +147,8 @@
         fd.append("password", password.value)
         if (path === '/upload') {
           fd.append("map", map.files[0])
+        } else if (path === "/remove") {
+          fd.append("map", mapName)
         }
         
         return fetch(path, {
