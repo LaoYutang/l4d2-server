@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - develop
-  workflow_dispatch: # 添加手动触发器
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' # 每天晚上0点触发
+    - cron: '0 0 * * *'
 
 jobs:
   build:
@@ -31,6 +31,14 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: l4d2.Dockerfile # 确保这是相对于context的路径
+          file: l4d2.Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/l4d2:nightly
+
+      - name: Build Manager and Push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: manager.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/l4d2-manager:nightly
