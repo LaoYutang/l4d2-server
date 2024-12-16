@@ -10,8 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const BasePath = "/addons/"
-
 func Upload(c *gin.Context) {
 	file, err := c.FormFile("map")
 	if err != nil {
