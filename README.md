@@ -5,6 +5,7 @@
 地图管理界面，不再需要登录服务器传图重启，页面操作即可！(随便写的比较简陋，但是也够用了！)
 
 ## 启动方式
+稳定版使用lastest标签，如果L4D2有更新，可以尝试使用nightly标签，该镜像每晚打包。
 ```sh
 docker volume create addons
 docker volume create cfg
@@ -23,7 +24,7 @@ networks:
 
 services:
   l4d2:
-    image: laoyutang/l4d2:nightly
+    image: laoyutang/l4d2:latest
     container_name: l4d2
     ports:
       - "27015:27015"
