@@ -1,0 +1,32 @@
+volumes:
+  addons:
+  cfg:
+
+networks:
+  l4d2-network:
+
+services:
+  l4d2:
+    image: laoyutang/l4d2:nightly
+    container_name: l4d2
+    ports:
+      - "27015:27015"
+      - "27015:27015/udp"
+    volumes:
+      - addons:/l4d2/left4dead2/addons
+      - cfg:/l4d2/left4dead2/cfg
+    networks:
+      - l4d2-network
+
+  l4d2-manager:
+    image: laoyutang/l4d2-manager:latest
+    container_name: l4d2-manager
+    ports:
+      - "27020:27020"
+    volumes:
+      - addons:/addons
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - L4D2_MANAGER_PASSWORD=[web管理密码]
+    networks:
+      - l4d2-network
