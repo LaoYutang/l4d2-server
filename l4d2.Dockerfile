@@ -4,6 +4,7 @@ EXPOSE 27015
 EXPOSE 27015/udp
 
 # 环境准备
+RUN cp ./Centos-7.repo /etc/yum.repos.d/CentOS-Base.repo
 RUN yum install glibc libstdc++ glibc.i686 libstdc++.i686 wget vim libcurl -y
 RUN mkdir -p /l4d2 /root/steamcmd
 
