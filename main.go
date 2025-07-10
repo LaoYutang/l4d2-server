@@ -22,6 +22,7 @@ func main() {
 	}
 
 	router.MaxMultipartMemory = 1 << 25 // 限制表单内存缓存为32M
+	router.POST("/auth", middlewares.Auth(), controller.Auth)
 	router.POST("/upload", middlewares.Auth(), controller.Upload)
 	router.POST("/restart", middlewares.Auth(), controller.Restart)
 	router.POST("/clear", middlewares.Auth(), controller.Clear)
