@@ -82,21 +82,24 @@
       }
       updateList()
 
-      const uploadHandler = () => {
+      const uploadHandler = async () => {
         if (map.files.length === 0) {
           alert("未选择文件！")
           return
         }
         showLoading("上传中...")
-        fetchServer("/upload").then(async res => {
-          const text = await res.text()
+        try {
+          const authRes = await fetchServer("/auth")
+          if (!authRes.ok) {
+            throw new Error(await authRes.text())
+          }
+          const res = await fetchServer("/upload")
+          alert(await res.text())
           updateList()
-          alert(text)
-        }).catch(err => {
+        } catch (err) {
           alert(err)
-        }).finally(() => {
-          hiddenLoading()
-        })
+        }
+        hiddenLoading()
       }
 
       const restartHandler = () => {
