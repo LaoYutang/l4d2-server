@@ -23,8 +23,8 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	if file.Size > 1<<30 {
-		c.String(http.StatusBadRequest, "文件超过1GB，禁止上传")
+	if file.Size > 2<<30 {
+		c.String(http.StatusBadRequest, "文件超过2GB，禁止上传")
 		return
 	}
 
