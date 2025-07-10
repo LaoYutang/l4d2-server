@@ -26,7 +26,7 @@
     <input id="password" type="password"></input>
     <br></br>
     <label>地图</label>
-    <input id="map" type="file" accept=".vpk"></input>
+    <input id="map" type="file" accept=".vpk" multiple></input>
     <br></br>
     <button id="upload" onclick="uploadHandler()">上传地图</button>
     <button id="restart" onclick="restartHandler()">重启服务器</button>
@@ -87,14 +87,43 @@
           alert("未选择文件！")
           return
         }
-        showLoading("上传中...")
+        
+        showLoading(`上传中... (0/${map.files.length})`)
+        
         try {
+          // 先验证密码
           const authRes = await fetchServer("/auth")
           if (!authRes.ok) {
             throw new Error(await authRes.text())
           }
-          const res = await fetchServer("/upload")
-          alert(await res.text())
+          
+          let successCount = 0
+          let failedFiles = []
+          
+          // 逐个上传文件
+          for (let i = 0; i < map.files.length; i++) {
+            const file = map.files[i]
+            showLoading(`上传中... (${i + 1}/${map.files.length}) - ${file.name}`)
+            
+            try {
+              const res = await fetchServerWithFile("/upload", file)
+              if (res.ok) {
+                successCount++
+              } else {
+                failedFiles.push(`${file.name}: ${await res.text()}`)
+              }
+            } catch (err) {
+              failedFiles.push(`${file.name}: ${err.message}`)
+            }
+          }
+          
+          // 显示上传结果
+          let resultMessage = `上传完成！成功: ${successCount}/${map.files.length}`
+          if (failedFiles.length > 0) {
+            resultMessage += `\n失败的文件:\n${failedFiles.join('\n')}`
+          }
+          alert(resultMessage)
+          
           updateList()
         } catch (err) {
           alert(err)
@@ -142,15 +171,27 @@
         loading.style.display = "none"
       }
 
+      function fetchServerWithFile(path, file) {
+        if (password.value === "") {
+          return Promise.reject(new Error("密码不能为空！"))
+        }
+        const fd = new FormData()
+        fd.append("password", password.value)
+        fd.append("map", file)
+        
+        return fetch(path, {
+          method: "POST",
+          body: fd,
+        })
+      }
+
       function fetchServer(path, mapName) {
         if (password.value === "") {
           return Promise.reject("密码不能为空！")
         }
         const fd = new FormData()
         fd.append("password", password.value)
-        if (path === '/upload') {
-          fd.append("map", map.files[0])
-        } else if (path === "/remove") {
+        if (mapName) {
           fd.append("map", mapName)
         }
         
