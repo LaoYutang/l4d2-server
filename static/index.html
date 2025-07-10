@@ -326,38 +326,159 @@
         display: none;
         justify-content: center;
         align-items: center;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(102, 126, 234, 0.15);
+        backdrop-filter: blur(15px);
+        animation: fadeIn 0.3s ease;
       }
 
       .loading-content {
         text-align: center;
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 50px 40px;
+        border-radius: 25px;
+        box-shadow: 0 25px 50px rgba(102, 126, 234, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-width: 300px;
       }
 
-      .loading-content img {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 20px;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      /* 现代化加载器 */
+      .loading-spinner {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 30px;
+        position: relative;
+      }
+
+      .loading-spinner::before,
+      .loading-spinner::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .loading-spinner::before {
+        width: 80px;
+        height: 80px;
+        border: 4px solid transparent;
+        border-top: 4px solid #667eea;
+        border-right: 4px solid #764ba2;
+        animation: spin 1.5s linear infinite;
+      }
+
+      .loading-spinner::after {
+        width: 60px;
+        height: 60px;
+        border: 3px solid transparent;
+        border-bottom: 3px solid #f093fb;
+        border-left: 3px solid #f5576c;
+        animation: spin 1s linear infinite reverse;
+      }
+
+      /* 脉冲圆点 */
+      .loading-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 25px;
+      }
+
+      .loading-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        animation: pulse 1.4s ease-in-out infinite both;
+      }
+
+      .loading-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .loading-dot:nth-child(3) {
+        animation-delay: 0.4s;
       }
 
       .loading-text {
         font-size: 18px;
         font-weight: 600;
-        color: #555;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+        animation: textGlow 2s ease-in-out infinite alternate;
       }
 
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
+      /* 进度条 */
+      .loading-progress {
+        width: 100%;
+        height: 4px;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 20px;
+      }
+
+      .loading-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        background-size: 200% 100%;
+        border-radius: 2px;
+        animation: progressMove 2s ease-in-out infinite;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      @keyframes pulse {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
         }
-        to {
+        40% {
+          transform: scale(1.2);
           opacity: 1;
-          transform: translateY(0);
+        }
+      }
+
+      @keyframes textGlow {
+        0% {
+          text-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        100% {
+          text-shadow: 0 0 20px rgba(118, 75, 162, 0.5);
+        }
+      }
+
+      @keyframes progressMove {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
         }
       }
 
@@ -430,8 +551,16 @@
 
     <div id="loading" class="loading">
       <div class="loading-content">
-        <img src="./images/loading.gif" alt="Loading" />
-        <div id="loading-text" class="loading-text"></div>
+        <div class="loading-spinner"></div>
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <div id="loading-text" class="loading-text">加载中...</div>
+        <div class="loading-progress">
+          <div id="loading-progress-bar" class="loading-progress-bar"></div>
+        </div>
       </div>
     </div>
 
@@ -489,7 +618,7 @@
           return;
         }
 
-        showLoading(`上传中... (0/${map.files.length})`);
+        showLoading(`上传准备中...`, 0);
 
         try {
           // 先验证密码
@@ -504,7 +633,8 @@
           // 逐个上传文件
           for (let i = 0; i < map.files.length; i++) {
             const file = map.files[i];
-            showLoading(`上传中... (${i + 1}/${map.files.length}) - ${file.name}`);
+            const progress = Math.round((i / map.files.length) * 100);
+            showLoading(`上传中... (${i + 1}/${map.files.length}) - ${file.name}`, progress);
 
             try {
               const res = await fetchServerWithFile('/upload', file);
@@ -518,34 +648,41 @@
             }
           }
 
-          // 显示上传结果
-          let resultMessage = `上传完成！成功: ${successCount}/${map.files.length}`;
-          if (failedFiles.length > 0) {
-            resultMessage += `\n失败的文件:\n${failedFiles.join('\n')}`;
-          }
-          alert(resultMessage);
+          // 完成时显示100%进度
+          showLoading('上传完成！', 100);
 
-          updateList();
+          // 延迟一下再显示结果
+          setTimeout(() => {
+            let resultMessage = `上传完成！成功: ${successCount}/${map.files.length}`;
+            if (failedFiles.length > 0) {
+              resultMessage += `\n失败的文件:\n${failedFiles.join('\n')}`;
+            }
+            alert(resultMessage);
+            updateList();
+            hiddenLoading();
+          }, 500);
         } catch (err) {
           alert(err);
+          hiddenLoading();
         }
-        hiddenLoading();
       };
 
       const restartHandler = () => {
         const ok = confirm('确认是否重启服务器！');
         if (!ok) return;
 
-        showLoading('重启中...');
+        showLoading('重启服务器中...', 50);
         fetchServer('/restart')
           .then(async (res) => {
             const text = await res.text();
-            alert(text);
+            showLoading('重启完成！', 100);
+            setTimeout(() => {
+              alert(text);
+              hiddenLoading();
+            }, 500);
           })
           .catch((err) => {
             alert(err);
-          })
-          .finally(() => {
             hiddenLoading();
           });
       };
@@ -553,29 +690,36 @@
       const clearHandler = () => {
         const ok = confirm('确认是否清空地图目录！');
         if (!ok) return;
-        showLoading('清理中...');
+        showLoading('清理地图目录中...', 30);
         fetchServer('/clear')
           .then(async (res) => {
             const text = await res.text();
-            updateList();
-            alert(text);
+            showLoading('清理完成！', 100);
+            setTimeout(() => {
+              updateList();
+              alert(text);
+              hiddenLoading();
+            }, 500);
           })
           .catch((err) => {
             alert(err);
-          })
-          .finally(() => {
             hiddenLoading();
           });
       };
 
       const loadingText = document.getElementById('loading-text');
       const loading = document.getElementById('loading');
-      function showLoading(text) {
+      const loadingProgressBar = document.getElementById('loading-progress-bar');
+
+      function showLoading(text, progress = 0) {
         loadingText.innerText = text;
+        loadingProgressBar.style.width = progress + '%';
         loading.style.display = 'flex';
       }
+
       function hiddenLoading() {
         loading.style.display = 'none';
+        loadingProgressBar.style.width = '0%';
       }
 
       function fetchServerWithFile(path, file) {
@@ -628,6 +772,11 @@
           fileInfo.classList.add('show');
         } else {
           fileInfo.classList.remove('show');
+        }
+      });
+    </script>
+  </body>
+</html>
         }
       });
     </script>
