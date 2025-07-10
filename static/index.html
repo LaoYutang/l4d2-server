@@ -6,8 +6,318 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>L4D2地图管理</title>
     <style>
-      .loading {
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        backdrop-filter: blur(10px);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+      }
+
+      .form-section {
+        margin-bottom: 30px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .form-group input[type='password'],
+      .form-group input[type='file'] {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+
+      /* 隐藏原生文件输入框 */
+      .form-group input[type='file'] {
+        display: none;
+      }
+
+      /* 自定义文件选择按钮 */
+      .file-input-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
+      .file-input-button {
+        width: 100%;
+        padding: 15px;
+        border: 2px dashed #667eea;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .file-input-button:hover {
+        border-color: #764ba2;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.2);
+      }
+
+      .file-input-button::before {
+        content: '';
         position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+      }
+
+      .file-input-button:hover::before {
+        left: 100%;
+      }
+
+      .file-input-icon {
+        font-size: 24px;
+        color: #667eea;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .file-input-text {
+        color: #667eea;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+
+      .file-input-hint {
+        color: #999;
+        font-size: 14px;
+      }
+
+      /* 文件选择反馈 */
+      .file-selected-info {
+        margin-top: 10px;
+        padding: 10px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        display: none;
+      }
+
+      .file-selected-info.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+      }
+
+      .file-count {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 14px;
+      }
+
+      .file-list {
+        margin-top: 8px;
+        max-height: 120px;
+        overflow-y: auto;
+      }
+
+      .file-item {
+        padding: 4px 0;
+        font-size: 13px;
+        color: #666;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .file-item:last-child {
+        border-bottom: none;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+      }
+
+      .btn {
+        flex: 1;
+        min-width: 140px;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-warning {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        box-shadow: 0 8px 15px rgba(245, 87, 108, 0.3);
+      }
+
+      .btn-warning:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(245, 87, 108, 0.4);
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #ff9a9e, #fecfef);
+        color: #333;
+        box-shadow: 0 8px 15px rgba(255, 154, 158, 0.3);
+      }
+
+      .btn-danger:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(255, 154, 158, 0.4);
+      }
+
+      .map-list-section {
+        margin-top: 40px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #555;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .map-list {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        min-height: 200px;
+      }
+
+      .map-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: slideIn 0.3s ease;
+      }
+
+      .map-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .map-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .map-name {
+        font-weight: 500;
+        color: #333;
+        font-size: 16px;
+      }
+
+      .btn-delete {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-delete:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+      }
+
+      .loading {
+        position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
@@ -16,147 +326,896 @@
         display: none;
         justify-content: center;
         align-items: center;
-        background-color: #ffffffaa;
+        background: rgba(102, 126, 234, 0.15);
+        backdrop-filter: blur(15px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .loading-content {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 50px 40px;
+        border-radius: 25px;
+        box-shadow: 0 25px 50px rgba(102, 126, 234, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-width: 300px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      /* 现代化加载器 */
+      .loading-spinner {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 30px;
+        position: relative;
+      }
+
+      .loading-spinner::before,
+      .loading-spinner::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .loading-spinner::before {
+        width: 80px;
+        height: 80px;
+        border: 4px solid transparent;
+        border-top: 4px solid #667eea;
+        border-right: 4px solid #764ba2;
+        animation: spin 1.5s linear infinite;
+      }
+
+      .loading-spinner::after {
+        width: 60px;
+        height: 60px;
+        border: 3px solid transparent;
+        border-bottom: 3px solid #f093fb;
+        border-left: 3px solid #f5576c;
+        animation: spin 1s linear infinite reverse;
+      }
+
+      /* 脉冲圆点 */
+      .loading-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 25px;
+      }
+
+      .loading-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        animation: pulse 1.4s ease-in-out infinite both;
+      }
+
+      .loading-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .loading-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      .loading-text {
+        font-size: 18px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+        animation: textGlow 2s ease-in-out infinite alternate;
+      }
+
+      /* 进度条 */
+      .loading-progress {
+        width: 100%;
+        height: 4px;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 20px;
+      }
+
+      .loading-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        background-size: 200% 100%;
+        border-radius: 2px;
+        animation: progressMove 2s ease-in-out infinite;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      @keyframes pulse {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+      }
+
+      @keyframes textGlow {
+        0% {
+          text-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        100% {
+          text-shadow: 0 0 20px rgba(118, 75, 162, 0.5);
+        }
+      }
+
+      @keyframes progressMove {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      /* 现代化通知系统 */
+      .notification-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .notification {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        transform: translateX(120%);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      .notification.success {
+        border-color: rgba(17, 153, 142, 0.5);
+        box-shadow: 0 20px 40px rgba(17, 153, 142, 0.1), 0 0 0 1px rgba(17, 153, 142, 0.1);
+      }
+
+      .notification.error {
+        border-color: rgba(255, 107, 107, 0.5);
+        box-shadow: 0 20px 40px rgba(255, 107, 107, 0.1), 0 0 0 1px rgba(255, 107, 107, 0.1);
+      }
+
+      .notification.warning {
+        border-color: rgba(240, 147, 251, 0.5);
+        box-shadow: 0 20px 40px rgba(240, 147, 251, 0.1), 0 0 0 1px rgba(240, 147, 251, 0.1);
+      }
+
+      .notification.info {
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.1), 0 0 0 1px rgba(102, 126, 234, 0.1);
+      }
+
+      .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .notification-icon {
+        font-size: 24px;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.1);
+      }
+
+      .notification.success .notification-icon {
+        background: rgba(17, 153, 142, 0.1);
+      }
+
+      .notification.error .notification-icon {
+        background: rgba(255, 107, 107, 0.1);
+      }
+
+      .notification.warning .notification-icon {
+        background: rgba(240, 147, 251, 0.1);
+      }
+
+      .notification-title {
+        font-weight: 700;
+        font-size: 16px;
+        color: #333;
+        flex: 1;
+      }
+
+      .notification-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #999;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .notification-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #666;
+      }
+
+      .notification-message {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 0 0 14px 14px;
+        transition: width linear;
+        right: 0;
+      }
+
+      .notification.success .notification-progress {
+        background: linear-gradient(90deg, #11998e, #38ef7d);
+      }
+
+      .notification.error .notification-progress {
+        background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+      }
+
+      .notification.warning .notification-progress {
+        background: linear-gradient(90deg, #f093fb, #f5576c);
+      }
+
+      /* 确认对话框 */
+      .confirm-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .confirm-dialog {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-align: center;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .confirm-dialog.show {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .confirm-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        color: #f093fb;
+      }
+
+      .confirm-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .confirm-message {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+      }
+
+      .confirm-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .confirm-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 100px;
+      }
+
+      .confirm-btn-primary {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        box-shadow: 0 8px 15px rgba(245, 87, 108, 0.3);
+      }
+
+      .confirm-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(245, 87, 108, 0.4);
+      }
+
+      .confirm-btn-secondary {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .confirm-btn-secondary:hover {
+        background: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          padding: 20px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        .btn {
+          min-width: auto;
+        }
+
+        .map-item {
+          flex-direction: column;
+          gap: 10px;
+          text-align: center;
+        }
+
+        .notification-container {
+          top: 10px;
+          right: 10px;
+          left: 10px;
+          max-width: none;
+        }
+
+        .confirm-dialog {
+          padding: 30px 20px;
+        }
+
+        .confirm-buttons {
+          flex-direction: column;
+        }
       }
     </style>
   </head>
   <body>
+    <div class="container">
+      <div class="header">
+        <h1>L4D2地图管理</h1>
+      </div>
 
-    <label>密码</label>
-    <input id="password" type="password"></input>
-    <br></br>
-    <label>地图</label>
-    <input id="map" type="file" accept=".vpk"></input>
-    <br></br>
-    <button id="upload" onclick="uploadHandler()">上传地图</button>
-    <button id="restart" onclick="restartHandler()">重启服务器</button>
-    <button id="clear" onclick="clearHandler()">清空地图目录</button>
+      <div class="form-section">
+        <div class="form-group">
+          <label>密码</label>
+          <input id="password" type="password" placeholder="请输入管理密码" />
+        </div>
 
-    <br></br>
+        <div class="form-group">
+          <label>地图文件</label>
+          <div class="file-input-wrapper">
+            <input id="map" type="file" accept=".vpk,.zip" multiple />
+            <div class="file-input-button" onclick="document.getElementById('map').click()">
+              <span class="file-input-icon">📁</span>
+              <div class="file-input-text">选择地图文件</div>
+              <div class="file-input-hint">支持 .vpk 格式，可多选</div>
+            </div>
+            <div id="file-selected-info" class="file-selected-info">
+              <div id="file-count" class="file-count"></div>
+              <div id="file-list" class="file-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div>服务器地图列表</div>
-    <div id="list"></div>
+      <div class="button-group">
+        <button id="upload" class="btn btn-primary" onclick="uploadHandler()">上传地图</button>
+        <button id="restart" class="btn btn-warning" onclick="restartHandler()">重启服务器</button>
+        <button id="clear" class="btn btn-danger" onclick="clearHandler()">清空地图目录</button>
+      </div>
 
+      <div class="map-list-section">
+        <div class="section-title">服务器地图列表</div>
+        <div id="list" class="map-list"></div>
+      </div>
+    </div>
 
     <div id="loading" class="loading">
-      <img src="./images/loading.gif"></img>
-      <div id="loading-text"></div>
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <div id="loading-text" class="loading-text">加载中...</div>
+        <div class="loading-progress">
+          <div id="loading-progress-bar" class="loading-progress-bar"></div>
+        </div>
+      </div>
     </div>
+
+    <!-- 通知容器 -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- 确认对话框 -->
+    <div id="confirm-overlay" class="confirm-overlay">
+      <div id="confirm-dialog" class="confirm-dialog">
+        <div class="confirm-icon">⚠️</div>
+        <div id="confirm-title" class="confirm-title">确认操作</div>
+        <div id="confirm-message" class="confirm-message">您确定要执行此操作吗？</div>
+        <div class="confirm-buttons">
+          <button id="confirm-yes" class="confirm-btn confirm-btn-primary">确认</button>
+          <button id="confirm-no" class="confirm-btn confirm-btn-secondary">取消</button>
+        </div>
+      </div>
+    </div>
+
     <script>
-      const upload = document.getElementById("upload")
-      const restart = document.getElementById("restart")
-      const clear = document.getElementById("clear")
-      const password = document.getElementById("password")
-      const map = document.getElementById("map")
-      const list = document.getElementById("list")
+      const upload = document.getElementById('upload');
+      const restart = document.getElementById('restart');
+      const clear = document.getElementById('clear');
+      const password = document.getElementById('password');
+      const map = document.getElementById('map');
+      const list = document.getElementById('list');
+
+      // 现代化通知系统
+      class NotificationSystem {
+        constructor() {
+          this.container = document.getElementById('notification-container');
+          this.notifications = [];
+        }
+
+        show(message, type = 'info', duration = 5000, title = '') {
+          const notification = this.createNotification(message, type, title);
+          this.container.appendChild(notification);
+          this.notifications.push(notification);
+
+          // 触发显示动画
+          setTimeout(() => {
+            notification.classList.add('show');
+          }, 100);
+
+          // 进度条动画
+          const progress = notification.querySelector('.notification-progress');
+          if (duration > 0) {
+            progress.style.width = '100%';
+            progress.style.transitionDuration = duration + 'ms';
+
+            setTimeout(() => {
+              progress.style.width = '0%';
+            }, 100);
+
+            // 自动关闭
+            setTimeout(() => {
+              this.close(notification);
+            }, duration);
+          }
+
+          return notification;
+        }
+
+        createNotification(message, type, title) {
+          const notification = document.createElement('div');
+          notification.className = `notification ${type}`;
+
+          const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️',
+          };
+
+          const titles = {
+            success: title || '成功',
+            error: title || '错误',
+            warning: title || '警告',
+            info: title || '信息',
+          };
+
+          notification.innerHTML = `
+            <div class="notification-header">
+              <div class="notification-icon">${icons[type]}</div>
+              <div class="notification-title">${titles[type]}</div>
+              <button class="notification-close" onclick="notificationSystem.close(this.closest('.notification'))">×</button>
+            </div>
+            <div class="notification-message">${message}</div>
+            <div class="notification-progress"></div>
+          `;
+
+          return notification;
+        }
+
+        close(notification) {
+          notification.classList.remove('show');
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+              this.notifications = this.notifications.filter((n) => n !== notification);
+            }
+          }, 400);
+        }
+
+        success(message, title, duration = 5000) {
+          return this.show(message, 'success', duration, title);
+        }
+
+        error(message, title, duration = 8000) {
+          return this.show(message, 'error', duration, title);
+        }
+
+        warning(message, title, duration = 6000) {
+          return this.show(message, 'warning', duration, title);
+        }
+
+        info(message, title, duration = 5000) {
+          return this.show(message, 'info', duration, title);
+        }
+      }
+
+      // 确认对话框系统
+      class ConfirmDialog {
+        constructor() {
+          this.overlay = document.getElementById('confirm-overlay');
+          this.dialog = document.getElementById('confirm-dialog');
+          this.titleElement = document.getElementById('confirm-title');
+          this.messageElement = document.getElementById('confirm-message');
+          this.yesButton = document.getElementById('confirm-yes');
+          this.noButton = document.getElementById('confirm-no');
+
+          this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+              this.close(false);
+            }
+          });
+        }
+
+        show(message, title = '确认操作') {
+          return new Promise((resolve) => {
+            this.titleElement.textContent = title;
+            this.messageElement.textContent = message;
+            this.overlay.style.display = 'flex';
+
+            setTimeout(() => {
+              this.dialog.classList.add('show');
+            }, 50);
+
+            const handleYes = () => {
+              this.close(true);
+              resolve(true);
+              cleanup();
+            };
+
+            const handleNo = () => {
+              this.close(false);
+              resolve(false);
+              cleanup();
+            };
+
+            const cleanup = () => {
+              this.yesButton.removeEventListener('click', handleYes);
+              this.noButton.removeEventListener('click', handleNo);
+            };
+
+            this.yesButton.addEventListener('click', handleYes);
+            this.noButton.addEventListener('click', handleNo);
+          });
+        }
+
+        close(result) {
+          this.dialog.classList.remove('show');
+          setTimeout(() => {
+            this.overlay.style.display = 'none';
+          }, 300);
+        }
+      }
+
+      // 初始化系统
+      const notificationSystem = new NotificationSystem();
+      const confirmDialog = new ConfirmDialog();
+
+      // 替换原生alert和confirm
+      const showNotification = notificationSystem.success.bind(notificationSystem);
+      const showError = notificationSystem.error.bind(notificationSystem);
+      const showWarning = notificationSystem.warning.bind(notificationSystem);
+      const showInfo = notificationSystem.info.bind(notificationSystem);
+      const confirmAction = confirmDialog.show.bind(confirmDialog);
 
       // 更新list
-      const updateList= () => {
-        fetch("/list", {
-        method: "post"
-      }).then(async res => {
-        const text = await res.text()
-        maps = text.split("\n")
-        maps.pop()
-        list.innerHTML = ""
-        maps.forEach(map => {
-          const container = document.createElement("div")
-          const span = document.createElement("span")
-          span.innerText = map
-          const del = document.createElement("button")
-          del.innerText = "delete"
-          del.onclick = () => {
-            fetchServer("/remove", map).then(async res => {
-            updateList()
-            alert("删除成功！")
-          }).catch(err => {
-            alert(err)
-          })}
-          container.appendChild(span)
-          container.appendChild(del)
-          list.appendChild(container)
+      const updateList = () => {
+        fetch('/list', {
+          method: 'post',
         })
-      }).catch(err => {
-        alert(err)
-      })
-      }
-      updateList()
+          .then(async (res) => {
+            const text = await res.text();
+            maps = text.split('\n');
+            maps.pop();
+            list.innerHTML = '';
+            maps.forEach((map) => {
+              const container = document.createElement('div');
+              container.className = 'map-item';
+              const span = document.createElement('span');
+              span.className = 'map-name';
+              span.innerText = map;
+              const del = document.createElement('button');
+              del.className = 'btn-delete';
+              del.innerText = 'delete';
+              del.onclick = async () => {
+                const confirmed = await confirmAction(`确定要删除地图 "${map}" 吗？`, '删除地图');
+                if (confirmed) {
+                  fetchServer('/remove', map)
+                    .then(async (res) => {
+                      updateList();
+                      showNotification('地图删除成功！');
+                    })
+                    .catch((err) => {
+                      showError(err);
+                    });
+                }
+              };
+              container.appendChild(span);
+              container.appendChild(del);
+              list.appendChild(container);
+            });
+          })
+          .catch((err) => {
+            showError(err);
+          });
+      };
+      updateList();
 
-      const uploadHandler = () => {
+      const uploadHandler = async () => {
         if (map.files.length === 0) {
-          alert("未选择文件！")
-          return
+          showWarning('请先选择要上传的地图文件！');
+          return;
         }
-        showLoading("上传中...")
-        fetchServer("/upload").then(async res => {
-          const text = await res.text()
-          updateList()
-          alert(text)
-        }).catch(err => {
-          alert(err)
-        }).finally(() => {
-          hiddenLoading()
-        })
+
+        showLoading(`上传准备中...`, 0);
+
+        try {
+          // 先验证密码
+          const authRes = await fetchServer('/auth');
+          if (!authRes.ok) {
+            throw new Error(await authRes.text());
+          }
+
+          let successCount = 0;
+          let failedFiles = [];
+
+          // 逐个上传文件
+          for (let i = 0; i < map.files.length; i++) {
+            const file = map.files[i];
+            const progress = Math.round((i / map.files.length) * 100);
+            showLoading(`上传中... (${i + 1}/${map.files.length}) - ${file.name}`, progress);
+
+            try {
+              const res = await fetchServerWithFile('/upload', file);
+              if (res.ok) {
+                successCount++;
+              } else {
+                failedFiles.push(`${file.name}: ${await res.text()}`);
+              }
+            } catch (err) {
+              failedFiles.push(`${file.name}: ${err.message}`);
+            }
+          }
+
+          // 完成时显示100%进度
+          showLoading('上传完成！', 100);
+
+          // 延迟一下再显示结果
+          setTimeout(() => {
+            let resultMessage = `成功上传 ${successCount}/${map.files.length} 个文件`;
+            if (failedFiles.length > 0) {
+              resultMessage += `\n\n失败的文件:\n${failedFiles.join('\n')}`;
+              showWarning(resultMessage, '上传完成');
+            } else {
+              showNotification(resultMessage, '上传成功');
+            }
+            updateList();
+            hiddenLoading();
+          }, 500);
+        } catch (err) {
+          showError(err);
+          hiddenLoading();
+        }
+      };
+
+      const restartHandler = async () => {
+        const confirmed = await confirmAction(
+          '重启服务器将断开所有玩家连接，确认继续？',
+          '重启服务器'
+        );
+        if (!confirmed) return;
+
+        showLoading('重启服务器中...', 50);
+        fetchServer('/restart')
+          .then(async (res) => {
+            const text = await res.text();
+            showLoading('重启完成！', 100);
+            setTimeout(() => {
+              showNotification(text, '服务器重启');
+              hiddenLoading();
+            }, 500);
+          })
+          .catch((err) => {
+            showError(err);
+            hiddenLoading();
+          });
+      };
+
+      const clearHandler = async () => {
+        const confirmed = await confirmAction(
+          '此操作将删除服务器上的所有地图文件，确认继续？',
+          '清空地图目录'
+        );
+        if (!confirmed) return;
+
+        showLoading('清理地图目录中...', 30);
+        fetchServer('/clear')
+          .then(async (res) => {
+            const text = await res.text();
+            showLoading('清理完成！', 100);
+            setTimeout(() => {
+              updateList();
+              showNotification(text, '清理完成');
+              hiddenLoading();
+            }, 500);
+          })
+          .catch((err) => {
+            showError(err);
+            hiddenLoading();
+          });
+      };
+
+      const loadingText = document.getElementById('loading-text');
+      const loading = document.getElementById('loading');
+      const loadingProgressBar = document.getElementById('loading-progress-bar');
+
+      function showLoading(text, progress = 0) {
+        loadingText.innerText = text;
+        loadingProgressBar.style.width = progress + '%';
+        loading.style.display = 'flex';
       }
 
-      const restartHandler = () => {
-        const ok = confirm("确认是否重启服务器！")
-        if (!ok) return
-
-        showLoading("重启中...")
-        fetchServer("/restart").then(async res => {
-          const text = await res.text()
-          alert(text)
-        }).catch(err => {
-          alert(err)
-        }).finally(() => {
-          hiddenLoading()
-        })
+      function hiddenLoading() {
+        loading.style.display = 'none';
+        loadingProgressBar.style.width = '0%';
       }
 
-      const clearHandler = () => {
-        const ok = confirm("确认是否清空地图目录！")
-        if (!ok) return
-        showLoading("清理中...")
-        fetchServer("/clear").then(async res => {
-          const text = await res.text()
-          updateList()
-          alert(text)
-        }).catch(err => {
-          alert(err)
-        }).finally(() => {
-          hiddenLoading()
-        })
-      }
+      function fetchServerWithFile(path, file) {
+        if (password.value === '') {
+          return Promise.reject(new Error('密码不能为空！'));
+        }
+        const fd = new FormData();
+        fd.append('password', password.value);
+        fd.append('map', file);
 
-      const loadingText = document.getElementById("loading-text")
-      const loading = document.getElementById("loading")
-      function showLoading (text) {
-        loadingText.innerText = text
-        loading.style.display = "flex"
-      }
-      function hiddenLoading () {
-        loading.style.display = "none"
+        return fetch(path, {
+          method: 'POST',
+          body: fd,
+        });
       }
 
       function fetchServer(path, mapName) {
-        if (password.value === "") {
-          return Promise.reject("密码不能为空！")
+        if (password.value === '') {
+          return Promise.reject('密码不能为空！');
         }
-        const fd = new FormData()
-        fd.append("password", password.value)
-        if (path === '/upload') {
-          fd.append("map", map.files[0])
-        } else if (path === "/remove") {
-          fd.append("map", mapName)
+        const fd = new FormData();
+        fd.append('password', password.value);
+        if (mapName) {
+          fd.append('map', mapName);
         }
-        
+
         return fetch(path, {
-          method: "POST",
+          method: 'POST',
           body: fd,
-        })
+        });
       }
 
+      // 文件选择变化处理
+      map.addEventListener('change', function () {
+        const fileInfo = document.getElementById('file-selected-info');
+        const fileCount = document.getElementById('file-count');
+        const fileList = document.getElementById('file-list');
+
+        if (this.files.length > 0) {
+          fileCount.textContent = `已选择 ${this.files.length} 个文件`;
+          fileList.innerHTML = '';
+
+          Array.from(this.files).forEach((file) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.textContent = file.name;
+            fileList.appendChild(fileItem);
+          });
+
+          fileInfo.classList.add('show');
+        } else {
+          fileInfo.classList.remove('show');
+        }
+      });
     </script>
   </body>
 </html>
