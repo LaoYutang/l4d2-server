@@ -4,7 +4,15 @@
 完整的求生之路2服务端镜像，内置了完整的豆瓣整合包，开箱即用！
 地图管理界面，不再需要登录服务器传图重启，页面操作即可！(随便写的比较简陋，但是也够用了！)
 
-## 启动方式
+# 一键部署
+需要docker与docker compose环境，需要能够拉取镜像源，国内需要配置镜像源或代理。
+```sh
+bash <(curl -sL https://raw.githubusercontent.com/LaoYutang/l4d2-server/master/install.sh)
+```
+服务器无法连接github也可以下载脚本，手动上传都服务器运行。
+镜像中带有完整的游戏服务端，需要下载5.XGB的数据，所以安装时间取决于服务器的带宽和cpu性能。
+
+## 手动部署
 稳定版使用lastest标签，如果L4D2有更新，可以尝试使用nightly标签，该镜像每晚打包。
 ```sh
 docker volume create addons
