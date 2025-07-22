@@ -22,13 +22,34 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/l4d2
+          tags: |
+            type=raw,value=latest
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+            type=sha
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: l4d2.Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/l4d2:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Extract metadata for manager
+        id: meta-manager
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/l4d2-manager
+          tags: |
+            type=raw,value=latest
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+            type=sha
 
       - name: Build Manager and Push Docker image
         uses: docker/build-push-action@v6
@@ -36,4 +57,5 @@ jobs:
           context: .
           file: manager.Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/l4d2-manager:latest
+          tags: ${{ steps.meta-manager.outputs.tags }}
+          labels: ${{ steps.meta-manager.outputs.labels }}
