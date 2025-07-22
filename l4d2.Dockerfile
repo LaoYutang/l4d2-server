@@ -17,7 +17,7 @@ RUN ./steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /l4d2 +l
 
 # 复制插件包
 COPY ./cauldron/left4dead2/ /l4d2/left4dead2
-COPY /l4d2/left4dead2/ /l4d2-backup/left4dead2/
+RUN mkdir -p /l4d2-backup && cp -r /l4d2/left4dead2 /l4d2-backup/
 
 # 复制启动脚本
 COPY ./start.sh /start.sh
