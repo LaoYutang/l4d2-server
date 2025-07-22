@@ -18,8 +18,8 @@ shopt -u nullglob
 
 if $addons_empty; then
     echo "addons目录为空，正在复制插件文件..."
-    if [ -d "/l4d2-backup/left4dead2/addons" ]; then
-        cp -r /l4d2-backup/left4dead2/addons/* /l4d2/left4dead2/addons/
+    if [ -d "/l4d2-backup/addons" ]; then
+        cp -r /l4d2-backup/addons/* /l4d2/left4dead2/addons/
         echo "addons插件文件复制完成"
     else
         echo "警告：备份的addons目录不存在"
@@ -31,8 +31,8 @@ fi
 # 检查cfg目录是否为空
 if [ ! "$(ls -A /l4d2/left4dead2/cfg 2>/dev/null)" ]; then
     echo "cfg目录为空，正在复制配置文件..."
-    if [ -d "/l4d2-backup/left4dead2/cfg" ]; then
-        cp -r /l4d2-backup/left4dead2/cfg/* /l4d2/left4dead2/cfg/
+    if [ -d "/l4d2-backup/cfg" ]; then
+        cp -r /l4d2-backup/cfg/* /l4d2/left4dead2/cfg/
         echo "cfg配置文件复制完成"
     else
         echo "警告：备份的cfg目录不存在"
