@@ -6,8 +6,17 @@ echo "检查并初始化插件文件..."
 mkdir -p /l4d2/left4dead2/addons
 mkdir -p /l4d2/left4dead2/cfg
 
-# 检查addons目录是否为空
-if [ ! "$(ls -A /l4d2/left4dead2/addons 2>/dev/null)" ]; then
+# 检查addons目录是否为空，不包括maplist.txt
+addons_empty=true
+shopt -s nullglob
+for file in /l4d2/left4dead2/addons/*; do
+    [ "$(basename "$file")" = "maplist.txt" ] && continue
+    addons_empty=false
+    break
+done
+shopt -u nullglob
+
+if $addons_empty; then
     echo "addons目录为空，正在复制插件文件..."
     if [ -d "/l4d2-backup/left4dead2/addons" ]; then
         cp -r /l4d2-backup/left4dead2/addons/* /l4d2/left4dead2/addons/
