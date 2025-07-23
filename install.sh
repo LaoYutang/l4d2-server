@@ -71,5 +71,9 @@ EOF
 cd /data/l4d2
 docker compose up -d
 
+# 增加软连接
+ln -s /var/lib/docker/volumes/l4d2-addons/_data ./addons
+ln -s /var/lib/docker/volumes/l4d2-cfg/_data ./cfg
+
 # 输出提示信息
 echo "L4D2 服务器和管理面板已安装并启动。"
