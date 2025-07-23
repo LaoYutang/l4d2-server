@@ -1,8 +1,13 @@
 module l4d2-manager
 
-go 1.20
+go 1.22
 
-require github.com/gin-gonic/gin v1.9.1
+toolchain go1.22.10
+
+require (
+	github.com/gin-gonic/gin v1.9.1
+	github.com/gorcon/rcon v1.3.5
+)
 
 require (
 	github.com/bytedance/sonic v1.9.2 // indirect

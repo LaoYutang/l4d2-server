@@ -56,6 +56,14 @@ else
     cp /l4d2/left4dead2/cfg/server.cfg.30tick /l4d2/left4dead2/cfg/server.cfg
 fi
 
+# 获取环境变量中的RCON密码，写入到server.cfg
+if [ -n "${L4D2_RCON_PASSWORD}" ]; then
+    echo "设置RCON密码..."
+    sed -i "s/^rcon_password .*/rcon_password \"${L4D2_RCON_PASSWORD}\"/" /l4d2/left4dead2/cfg/server.cfg
+else
+    echo "警告：未设置RCON密码，使用默认密码"
+    sed -i "s/^rcon_password .*/rcon_password \"laoyutangnb!\"/" /l4d2/left4dead2/cfg/server.cfg
+fi
 
 echo "文件检查和初始化完成，启动服务器..."
 

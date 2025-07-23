@@ -179,15 +179,13 @@
       }
 
       .button-group {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 15px;
-        flex-wrap: wrap;
         margin-bottom: 40px;
       }
 
       .btn {
-        flex: 1;
-        min-width: 140px;
         padding: 15px 25px;
         border: none;
         border-radius: 12px;
@@ -199,6 +197,7 @@
         letter-spacing: 0.5px;
         position: relative;
         overflow: hidden;
+        white-space: nowrap;
       }
 
       .btn::before {
@@ -630,7 +629,7 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 10000;
+        z-index: 10001;
         display: none;
         justify-content: center;
         align-items: center;
@@ -656,6 +655,155 @@
       .confirm-dialog.show {
         transform: scale(1);
         opacity: 1;
+      }
+
+      /* RCON地图模态框 */
+      .rcon-maps-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .rcon-maps-dialog {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .rcon-maps-dialog.show {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .rcon-maps-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+        padding-bottom: 15px;
+      }
+
+      .rcon-maps-title {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .rcon-maps-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .rcon-maps-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #666;
+      }
+
+      .rcon-maps-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+      }
+
+      .rcon-map-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .rcon-map-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      }
+
+      .rcon-map-name {
+        font-weight: 500;
+        color: #333;
+        font-size: 16px;
+      }
+
+      .btn-switch {
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 80px;
+      }
+
+      .btn-switch:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-switch:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .rcon-maps-loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .rcon-maps-error {
+        text-align: center;
+        padding: 40px;
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 107, 107, 0.2);
       }
 
       .confirm-icon {
@@ -730,17 +878,35 @@
         }
 
         .button-group {
-          flex-direction: column;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
         }
 
         .btn {
-          min-width: auto;
+          font-size: 14px;
+          padding: 12px 20px;
         }
 
         .map-item {
           flex-direction: column;
           gap: 10px;
           text-align: center;
+        }
+
+        .rcon-map-item {
+          flex-direction: column;
+          gap: 10px;
+          text-align: center;
+        }
+
+        .rcon-maps-dialog {
+          width: 95%;
+          padding: 20px;
+          max-height: 85vh;
+        }
+
+        .rcon-maps-title {
+          font-size: 20px;
         }
 
         .notification-container {
@@ -756,6 +922,13 @@
 
         .confirm-buttons {
           flex-direction: column;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .button-group {
+          grid-template-columns: 1fr;
+          gap: 10px;
         }
       }
     </style>
@@ -793,6 +966,9 @@
         <button id="upload" class="btn btn-primary" onclick="uploadHandler()">上传地图</button>
         <button id="restart" class="btn btn-warning" onclick="restartHandler()">重启服务器</button>
         <button id="clear" class="btn btn-danger" onclick="clearHandler()">清空地图目录</button>
+        <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
+          查看已加载地图
+        </button>
       </div>
 
       <div class="map-list-section">
@@ -828,6 +1004,25 @@
         <div class="confirm-buttons">
           <button id="confirm-yes" class="confirm-btn confirm-btn-primary">确认</button>
           <button id="confirm-no" class="confirm-btn confirm-btn-secondary">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RCON地图列表模态框 -->
+    <div id="rcon-maps-overlay" class="rcon-maps-overlay">
+      <div id="rcon-maps-dialog" class="rcon-maps-dialog">
+        <div class="rcon-maps-header">
+          <div class="rcon-maps-title">🎮 已加载地图列表</div>
+          <button id="rcon-maps-close" class="rcon-maps-close">×</button>
+        </div>
+        <div id="rcon-maps-content" class="rcon-maps-content">
+          <div id="rcon-maps-loading" class="rcon-maps-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div>加载地图列表中...</div>
+          </div>
         </div>
       </div>
     </div>
@@ -990,6 +1185,281 @@
           }, 300);
         }
       }
+
+      // RCON地图管理系统
+      class RconMapsDialog {
+        constructor() {
+          this.overlay = document.getElementById('rcon-maps-overlay');
+          this.dialog = document.getElementById('rcon-maps-dialog');
+          this.content = document.getElementById('rcon-maps-content');
+          this.loading = document.getElementById('rcon-maps-loading');
+          this.closeButton = document.getElementById('rcon-maps-close');
+          this.hideOfficialMaps = false;
+          this.allMaps = [];
+
+          // 官方地图列表
+          this.officialMaps = [
+            'c14m1_junkyard',
+            'c14m2_lighthouse',
+            'c10m1_caves',
+            'c10m2_drainage',
+            'c10m3_ranchhouse',
+            'c10m4_mainstreet',
+            'c10m5_houseboat',
+            'c11m1_greenhouse',
+            'c11m2_offices',
+            'c11m3_garage',
+            'c11m4_terminal',
+            'c11m5_runway',
+            'c12m1_hilltop',
+            'c12m2_traintunnel',
+            'c12m3_bridge',
+            'c12m4_barn',
+            'c12m5_cornfield',
+            'c13m1_alpinecreek',
+            'c13m2_southpinestream',
+            'c13m3_memorialbridge',
+            'c13m4_cutthroatcreek',
+            'c9m1_alleys',
+            'c9m2_lots',
+            'c7m1_docks',
+            'c7m2_barge',
+            'c7m3_port',
+            'c8m1_apartment',
+            'c8m2_subway',
+            'c8m3_sewers',
+            'c8m4_interior',
+            'c8m5_rooftop',
+            'c6m1_riverbank',
+            'c6m2_bedlam',
+            'c6m3_port',
+            'c1m1_hotel',
+            'c1m2_streets',
+            'c1m3_mall',
+            'c1m4_atrium',
+            'c2m1_highway',
+            'c2m2_fairgrounds',
+            'c2m3_coaster',
+            'c2m4_barns',
+            'c2m5_concert',
+            'c3m1_plankcountry',
+            'c3m2_swamp',
+            'c3m3_shantytown',
+            'c3m4_plantation',
+            'c4m1_milltown_a',
+            'c4m2_sugarmill_a',
+            'c4m3_sugarmill_b',
+            'c4m4_milltown_b',
+            'c4m5_milltown_escape',
+            'c5m1_waterfront',
+            'c5m1_waterfront_sndscape',
+            'c5m2_park',
+            'c5m3_cemetery',
+            'c5m4_quarter',
+            'c5m5_bridge',
+            'credits',
+            'curling_stadium',
+            'motionprimingtest',
+            'motionprimingtest_rev',
+            'navigationtest_a',
+            'styleguide_semiurban_01',
+            'styleguide_swamp01',
+            'styleguide_swamp_cheapwater01',
+            'styleguide_urban_01',
+            'test_box2',
+            'test_macguffin',
+            'test_mall',
+            'test_scavenge',
+            'tutorial_standards',
+            'tutorial_standards_vs',
+            'zoo_carnivalgames',
+            'zoo_infected2',
+            'zoo_jukebox',
+            'zoo_swamp_foliage_01',
+            'zoo_trafficsigns',
+            'zoo_urban_foliage_01',
+          ];
+
+          this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+              this.close();
+            }
+          });
+
+          this.closeButton.addEventListener('click', () => {
+            this.close();
+          });
+        }
+
+        async show() {
+          this.overlay.style.display = 'flex';
+          setTimeout(() => {
+            this.dialog.classList.add('show');
+          }, 50);
+
+          await this.loadRconMaps();
+        }
+
+        close() {
+          this.dialog.classList.remove('show');
+          setTimeout(() => {
+            this.overlay.style.display = 'none';
+          }, 300);
+        }
+
+        async loadRconMaps() {
+          this.showLoading();
+
+          try {
+            const response = await fetchServer('/rcon/maplist');
+            if (!response.ok) {
+              throw new Error(await response.text());
+            }
+
+            const maps = await response.json();
+            this.allMaps = maps; // 保存原始地图列表
+            this.displayMaps(this.getFilteredMaps());
+          } catch (error) {
+            this.showError(error.message || error);
+          }
+        }
+
+        getFilteredMaps() {
+          if (this.hideOfficialMaps) {
+            return this.allMaps.filter((map) => !this.officialMaps.includes(map));
+          }
+          return this.allMaps;
+        }
+
+        toggleOfficialMaps() {
+          this.hideOfficialMaps = !this.hideOfficialMaps;
+          this.displayMaps(this.getFilteredMaps());
+        }
+
+        showLoading() {
+          this.content.innerHTML = `
+            <div class="rcon-maps-loading">
+              <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+              <div>加载地图列表中...</div>
+            </div>
+          `;
+        }
+
+        showError(message) {
+          this.content.innerHTML = `
+            <div class="rcon-maps-error">
+              <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+              <div style="font-weight: 600; margin-bottom: 10px;">加载失败</div>
+              <div>${message}</div>
+              <button class="btn btn-primary" style="margin-top: 20px;" onclick="rconMapsDialog.loadRconMaps()">重试</button>
+            </div>
+          `;
+        }
+
+        displayMaps(maps) {
+          if (this.allMaps.length === 0) {
+            this.content.innerHTML = `
+              <div class="rcon-maps-error">
+                <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
+                <div style="font-weight: 600; margin-bottom: 10px;">暂无地图</div>
+                <div>服务器上没有找到任何地图</div>
+              </div>
+            `;
+            return;
+          }
+
+          const officialCount = this.allMaps.filter((map) =>
+            this.officialMaps.includes(map)
+          ).length;
+          const customCount = this.allMaps.length - officialCount;
+
+          const mapsHtml = maps
+            .map((mapName) => {
+              const isOfficial = this.officialMaps.includes(mapName);
+              return `
+                  <div class="rcon-map-item">
+                    <span class="rcon-map-name">
+                      ${isOfficial ? '🏛️' : '🗺️'} ${mapName}
+                      ${
+                        isOfficial
+                          ? '<span style="font-size: 12px; color: #999; margin-left: 8px;">(官方)</span>'
+                          : ''
+                      }
+                    </span>
+                    <button class="btn-switch" onclick="changeMapHandler('${mapName}')">切换</button>
+                  </div>
+                `;
+            })
+            .join('');
+
+          this.content.innerHTML = `
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="color: #667eea; font-weight: 600; font-size: 14px;">
+                  📊 地图统计：总共 ${
+                    this.allMaps.length
+                  } 个地图 (官方: ${officialCount}, 自定义: ${customCount})
+                </div>
+                <button onclick="rconMapsDialog.toggleOfficialMaps()" 
+                        style="padding: 6px 12px; background: ${
+                          this.hideOfficialMaps ? '#ff9a9e' : '#667eea'
+                        }; 
+                               color: white; border: none; border-radius: 6px; font-size: 12px; 
+                               font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                  ${this.hideOfficialMaps ? '显示官方地图' : '隐藏官方地图'}
+                </button>
+              </div>
+              <div style="color: #666; font-size: 14px;">
+                当前显示 ${maps.length} 个地图，点击切换按钮即可切换到对应地图
+              </div>
+            </div>
+            ${mapsHtml}
+          `;
+        }
+      }
+
+      // 初始化RCON地图对话框
+      const rconMapsDialog = new RconMapsDialog();
+
+      // 显示RCON地图列表
+      const showRconMapsHandler = async () => {
+        if (password.value === '') {
+          showWarning('请先输入管理密码！');
+          return;
+        }
+        rconMapsDialog.show();
+      };
+
+      // 切换地图处理
+      const changeMapHandler = async (mapName) => {
+        const confirmed = await confirmAction(
+          `确定要切换到地图 "${mapName}" 吗？\n切换地图将重新开始游戏。`,
+          '切换地图'
+        );
+
+        if (!confirmed) return;
+
+        // 禁用所有切换按钮防止重复点击
+        const switchButtons = document.querySelectorAll('.btn-switch');
+        switchButtons.forEach((btn) => (btn.disabled = true));
+
+        try {
+          const response = await fetchServerWithMapName('/rcon/changemap', mapName);
+
+          if (response.ok) {
+            const message = await response.text();
+            showNotification(message, '地图切换成功');
+            rconMapsDialog.close();
+          } else {
+            throw new Error(await response.text());
+          }
+        } catch (error) {
+          showError(error.message || error);
+        } finally {
+          // 重新启用切换按钮
+          switchButtons.forEach((btn) => (btn.disabled = false));
+        }
+      };
 
       // 初始化系统
       const notificationSystem = new NotificationSystem();
@@ -1187,6 +1657,20 @@
         if (mapName) {
           fd.append('map', mapName);
         }
+
+        return fetch(path, {
+          method: 'POST',
+          body: fd,
+        });
+      }
+
+      function fetchServerWithMapName(path, mapName) {
+        if (password.value === '') {
+          return Promise.reject(new Error('密码不能为空！'));
+        }
+        const fd = new FormData();
+        fd.append('password', password.value);
+        fd.append('mapName', mapName);
 
         return fetch(path, {
           method: 'POST',
