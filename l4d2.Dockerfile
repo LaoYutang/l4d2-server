@@ -17,5 +17,12 @@ RUN ./steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /l4d2 +l
 
 # 复制插件包
 COPY ./cauldron/left4dead2/ /l4d2/left4dead2
+RUN mkdir -p /l4d2-backup
+RUN cp -r /l4d2/left4dead2/addons /l4d2-backup/
+RUN cp -r /l4d2/left4dead2/cfg /l4d2-backup/
 
-CMD cd /l4d2 && ./srcds_run -game left4dead2 -insecure -condebug +hostport 27015 +exec server.cfg
+# 复制启动脚本
+COPY ./start.sh /start.sh
+RUN chmod +x /start.sh
+
+CMD ["/start.sh"]

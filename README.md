@@ -42,6 +42,10 @@ services:
       - cfg:/l4d2/left4dead2/cfg
     networks:
       - l4d2-network
+    environment:
+      - L4D2_TICK=60 # 30,60,100
+    depends_on:
+      - l4d2-manager
 
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
