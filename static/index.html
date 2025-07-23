@@ -1194,6 +1194,97 @@
           this.content = document.getElementById('rcon-maps-content');
           this.loading = document.getElementById('rcon-maps-loading');
           this.closeButton = document.getElementById('rcon-maps-close');
+          this.hideOfficialMaps = false;
+          this.allMaps = [];
+
+          // 官方地图列表
+          this.officialMaps = [
+            'c14m1_junkyard',
+            'c14m2_lighthouse',
+            'c10m1_caves',
+            'c10m2_drainage',
+            'c10m3_ranchhouse',
+            'c10m4_mainstreet',
+            'c10m5_houseboat',
+            'c11m1_greenhouse',
+            'c11m2_offices',
+            'c11m3_garage',
+            'c11m4_terminal',
+            'c11m5_runway',
+            'c12m1_hilltop',
+            'c12m2_traintunnel',
+            'c12m3_bridge',
+            'c12m4_barn',
+            'c12m5_cornfield',
+            'c13m1_alpinecreek',
+            'c13m2_southpinestream',
+            'c13m3_memorialbridge',
+            'c13m4_cutthroatcreek',
+            'c9m1_alleys',
+            'c9m2_lots',
+            'c7m1_docks',
+            'c7m2_barge',
+            'c7m3_port',
+            'c8m1_apartment',
+            'c8m2_subway',
+            'c8m3_sewers',
+            'c8m4_interior',
+            'c8m5_rooftop',
+            'c6m1_riverbank',
+            'c6m2_bedlam',
+            'c6m3_port',
+            'c1m1_hotel',
+            'c1m2_streets',
+            'c1m3_mall',
+            'c1m4_atrium',
+            'c2m1_highway',
+            'c2m2_fairgrounds',
+            'c2m3_coaster',
+            'c2m4_barns',
+            'c2m5_concert',
+            'c3m1_plankcountry',
+            'c3m2_swamp',
+            'c3m3_shantytown',
+            'c3m4_plantation',
+            'c4m1_milltown_a',
+            'c4m2_sugarmill_a',
+            'c4m3_sugarmill_b',
+            'c4m4_milltown_b',
+            'c4m5_milltown_escape',
+            'c5m1_waterfront',
+            'c5m1_waterfront_sndscape',
+            'c5m2_park',
+            'c5m3_cemetery',
+            'c5m4_quarter',
+            'c5m5_bridge',
+            'credits',
+            'curling_stadium',
+            'motionprimingtest',
+            'motionprimingtest_rev',
+            'navigationtest_a',
+            'styleguide_semiurban_01',
+            'styleguide_swamp01',
+            'styleguide_swamp_cheapwater01',
+            'styleguide_urban_01',
+            'test_box2',
+            'test_macguffin',
+            'test_mall',
+            'test_scavenge',
+            'tutorial_standards',
+            'tutorial_standards_vs',
+            'zoo_carnivalgames',
+            'zoo_infected2',
+            'zoo_jukebox',
+            'zoo_swamp_foliage_01',
+            'zoo_trafficsigns',
+            'zoo_urban_foliage_01',
+            'dune_01',
+            'dune_02',
+            'dune_03',
+            'dune_04',
+            'dune_05',
+            'dune_05_vs',
+          ];
 
           this.overlay.addEventListener('click', (e) => {
             if (e.target === this.overlay) {
@@ -1232,10 +1323,23 @@
             }
 
             const maps = await response.json();
-            this.displayMaps(maps);
+            this.allMaps = maps; // 保存原始地图列表
+            this.displayMaps(this.getFilteredMaps());
           } catch (error) {
             this.showError(error.message || error);
           }
+        }
+
+        getFilteredMaps() {
+          if (this.hideOfficialMaps) {
+            return this.allMaps.filter((map) => !this.officialMaps.includes(map));
+          }
+          return this.allMaps;
+        }
+
+        toggleOfficialMaps() {
+          this.hideOfficialMaps = !this.hideOfficialMaps;
+          this.displayMaps(this.getFilteredMaps());
         }
 
         showLoading() {
@@ -1259,7 +1363,7 @@
         }
 
         displayMaps(maps) {
-          if (maps.length === 0) {
+          if (this.allMaps.length === 0) {
             this.content.innerHTML = `
               <div class="rcon-maps-error">
                 <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
@@ -1270,20 +1374,50 @@
             return;
           }
 
+          const officialCount = this.allMaps.filter((map) =>
+            this.officialMaps.includes(map)
+          ).length;
+          const customCount = this.allMaps.length - officialCount;
+
           const mapsHtml = maps
-            .map(
-              (mapName) => `
-            <div class="rcon-map-item">
-              <span class="rcon-map-name">${mapName}</span>
-              <button class="btn-switch" onclick="changeMapHandler('${mapName}')">切换</button>
-            </div>
-          `
-            )
+            .map((mapName) => {
+              const isOfficial = this.officialMaps.includes(mapName);
+              return `
+                  <div class="rcon-map-item">
+                    <span class="rcon-map-name">
+                      ${isOfficial ? '🏛️' : '🗺️'} ${mapName}
+                      ${
+                        isOfficial
+                          ? '<span style="font-size: 12px; color: #999; margin-left: 8px;">(官方)</span>'
+                          : ''
+                      }
+                    </span>
+                    <button class="btn-switch" onclick="changeMapHandler('${mapName}')">切换</button>
+                  </div>
+                `;
+            })
             .join('');
 
           this.content.innerHTML = `
-            <div style="margin-bottom: 15px; color: #666; font-size: 14px;">
-              找到 ${maps.length} 个地图，点击切换按钮即可切换到对应地图
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="color: #667eea; font-weight: 600; font-size: 14px;">
+                  📊 地图统计：总共 ${
+                    this.allMaps.length
+                  } 个地图 (官方: ${officialCount}, 自定义: ${customCount})
+                </div>
+                <button onclick="rconMapsDialog.toggleOfficialMaps()" 
+                        style="padding: 6px 12px; background: ${
+                          this.hideOfficialMaps ? '#ff9a9e' : '#667eea'
+                        }; 
+                               color: white; border: none; border-radius: 6px; font-size: 12px; 
+                               font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                  ${this.hideOfficialMaps ? '显示官方地图' : '隐藏官方地图'}
+                </button>
+              </div>
+              <div style="color: #666; font-size: 14px;">
+                当前显示 ${maps.length} 个地图，点击切换按钮即可切换到对应地图
+              </div>
             </div>
             ${mapsHtml}
           `;
