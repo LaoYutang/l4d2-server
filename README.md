@@ -44,6 +44,7 @@ services:
       - l4d2-network
     environment:
       - L4D2_TICK=60 # 30,60,100
+      - L4D2_RCON_PASSWORD=[rcon密码]
     depends_on:
       - l4d2-manager
 
@@ -57,6 +58,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - L4D2_MANAGER_PASSWORD=[web管理密码]
+      - L4D2_RCON_URL=l4d2:27015
+      - L4D2_RCON_PASSWORD=[rcon密码]
     networks:
       - l4d2-network
 ```
