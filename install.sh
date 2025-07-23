@@ -26,6 +26,9 @@ game_port=${game_port:-27015}
 read -r -p "请输入管理面板端口 (默认: 27020): " manager_port
 manager_port=${manager_port:-27020}
 
+# 生成随机RCON密码
+L4D2_RCON_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
+
 mkdir -p /data/l4d2
 # 写入docker-compose文件
 cat > /data/l4d2/docker-compose.yaml << EOF
@@ -50,6 +53,7 @@ services:
       - l4d2-network
     environment:
       - L4D2_TICK=60 # 30,60,100
+      - L4D2_RCON_PASSWORD=$L4D2_RCON_PASSWORD
     depends_on:
       - l4d2-manager
 
@@ -63,6 +67,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - L4D2_MANAGER_PASSWORD=$admin_password
+      - L4D2_RCON_PASSWORD=$L4D2_RCON_PASSWORD
+      - L4D2_RCON_URL=l4d2:27015
     networks:
       - l4d2-network
 EOF
