@@ -10,19 +10,23 @@ services:
     image: laoyutang/l4d2:nightly
     container_name: l4d2
     ports:
-      - "27015:27015"
-      - "27015:27015/udp"
+      - '27015:27015'
+      - '27015:27015/udp'
     volumes:
       - addons:/l4d2/left4dead2/addons
       - cfg:/l4d2/left4dead2/cfg
     networks:
       - l4d2-network
+    environment:
+      - L4D2_TICK=60 # 30,60,100
+    depends_on:
+      - l4d2-manager
 
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
     container_name: l4d2-manager
     ports:
-      - "27020:27020"
+      - '27020:27020'
     volumes:
       - addons:/addons
       - /var/run/docker.sock:/var/run/docker.sock
