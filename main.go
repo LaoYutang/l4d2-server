@@ -28,6 +28,8 @@ func main() {
 	router.POST("/clear", middlewares.Auth(), controller.Clear)
 	router.POST("/list", controller.List)
 	router.POST("/remove", middlewares.Auth(), controller.Remove)
+	router.POST("/rcon/maplist", middlewares.Auth(), controller.GetRconMapList)
+	router.POST("/rcon/changemap", middlewares.Auth(), controller.ChangeMap)
 
 	router.Run(":27020")
 }
