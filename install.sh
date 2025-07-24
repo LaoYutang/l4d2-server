@@ -5,6 +5,9 @@ set -e
 if ! command -v docker &> /dev/null; then
   # 安装docker
   echo "Docker 未安装，正在安装..."
+  if curl -s ipinfo.io | grep -q '"country": "CN"'; then
+    export DOWNLOAD_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce"
+  fi
   curl -fsSL https://get.docker.com -o get-docker.sh 
   bash get-docker.sh 
   rm get-docker.sh
