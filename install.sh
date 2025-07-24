@@ -3,8 +3,10 @@ set -e
 
 # 检测是否有docker
 if ! command -v docker &> /dev/null; then
-    echo "Docker is not installed. Please install Docker first."
-    exit 1
+  # 安装docker
+  echo "Docker 未安装，正在安装..."
+  bash <(curl -sL get.docker.com)
+  echo "Docker 安装完成。"
 fi
 
 # 询问管理密码并确认
@@ -72,6 +74,17 @@ services:
     networks:
       - l4d2-network
 EOF
+
+# ipinfo检测是否是国内环境，国内则增加compose中的镜像
+if curl -s ipinfo.io | grep -q '"country": "CN"'; then
+  # 询问是否使用镜像源
+  read -r -p "检测到国内环境，是否使用国内镜像源？(y/n): " use_mirror
+  if [[ "$use_mirror" =~ ^[Yy]$ ]]; then
+    echo "正在配置compose文件使用国内镜像源..."
+    sed -i 's|laoyutang/l4d2:nightly|docker.1ms.run/laoyutang/l4d2:nightly|' /data/l4d2/docker-compose.yaml
+    sed -i 's|laoyutang/l4d2-manager:latest|docker.1ms.run/laoyutang/l4d2-manager:latest|' /data/l4d2/docker-compose.yaml
+  fi
+fi
 
 # 启动docker-compose
 cd /data/l4d2
