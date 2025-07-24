@@ -17,8 +17,26 @@ bash <(curl -sL https://raw.githubusercontent.com/LaoYutang/l4d2-server/master/i
 ```sh
 docker volume create addons
 docker volume create cfg
-docker run -d --name l4d2 -p 27015:27015 -p 27015:27015/udp -v addons:/l4d2/left4dead2/addons -v cfg:/l4d2/left4dead2/cfg laoyutang/l4d2:latest
-docker run -d --name l4d2-manager -p 27020:27020 -v addons:/addons -v /var/run/docker.sock:/var/run/docker.sock -e L4D2_MANAGER_PASSWORD=设置上传地图的密码 laoyutang/l4d2-manager:latest
+docker run -d \
+  --name l4d2 \
+  -p 27015:27015 \
+  -p 27015:27015/udp \
+  -v addons:/l4d2/left4dead2/addons \
+  -v cfg:/l4d2/left4dead2/cfg \
+  -e L4D2_TICK=60 \
+  -e L4D2_RCON_PASSWORD=rcon密码 \
+  laoyutang/l4d2:latest
+
+# 地图管理器，可选
+docker run -d \
+  --name l4d2-manager \
+  -p 27020:27020 \
+  -v addons:/addons \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -e L4D2_MANAGER_PASSWORD=设置上传地图的密码 \
+  -e L4D2_RCON_URL=localhost:27015 \
+  -e L4D2_RCON_PASSWORD=rcon密码 \
+  laoyutang/l4d2-manager:latest
 ```
 docker-compose启动
 ```yaml
@@ -48,6 +66,7 @@ services:
     depends_on:
       - l4d2-manager
 
+  # 地图管理器，可选
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
     container_name: l4d2-manager
@@ -64,12 +83,27 @@ services:
       - l4d2-network
 ```
 
-## 上传地图或修改脚本
+## 地图管理
 ### 手动操作
-docker volume目录下操作即可  ```/var/lib/docker/volume/addons```  ```/var/lib/docker/volume/cfg```
-重启服务器```docker restart l4d2```
-### 使用laoyutang/l4d2-manager
-浏览器登录```ip:27020```即可
+1. docker volume目录下操作即可  ```/var/lib/docker/volume/addons``` 
+2. 重启服务器```docker restart l4d2```
+3. 进入服务器后管理员切图
+### 使用地图管理器（推荐）
+1. 浏览器登录```ip:27020```
+2. 选择地图vpk文件或者单层的zip文件（可多选）
+3. 点击上传
+4. 上传后点击重启服务器以重新加载地图
+5. 点击查看以加载地图，切换对应的地图即可
+
+## 插件修改与替换
+插件目录为 ```/var/lib/docker/volume/addons``` 
+配置目录为 ```/var/lib/docker/volume/cfg```
+可以自行按需修改替换
+
+## 管理员设置
+进入服务器后，输入```!root 管理员密码```即可在线添加删除管理员
+***注意：管理员密码在```addons/sourcemod/configs/l4d2_admins_simple.cfg```中设置，请及时修改默认密码，重启生效***
+
 ## 自行打包docker镜像
 ```docker build -f l4d2.Dockerfile -t l4d2 .```
 ```docker build -f manager.Dockerfile -t l4d2-manager .```
