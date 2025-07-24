@@ -27,15 +27,22 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: crpi-q0t37ylq6xgi5p7a.cn-shenzhen.personal.cr.aliyuncs.com
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/l4d2
+          images: |
+            ${{ secrets.DOCKER_USERNAME }}/l4d2
+            crpi-q0t37ylq6xgi5p7a.cn-shenzhen.personal.cr.aliyuncs.com/laoyutang/l4d2
           tags: |
             type=raw,value=nightly
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -50,11 +57,11 @@ jobs:
         id: meta-manager
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/l4d2-manager
+          images: |
+            ${{ secrets.DOCKER_USERNAME }}/l4d2-manager
+            crpi-q0t37ylq6xgi5p7a.cn-shenzhen.personal.cr.aliyuncs.com/laoyutang/l4d2-manager
           tags: |
             type=raw,value=nightly
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-            type=sha
 
       - name: Build Manager and Push Docker image
         uses: docker/build-push-action@v6
