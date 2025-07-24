@@ -1,5 +1,6 @@
 //隐藏服务器
 sv_tags hidden
+sv_consistency 0
 
 //网络参数
 sm_cvar fps_max "0"
