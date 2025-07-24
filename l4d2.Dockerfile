@@ -1,17 +1,30 @@
-FROM centos:7
+FROM ubuntu:20.04
 
 EXPOSE 27015
 EXPOSE 27015/udp
 
 # 环境准备
-COPY ./Centos-7.repo /etc/yum.repos.d/CentOS-Base.repo
-RUN yum install glibc libstdc++ glibc.i686 libstdc++.i686 wget vim libcurl -y
+ENV DEBIAN_FRONTEND=noninteractive
+RUN dpkg --add-architecture i386 && \
+  apt-get update && \
+  apt-get install -y \
+  lib32gcc-s1 \
+  lib32stdc++6 \
+  libc6:i386 \
+  libstdc++6:i386 \
+  wget \
+  vim \
+  curl \
+  ca-certificates && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /l4d2 /root/steamcmd
 
 # 安装steamcmd并下载l4d2
 WORKDIR /root/steamcmd
-COPY ./steamcmd_linux.tar.gz .
-RUN tar -zxvf steamcmd_linux.tar.gz
+RUN wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && \
+  tar -zxvf steamcmd_linux.tar.gz && \
+  rm steamcmd_linux.tar.gz
 RUN ./steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir /l4d2 +login anonymous +app_update 222860 validate +quit
 RUN ./steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /l4d2 +login anonymous +app_update 222860 validate +quit
 
