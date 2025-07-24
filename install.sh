@@ -5,7 +5,9 @@ set -e
 if ! command -v docker &> /dev/null; then
   # 安装docker
   echo "Docker 未安装，正在安装..."
-  bash <(curl -sL get.docker.com)
+  curl -fsSL https://get.docker.com -o get-docker.sh 
+  bash get-docker.sh 
+  rm get-docker.sh
   echo "Docker 安装完成。"
 fi
 
