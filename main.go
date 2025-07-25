@@ -16,9 +16,11 @@ func main() {
 
 	// 如果maplist.txt不存在，创建一个空的
 	mapListPath := controller.BasePath + "maplist.txt"
-	err := os.WriteFile(mapListPath, []byte(""), 0644)
-	if err != nil {
-		panic("创建maplist.txt失败")
+	if _, err := os.Stat(mapListPath); os.IsNotExist(err) {
+		err := os.WriteFile(mapListPath, []byte(""), 0755)
+		if err != nil {
+			panic("创建maplist.txt失败")
+		}
 	}
 
 	router.MaxMultipartMemory = 1 << 25 // 限制表单内存缓存为32M
