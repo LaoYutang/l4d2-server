@@ -433,21 +433,49 @@
       /* 进度条 */
       .loading-progress {
         width: 100%;
-        height: 4px;
+        height: 6px;
         background: rgba(102, 126, 234, 0.1);
-        border-radius: 2px;
+        border-radius: 3px;
         overflow: hidden;
         margin-top: 20px;
+        position: relative;
       }
 
       .loading-progress-bar {
         height: 100%;
         background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
         background-size: 200% 100%;
-        border-radius: 2px;
+        border-radius: 3px;
         animation: progressMove 2s ease-in-out infinite;
         width: 0%;
         transition: width 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .loading-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        animation: progressShine 1.5s ease-in-out infinite;
+      }
+
+      /* 进度百分比显示 */
+      .loading-progress-text {
+        position: absolute;
+        top: -25px;
+        right: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #667eea;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
       }
 
       @keyframes pulse {
@@ -478,6 +506,15 @@
         }
         100% {
           background-position: 200% 0;
+        }
+      }
+
+      @keyframes progressShine {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
         }
       }
 
@@ -988,6 +1025,7 @@
         <div id="loading-text" class="loading-text">加载中...</div>
         <div class="loading-progress">
           <div id="loading-progress-bar" class="loading-progress-bar"></div>
+          <div id="loading-progress-text" class="loading-progress-text">0%</div>
         </div>
       </div>
     </div>
@@ -1532,17 +1570,36 @@
 
           let successCount = 0;
           let failedFiles = [];
+          let totalProgress = 0;
 
           // 逐个上传文件
           for (let i = 0; i < map.files.length; i++) {
             const file = map.files[i];
-            const progress = Math.round((i / map.files.length) * 100);
-            showLoading(`上传中... (${i + 1}/${map.files.length}) - ${file.name}`, progress);
+            const fileProgress = Math.round((i / map.files.length) * 100);
+
+            showLoading(`准备上传 (${i + 1}/${map.files.length}) - ${file.name}`, fileProgress);
 
             try {
-              const res = await fetchServerWithFile('/upload', file);
+              const res = await fetchServerWithFileProgress('/upload', file, (progress) => {
+                // 计算总体进度：已完成文件进度 + 当前文件进度
+                const completedFilesProgress = (i / map.files.length) * 100;
+                const currentFileProgress = progress / map.files.length;
+                const totalCurrentProgress = Math.round(
+                  completedFilesProgress + currentFileProgress
+                );
+
+                showLoading(
+                  `上传中 (${i + 1}/${map.files.length}) - ${file.name} (${Math.round(progress)}%)`,
+                  totalCurrentProgress
+                );
+              });
+
               if (res.ok) {
                 successCount++;
+                totalProgress = Math.round(((i + 1) / map.files.length) * 100);
+                showLoading(`✅ 完成 (${i + 1}/${map.files.length}) - ${file.name}`, totalProgress);
+                // 短暂显示完成状态
+                await new Promise((resolve) => setTimeout(resolve, 300));
               } else {
                 failedFiles.push(`${file.name}: ${await res.text()}`);
               }
@@ -1552,7 +1609,7 @@
           }
 
           // 完成时显示100%进度
-          showLoading('上传完成！', 100);
+          showLoading('🎉 上传完成！', 100);
 
           // 延迟一下再显示结果
           setTimeout(() => {
@@ -1565,7 +1622,7 @@
             }
             updateList();
             hiddenLoading();
-          }, 500);
+          }, 800);
         } catch (err) {
           showError(err);
           hiddenLoading();
@@ -1622,16 +1679,19 @@
       const loadingText = document.getElementById('loading-text');
       const loading = document.getElementById('loading');
       const loadingProgressBar = document.getElementById('loading-progress-bar');
+      const loadingProgressText = document.getElementById('loading-progress-text');
 
       function showLoading(text, progress = 0) {
         loadingText.innerText = text;
         loadingProgressBar.style.width = progress + '%';
+        loadingProgressText.innerText = Math.round(progress) + '%';
         loading.style.display = 'flex';
       }
 
       function hiddenLoading() {
         loading.style.display = 'none';
         loadingProgressBar.style.width = '0%';
+        loadingProgressText.innerText = '0%';
       }
 
       function fetchServerWithFile(path, file) {
@@ -1645,6 +1705,54 @@
         return fetch(path, {
           method: 'POST',
           body: fd,
+        });
+      }
+
+      function fetchServerWithFileProgress(path, file, progressCallback) {
+        if (password.value === '') {
+          return Promise.reject(new Error('密码不能为空！'));
+        }
+
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          const fd = new FormData();
+          fd.append('password', password.value);
+          fd.append('map', file);
+
+          // 上传进度监听
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+              const progress = (e.loaded / e.total) * 100;
+              if (progressCallback) {
+                progressCallback(progress);
+              }
+            }
+          });
+
+          // 完成监听
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve({
+                ok: true,
+                status: xhr.status,
+                text: () => Promise.resolve(xhr.responseText),
+              });
+            } else {
+              resolve({
+                ok: false,
+                status: xhr.status,
+                text: () => Promise.resolve(xhr.responseText),
+              });
+            }
+          });
+
+          // 错误监听
+          xhr.addEventListener('error', () => {
+            reject(new Error('网络错误'));
+          });
+
+          xhr.open('POST', path);
+          xhr.send(fd);
         });
       }
 
