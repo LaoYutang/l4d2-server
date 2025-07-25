@@ -85,9 +85,12 @@ if curl -s ipinfo.io | grep -q '"country": "CN"'; then
   # 询问是否使用镜像源
   read -r -p "检测到国内环境，是否使用国内镜像源？(y/n): " use_mirror
   if [[ "$use_mirror" =~ ^[Yy]$ ]]; then
+    # 输入镜像源
+    read -r -p "请输入国内镜像源地址 (默认: docker.1ms.run): " mirror_url
+    mirror_url=${mirror_url:-docker.1ms.run}
     echo "正在配置compose文件使用国内镜像源..."
-    sed -i 's|laoyutang/l4d2:nightly|docker.1ms.run/laoyutang/l4d2:nightly|' /data/l4d2/docker-compose.yaml
-    sed -i 's|laoyutang/l4d2-manager:latest|docker.1ms.run/laoyutang/l4d2-manager:latest|' /data/l4d2/docker-compose.yaml
+    sed -i "s|laoyutang/l4d2:nightly|$mirror_url/laoyutang/l4d2:nightly|" /data/l4d2/docker-compose.yaml
+    sed -i "s|laoyutang/l4d2-manager:latest|$mirror_url/laoyutang/l4d2-manager:latest|" /data/l4d2/docker-compose.yaml
   fi
 fi
 
