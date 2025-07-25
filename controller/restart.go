@@ -2,13 +2,18 @@ package controller
 
 import (
 	"net/http"
+	"os"
 	"os/exec"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Restart(c *gin.Context) {
-	err := exec.Command("docker", "restart", "l4d2").Run()
+	containerName := os.Getenv("L4D2_CONTAINER_NAME")
+	if containerName == "" {
+		containerName = "l4d2"
+	}
+	err := exec.Command("docker", "restart", containerName).Run()
 	if err != nil {
 		c.String(http.StatusInternalServerError, "重启失败")
 		return
