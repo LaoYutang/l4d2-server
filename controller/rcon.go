@@ -174,22 +174,23 @@ func parseUser(line string) *User {
 	line = strings.TrimPrefix(line, "# ")
 
 	// 使用正则表达式解析用户信息
-	// 格式: userid name "uniqueid" connected ping loss state rate adr
-	re := regexp.MustCompile(`^(\d+)\s+(\d+)\s+"([^"]+)"\s+([A-Z_:0-9]+)\s+(\d+:\d+)\s+(\d+)\s+(\d+)\s+(\w+)\s+(\d+)\s+([0-9.]+:\d+)`)
+	// # 125 5 "LaoYutang" STEAM_1:1:85790159  2:23:17 41 0 active 60000 61.141.153.96:52904
+	// 时间格式: \d+(?::\d+)+ 可以匹配 2:45, 2:45:54, 1:2:45:54 等
+	re := regexp.MustCompile(`^(\d+)\s+(\d+)\s+"([^"]+)"\s+([A-Z_:0-9]+)\s+(\d+(?::\d+)+)\s+(\d+)\s+(\d+)\s+(\w+)\s+(\d+)\s+([0-9.]+:\d+)`)
 	matches := re.FindStringSubmatch(line)
 
 	if len(matches) < 11 {
 		return nil
 	}
 
-	id, _ := strconv.Atoi(matches[2])
+	userid, _ := strconv.Atoi(matches[1])
 	delay, _ := strconv.Atoi(matches[6])
 	loss, _ := strconv.Atoi(matches[7])
 	linkRate, _ := strconv.Atoi(matches[9])
 
 	return &User{
 		Name:     matches[3],
-		Id:       id,
+		Id:       userid,
 		SteamId:  matches[4],
 		Ip:       matches[10],
 		Status:   matches[8],
