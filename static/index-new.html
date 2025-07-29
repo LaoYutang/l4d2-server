@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>L4D2管理器</title>
+    <title>L4D2地图管理</title>
 
     <!-- 样式文件 -->
     <link rel="stylesheet" href="css/main.css" />
@@ -15,7 +15,7 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>L4D2管理器</h1>
+        <h1>L4D2地图管理</h1>
       </div>
 
       <div class="form-section">
@@ -23,19 +23,39 @@
           <label>密码</label>
           <input id="password" type="password" placeholder="请输入管理密码" />
         </div>
+
+        <div class="form-group">
+          <label>地图文件</label>
+          <div class="file-input-wrapper">
+            <input id="map" type="file" accept=".vpk,.zip" multiple />
+            <div class="file-input-button" onclick="document.getElementById('map').click()">
+              <span class="file-input-icon">📁</span>
+              <div class="file-input-text">选择地图文件</div>
+              <div class="file-input-hint">支持 .vpk 格式，可多选</div>
+            </div>
+            <div id="file-selected-info" class="file-selected-info">
+              <div id="file-count" class="file-count"></div>
+              <div id="file-list" class="file-list"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="button-group">
-        <button id="map-management" class="btn btn-primary" onclick="showMapManagementHandler()">
-          🗺️ 地图管理
-        </button>
-        <button id="restart" class="btn btn-warning">🔄 重启服务器</button>
+        <button id="upload" class="btn btn-primary">上传地图</button>
+        <button id="restart" class="btn btn-warning">重启服务器</button>
+        <button id="clear" class="btn btn-danger">清空地图目录</button>
         <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
-          🎮 加载地图
+          查看已加载地图
         </button>
         <button id="server-status" class="btn btn-primary" onclick="showServerStatusHandler()">
-          🖥️ 服务器状态
+          查看服务器状态
         </button>
+      </div>
+
+      <div class="map-list-section">
+        <div class="section-title">服务器地图列表</div>
+        <div id="list" class="map-list"></div>
       </div>
     </div>
 
@@ -58,48 +78,6 @@
 
     <!-- 通知容器 -->
     <div id="notification-container" class="notification-container"></div>
-
-    <!-- 地图管理弹框 -->
-    <div id="map-management-overlay" class="map-management-overlay">
-      <div id="map-management-dialog" class="map-management-dialog">
-        <div class="map-management-header">
-          <div class="map-management-title">🗺️ 地图管理</div>
-          <button id="map-management-close" class="map-management-close">×</button>
-        </div>
-        <div class="map-management-content">
-          <!-- 文件上传区域 -->
-          <div class="map-upload-section">
-            <div class="form-group">
-              <label>地图文件</label>
-              <div class="file-input-wrapper">
-                <input id="map" type="file" accept=".vpk,.zip" multiple />
-                <div class="file-input-button" onclick="document.getElementById('map').click()">
-                  <span class="file-input-icon">📁</span>
-                  <div class="file-input-text">选择地图文件</div>
-                  <div class="file-input-hint">支持 .vpk 格式，可多选</div>
-                </div>
-                <div id="file-selected-info" class="file-selected-info">
-                  <div id="file-count" class="file-count"></div>
-                  <div id="file-list" class="file-list"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 操作按钮 -->
-            <div class="map-actions">
-              <button id="upload" class="btn btn-primary">📤 上传地图</button>
-              <button id="clear" class="btn btn-danger">🗑️ 清空目录</button>
-            </div>
-          </div>
-
-          <!-- 地图列表区域 -->
-          <div class="map-list-section">
-            <div class="section-title">服务器地图列表</div>
-            <div id="modal-list" class="map-list"></div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- 确认对话框 -->
     <div id="confirm-overlay" class="confirm-overlay">
