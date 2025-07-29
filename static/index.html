@@ -181,8 +181,13 @@
       .button-group {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto auto;
         gap: 15px;
         margin-bottom: 40px;
+      }
+
+      .button-group .btn:nth-child(5) {
+        grid-column: 1 / -1;
       }
 
       .btn {
@@ -904,6 +909,427 @@
         transform: translateY(-2px);
       }
 
+      /* 服务器状态弹框 */
+      .status-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .status-dialog {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 95vw;
+        width: 95%;
+        max-height: 85vh;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .status-dialog.show {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+        padding-bottom: 15px;
+      }
+
+      .status-title {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .status-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .status-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #666;
+      }
+
+      .status-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+      }
+
+      .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .status-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      }
+
+      /* 用户分隔线样式 */
+      .status-item.separator {
+        background: transparent;
+        border: none;
+        padding: 5px 0;
+        margin: 5px 0;
+        pointer-events: none;
+      }
+
+      .status-item.separator:hover {
+        background: transparent;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .status-item.separator .status-label {
+        width: 100%;
+        text-align: center;
+        color: rgba(102, 126, 234, 0.3);
+        font-weight: 400;
+        font-size: 12px;
+      }
+
+      .status-item.separator .status-label::before {
+        display: none;
+      }
+
+      .status-label {
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+
+      .status-label::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        margin-right: 10px;
+      }
+
+      .status-value {
+        font-weight: 500;
+        color: #333;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .status-loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .status-error {
+        text-align: center;
+        padding: 40px;
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 107, 107, 0.2);
+      }
+
+      .status-refresh {
+        margin-top: 20px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 100%;
+      }
+
+      .status-refresh:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      /* 状态属性框样式 */
+      .status-property-box {
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 15px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .status-property-box:hover {
+        background: rgba(102, 126, 234, 0.08);
+        border-color: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+      }
+
+      .status-property-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-property-content {
+        padding: 20px;
+      }
+
+      .status-property-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        text-align: center;
+      }
+
+      /* 用户框样式 */
+      .users-container {
+        display: grid;
+        gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .user-card {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        padding: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .user-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .user-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        border-color: rgba(102, 126, 234, 0.3);
+      }
+
+      .user-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .user-info {
+        flex: 1;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .user-id {
+        font-size: 12px;
+        color: #666;
+        font-family: 'Courier New', monospace;
+      }
+
+      .user-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+      }
+
+      .user-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 10px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      .user-detail-label {
+        color: #666;
+        font-weight: 500;
+      }
+
+      .user-detail-value {
+        color: #333;
+        font-weight: 600;
+      }
+
+      .users-empty {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        border: 2px dashed rgba(102, 126, 234, 0.2);
+      }
+
+      /* 响应式设计 */
+      @media (min-width: 1200px) {
+        .status-dialog {
+          max-width: 98vw;
+          width: 98%;
+          padding: 40px;
+        }
+
+        .users-container {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+        }
+
+        .status-property-content {
+          padding: 25px;
+        }
+
+        .basic-info-container {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+        }
+      }
+
+      @media (min-width: 992px) and (max-width: 1199px) {
+        .basic-info-container {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px;
+        }
+
+        .user-details {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+
+      @media (min-width: 769px) and (max-width: 991px) {
+        .user-details {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .status-dialog {
+          width: 95%;
+          max-width: none;
+          margin: 10px;
+        }
+
+        .users-container {
+          grid-template-columns: 1fr;
+        }
+
+        .user-details {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .status-property-header {
+          padding: 12px 15px;
+          font-size: 14px;
+        }
+
+        .status-property-content {
+          padding: 15px;
+        }
+
+        .status-property-value {
+          font-size: 16px;
+          padding: 10px 12px;
+        }
+
+        .user-card {
+          padding: 12px;
+        }
+
+        .user-detail-item {
+          padding: 8px;
+        }
+      }
+
       @media (max-width: 768px) {
         .container {
           margin: 10px;
@@ -917,6 +1343,10 @@
         .button-group {
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
+        }
+
+        .button-group .btn:nth-child(5) {
+          grid-column: 1 / -1;
         }
 
         .btn {
@@ -960,12 +1390,32 @@
         .confirm-buttons {
           flex-direction: column;
         }
+
+        .status-dialog {
+          width: 95%;
+          padding: 20px;
+          max-height: 85vh;
+        }
+
+        .status-title {
+          font-size: 20px;
+        }
+
+        .status-item {
+          flex-direction: column;
+          gap: 8px;
+          text-align: center;
+        }
       }
 
       @media (max-width: 480px) {
         .button-group {
           grid-template-columns: 1fr;
           gap: 10px;
+        }
+
+        .button-group .btn:nth-child(5) {
+          grid-column: 1 / -1;
         }
       }
     </style>
@@ -1005,6 +1455,9 @@
         <button id="clear" class="btn btn-danger" onclick="clearHandler()">清空地图目录</button>
         <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
           查看已加载地图
+        </button>
+        <button id="server-status" class="btn btn-primary" onclick="showServerStatusHandler()">
+          查看服务器状态
         </button>
       </div>
 
@@ -1062,6 +1515,32 @@
             <div>加载地图列表中...</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 服务器状态弹框 -->
+    <div id="status-overlay" class="status-overlay">
+      <div id="status-dialog" class="status-dialog">
+        <div class="status-header">
+          <div class="status-title">🖥️ 服务器状态</div>
+          <button id="status-close" class="status-close">×</button>
+        </div>
+        <div id="status-content" class="status-content">
+          <div id="status-loading" class="status-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div>获取服务器状态中...</div>
+          </div>
+        </div>
+        <button
+          id="status-refresh"
+          class="status-refresh"
+          onclick="serverStatusDialog.loadServerStatus()"
+        >
+          🔄 刷新状态
+        </button>
       </div>
     </div>
 
@@ -1456,8 +1935,333 @@
         }
       }
 
+      // 服务器状态管理系统
+      class ServerStatusDialog {
+        constructor() {
+          this.overlay = document.getElementById('status-overlay');
+          this.dialog = document.getElementById('status-dialog');
+          this.content = document.getElementById('status-content');
+          this.loading = document.getElementById('status-loading');
+          this.closeButton = document.getElementById('status-close');
+
+          this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+              this.close();
+            }
+          });
+
+          this.closeButton.addEventListener('click', () => {
+            this.close();
+          });
+        }
+
+        async show() {
+          this.overlay.style.display = 'flex';
+          setTimeout(() => {
+            this.dialog.classList.add('show');
+          }, 50);
+
+          await this.loadServerStatus();
+        }
+
+        close() {
+          this.dialog.classList.remove('show');
+          setTimeout(() => {
+            this.overlay.style.display = 'none';
+          }, 300);
+        }
+
+        async loadServerStatus() {
+          this.showLoading();
+
+          try {
+            const response = await fetchServer('/rcon/getstatus');
+            if (!response.ok) {
+              throw new Error(await response.text());
+            }
+
+            const statusData = await response.json();
+            this.displayStatus(statusData);
+          } catch (error) {
+            this.showError(error.message || error);
+          }
+        }
+
+        showLoading() {
+          this.content.innerHTML = `
+            <div class="status-loading">
+              <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+              <div>获取服务器状态中...</div>
+            </div>
+          `;
+        }
+
+        showError(message) {
+          this.content.innerHTML = `
+            <div class="status-error">
+              <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+              <div style="font-weight: 600; margin-bottom: 10px;">获取状态失败</div>
+              <div>${message}</div>
+            </div>
+          `;
+        }
+
+        displayStatus(statusData) {
+          // 处理状态数据并显示
+          const parsedData = this.parseStatusData(statusData);
+
+          // 创建属性框的HTML
+          let propertiesHtml = '';
+
+          // 基本服务器信息
+          const basicInfo = ['Hostname', 'Map', 'Players'];
+          let basicInfoHtml = '';
+          basicInfo.forEach((key) => {
+            const data = parsedData[key];
+            if (data) {
+              basicInfoHtml += `
+                <div class="status-property-box">
+                  <div class="status-property-header">
+                    ${data.icon} ${data.label}
+                  </div>
+                  <div class="status-property-content">
+                    <div class="status-property-value">${data.value}</div>
+                  </div>
+                </div>
+              `;
+            }
+          });
+
+          if (basicInfoHtml) {
+            propertiesHtml += `
+              <div class="basic-info-container">
+                ${basicInfoHtml}
+              </div>
+            `;
+          }
+
+          // 用户列表框
+          const usersData = parsedData.Users;
+          if (usersData) {
+            propertiesHtml += `
+              <div class="status-property-box">
+                <div class="status-property-header">
+                  👥 在线用户 (${usersData.users.length} 人)
+                </div>
+                <div class="status-property-content">
+                  ${
+                    usersData.users.length === 0
+                      ? '<div class="users-empty">🚫 当前无在线用户</div>'
+                      : `<div class="users-container">${usersData.users
+                          .map((user, index) => this.createUserCard(user, index + 1))
+                          .join('')}</div>`
+                  }
+                </div>
+              </div>
+            `;
+          }
+
+          this.content.innerHTML = `
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+              <div style="color: #667eea; font-weight: 600; font-size: 14px; margin-bottom: 8px;">
+                📊 服务器实时状态
+              </div>
+              <div style="color: #666; font-size: 12px;">
+                最后更新时间: ${new Date().toLocaleString()}
+              </div>
+            </div>
+            ${propertiesHtml}
+          `;
+        }
+
+        createUserCard(user, userNumber) {
+          const userName = user.name || user.Name || `用户${userNumber}`;
+          const userInitial = userName.charAt(0).toUpperCase();
+
+          return `
+            <div class="user-card">
+              <div class="user-header">
+                <div class="user-avatar">${userInitial}</div>
+                <div class="user-info">
+                  <div class="user-name">${userName}</div>
+                  <div class="user-id">#${user.id || user.Id || userNumber}</div>
+                </div>
+              </div>
+              <div class="user-details">
+                ${
+                  user.steamid || user.SteamId
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">🆔 Steam</span>
+                    <span class="user-detail-value">${(user.steamid || user.SteamId).slice(
+                      -8
+                    )}</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.ip || user.Ip
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">🌐 IP</span>
+                    <span class="user-detail-value">${(user.ip || user.Ip).split(':')[0]}</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.status || user.Status
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">🎮 状态</span>
+                    <span class="user-detail-value">${this.formatUserStatus(
+                      user.status || user.Status
+                    )}</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.delay !== undefined || user.Delay !== undefined
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">📡 延迟</span>
+                    <span class="user-detail-value">${user.delay || user.Delay}ms</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.loss !== undefined || user.Loss !== undefined
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">📉 丢包</span>
+                    <span class="user-detail-value">${user.loss || user.Loss}%</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.duration || user.Duration
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">⏱️ 时长</span>
+                    <span class="user-detail-value">${user.duration || user.Duration}</span>
+                  </div>
+                `
+                    : ''
+                }
+              </div>
+            </div>
+          `;
+        }
+
+        parseStatusData(data) {
+          const result = {};
+
+          // 如果是字符串，尝试解析
+          if (typeof data === 'string') {
+            try {
+              data = JSON.parse(data);
+            } catch (e) {
+              // 如果不是JSON，按行解析
+              const lines = data.split('\n').filter((line) => line.trim());
+              lines.forEach((line) => {
+                if (line.includes(':')) {
+                  const [key, ...valueParts] = line.split(':');
+                  const value = valueParts.join(':').trim();
+                  const normalizedKey =
+                    key.trim().charAt(0).toUpperCase() + key.trim().slice(1).toLowerCase();
+                  result[normalizedKey] = {
+                    label: key.trim(),
+                    value: value,
+                    icon: '�',
+                  };
+                }
+              });
+              return result;
+            }
+          }
+
+          // 如果是对象，处理各个属性
+          if (typeof data === 'object' && data !== null) {
+            // 处理服务器名称
+            if (data.hostname || data.Hostname) {
+              result.Hostname = {
+                label: '服务器名称',
+                value: data.hostname || data.Hostname,
+                icon: '🏠',
+              };
+            }
+
+            // 处理地图
+            if (data.map || data.Map) {
+              result.Map = {
+                label: '当前地图',
+                value: data.map || data.Map,
+                icon: '🗺️',
+              };
+            }
+
+            // 处理玩家数
+            if (data.players || data.Players) {
+              result.Players = {
+                label: '在线玩家',
+                value: data.players || data.Players,
+                icon: '👥',
+              };
+            }
+
+            // 处理用户列表
+            const users = data.users || data.Users;
+            if (users && Array.isArray(users)) {
+              result.Users = {
+                label: '在线用户',
+                users: users,
+                icon: '👥',
+              };
+            }
+          }
+
+          return result;
+        }
+
+        // 格式化用户状态 (字符串格式)
+        formatUserStatus(status) {
+          if (typeof status === 'string') {
+            const statusNames = {
+              active: '🎮 活跃',
+              idle: '😴 空闲',
+              dead: '💀 死亡',
+              spectator: '👀 观察',
+              connecting: '🔄 连接中',
+              disconnected: '❌ 已断开',
+            };
+            return statusNames[status.toLowerCase()] || `🔧 ${status}`;
+          }
+          return status;
+        }
+
+        // 格式化连接速率
+        formatLinkRate(rate) {
+          if (typeof rate !== 'number') return rate;
+
+          if (rate >= 1000000) {
+            return `${(rate / 1000000).toFixed(1)}Mbps`;
+          } else if (rate >= 1000) {
+            return `${(rate / 1000).toFixed(1)}Kbps`;
+          } else {
+            return `${rate}bps`;
+          }
+        }
+      }
+
       // 初始化RCON地图对话框
       const rconMapsDialog = new RconMapsDialog();
+
+      // 初始化服务器状态对话框
+      const serverStatusDialog = new ServerStatusDialog();
 
       // 显示RCON地图列表
       const showRconMapsHandler = async () => {
@@ -1466,6 +2270,15 @@
           return;
         }
         rconMapsDialog.show();
+      };
+
+      // 显示服务器状态
+      const showServerStatusHandler = async () => {
+        if (password.value === '') {
+          showWarning('请先输入管理密码！');
+          return;
+        }
+        serverStatusDialog.show();
       };
 
       // 切换地图处理
