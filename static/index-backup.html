@@ -1,0 +1,2626 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>L4D2地图管理</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        backdrop-filter: blur(10px);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+      }
+
+      .form-section {
+        margin-bottom: 30px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .form-group input[type='password'],
+      .form-group input[type='file'] {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+
+      /* 隐藏原生文件输入框 */
+      .form-group input[type='file'] {
+        display: none;
+      }
+
+      /* 自定义文件选择按钮 */
+      .file-input-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
+      .file-input-button {
+        width: 100%;
+        padding: 15px;
+        border: 2px dashed #667eea;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .file-input-button:hover {
+        border-color: #764ba2;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.2);
+      }
+
+      .file-input-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+      }
+
+      .file-input-button:hover::before {
+        left: 100%;
+      }
+
+      .file-input-icon {
+        font-size: 24px;
+        color: #667eea;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .file-input-text {
+        color: #667eea;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+
+      .file-input-hint {
+        color: #999;
+        font-size: 14px;
+      }
+
+      /* 文件选择反馈 */
+      .file-selected-info {
+        margin-top: 10px;
+        padding: 10px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        display: none;
+      }
+
+      .file-selected-info.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+      }
+
+      .file-count {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 14px;
+      }
+
+      .file-list {
+        margin-top: 8px;
+        max-height: 120px;
+        overflow-y: auto;
+      }
+
+      .file-item {
+        padding: 4px 0;
+        font-size: 13px;
+        color: #666;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .file-item:last-child {
+        border-bottom: none;
+      }
+
+      .button-group {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto auto;
+        gap: 15px;
+        margin-bottom: 40px;
+      }
+
+      .button-group .btn:nth-child(5) {
+        grid-column: 1 / -1;
+      }
+
+      .btn {
+        padding: 15px 25px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-warning {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        box-shadow: 0 8px 15px rgba(245, 87, 108, 0.3);
+      }
+
+      .btn-warning:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(245, 87, 108, 0.4);
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #ff9a9e, #fecfef);
+        color: #333;
+        box-shadow: 0 8px 15px rgba(255, 154, 158, 0.3);
+      }
+
+      .btn-danger:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(255, 154, 158, 0.4);
+      }
+
+      .map-list-section {
+        margin-top: 40px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #555;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .map-list {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        min-height: 200px;
+      }
+
+      .map-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: slideIn 0.3s ease;
+      }
+
+      .map-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .map-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .map-name {
+        font-weight: 500;
+        color: #333;
+        font-size: 16px;
+      }
+
+      .btn-delete {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-delete:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+      }
+
+      .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        z-index: 1000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        background: rgba(102, 126, 234, 0.15);
+        backdrop-filter: blur(15px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .loading-content {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 50px 40px;
+        border-radius: 25px;
+        box-shadow: 0 25px 50px rgba(102, 126, 234, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-width: 300px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      /* 现代化加载器 */
+      .loading-spinner {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 30px;
+        position: relative;
+      }
+
+      .loading-spinner::before,
+      .loading-spinner::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .loading-spinner::before {
+        width: 80px;
+        height: 80px;
+        border: 4px solid transparent;
+        border-top: 4px solid #667eea;
+        border-right: 4px solid #764ba2;
+        animation: spin 1.5s linear infinite;
+      }
+
+      .loading-spinner::after {
+        width: 60px;
+        height: 60px;
+        border: 3px solid transparent;
+        border-bottom: 3px solid #f093fb;
+        border-left: 3px solid #f5576c;
+        animation: spin 1s linear infinite reverse;
+      }
+
+      /* 脉冲圆点 */
+      .loading-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 25px;
+      }
+
+      .loading-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        animation: pulse 1.4s ease-in-out infinite both;
+      }
+
+      .loading-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .loading-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      .loading-text {
+        font-size: 18px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+        animation: textGlow 2s ease-in-out infinite alternate;
+      }
+
+      /* 进度条 */
+      .loading-progress {
+        width: 100%;
+        height: 6px;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 20px;
+        position: relative;
+      }
+
+      .loading-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        background-size: 200% 100%;
+        border-radius: 3px;
+        animation: progressMove 2s ease-in-out infinite;
+        width: 0%;
+        transition: width 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .loading-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        animation: progressShine 1.5s ease-in-out infinite;
+      }
+
+      /* 进度百分比显示 */
+      .loading-progress-text {
+        position: absolute;
+        top: -25px;
+        right: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #667eea;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+      }
+
+      @keyframes pulse {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+      }
+
+      @keyframes textGlow {
+        0% {
+          text-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        100% {
+          text-shadow: 0 0 20px rgba(118, 75, 162, 0.5);
+        }
+      }
+
+      @keyframes progressMove {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      @keyframes progressShine {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      /* 现代化通知系统 */
+      .notification-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .notification {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        transform: translateX(120%);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      .notification.success {
+        border-color: rgba(17, 153, 142, 0.5);
+        box-shadow: 0 20px 40px rgba(17, 153, 142, 0.1), 0 0 0 1px rgba(17, 153, 142, 0.1);
+      }
+
+      .notification.error {
+        border-color: rgba(255, 107, 107, 0.5);
+        box-shadow: 0 20px 40px rgba(255, 107, 107, 0.1), 0 0 0 1px rgba(255, 107, 107, 0.1);
+      }
+
+      .notification.warning {
+        border-color: rgba(240, 147, 251, 0.5);
+        box-shadow: 0 20px 40px rgba(240, 147, 251, 0.1), 0 0 0 1px rgba(240, 147, 251, 0.1);
+      }
+
+      .notification.info {
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.1), 0 0 0 1px rgba(102, 126, 234, 0.1);
+      }
+
+      .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .notification-icon {
+        font-size: 24px;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.1);
+      }
+
+      .notification.success .notification-icon {
+        background: rgba(17, 153, 142, 0.1);
+      }
+
+      .notification.error .notification-icon {
+        background: rgba(255, 107, 107, 0.1);
+      }
+
+      .notification.warning .notification-icon {
+        background: rgba(240, 147, 251, 0.1);
+      }
+
+      .notification-title {
+        font-weight: 700;
+        font-size: 16px;
+        color: #333;
+        flex: 1;
+      }
+
+      .notification-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #999;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .notification-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #666;
+      }
+
+      .notification-message {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 0 0 14px 14px;
+        transition: width linear;
+        right: 0;
+      }
+
+      .notification.success .notification-progress {
+        background: linear-gradient(90deg, #11998e, #38ef7d);
+      }
+
+      .notification.error .notification-progress {
+        background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+      }
+
+      .notification.warning .notification-progress {
+        background: linear-gradient(90deg, #f093fb, #f5576c);
+      }
+
+      /* 确认对话框 */
+      .confirm-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10001;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .confirm-dialog {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-align: center;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .confirm-dialog.show {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      /* RCON地图模态框 */
+      .rcon-maps-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .rcon-maps-dialog {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .rcon-maps-dialog.show {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .rcon-maps-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+        padding-bottom: 15px;
+      }
+
+      .rcon-maps-title {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .rcon-maps-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .rcon-maps-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #666;
+      }
+
+      .rcon-maps-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+      }
+
+      .rcon-map-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .rcon-map-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      }
+
+      .rcon-map-name {
+        font-weight: 500;
+        color: #333;
+        font-size: 16px;
+      }
+
+      .btn-switch {
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 80px;
+      }
+
+      .btn-switch:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-switch:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .rcon-maps-loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .rcon-maps-error {
+        text-align: center;
+        padding: 40px;
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 107, 107, 0.2);
+      }
+
+      .confirm-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        color: #f093fb;
+      }
+
+      .confirm-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .confirm-message {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+      }
+
+      .confirm-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .confirm-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 100px;
+      }
+
+      .confirm-btn-primary {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        box-shadow: 0 8px 15px rgba(245, 87, 108, 0.3);
+      }
+
+      .confirm-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(245, 87, 108, 0.4);
+      }
+
+      .confirm-btn-secondary {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .confirm-btn-secondary:hover {
+        background: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+      }
+
+      /* 服务器状态弹框 */
+      .status-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .status-dialog {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 95vw;
+        width: 95%;
+        max-height: 85vh;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .status-dialog.show {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+        padding-bottom: 15px;
+      }
+
+      .status-title {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .status-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #999;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .status-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #666;
+      }
+
+      .status-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+      }
+
+      .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .status-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      }
+
+      /* 用户分隔线样式 */
+      .status-item.separator {
+        background: transparent;
+        border: none;
+        padding: 5px 0;
+        margin: 5px 0;
+        pointer-events: none;
+      }
+
+      .status-item.separator:hover {
+        background: transparent;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .status-item.separator .status-label {
+        width: 100%;
+        text-align: center;
+        color: rgba(102, 126, 234, 0.3);
+        font-weight: 400;
+        font-size: 12px;
+      }
+
+      .status-item.separator .status-label::before {
+        display: none;
+      }
+
+      .status-label {
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+
+      .status-label::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        margin-right: 10px;
+      }
+
+      .status-value {
+        font-weight: 500;
+        color: #333;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .status-loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .status-error {
+        text-align: center;
+        padding: 40px;
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 107, 107, 0.2);
+      }
+
+      .status-refresh {
+        margin-top: 20px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 100%;
+      }
+
+      .status-refresh:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      /* 状态属性框样式 */
+      .status-property-box {
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 15px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .status-property-box:hover {
+        background: rgba(102, 126, 234, 0.08);
+        border-color: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+      }
+
+      .status-property-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-property-content {
+        padding: 20px;
+      }
+
+      .status-property-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        text-align: center;
+      }
+
+      /* 用户框样式 */
+      .users-container {
+        display: grid;
+        gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .user-card {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        padding: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .user-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .user-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        border-color: rgba(102, 126, 234, 0.3);
+      }
+
+      .user-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .user-info {
+        flex: 1;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .user-id {
+        font-size: 12px;
+        color: #666;
+        font-family: 'Courier New', monospace;
+      }
+
+      .user-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+      }
+
+      .user-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 10px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      .user-detail-label {
+        color: #666;
+        font-weight: 500;
+      }
+
+      .user-detail-value {
+        color: #333;
+        font-weight: 600;
+      }
+
+      .users-empty {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        border: 2px dashed rgba(102, 126, 234, 0.2);
+      }
+
+      /* 响应式设计 */
+      @media (min-width: 1200px) {
+        .status-dialog {
+          max-width: 98vw;
+          width: 98%;
+          padding: 40px;
+        }
+
+        .users-container {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+        }
+
+        .status-property-content {
+          padding: 25px;
+        }
+
+        .basic-info-container {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+        }
+      }
+
+      @media (min-width: 992px) and (max-width: 1199px) {
+        .basic-info-container {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px;
+        }
+
+        .user-details {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+
+      @media (min-width: 769px) and (max-width: 991px) {
+        .user-details {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .status-dialog {
+          width: 95%;
+          max-width: none;
+          margin: 10px;
+        }
+
+        .users-container {
+          grid-template-columns: 1fr;
+        }
+
+        .user-details {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .status-property-header {
+          padding: 12px 15px;
+          font-size: 14px;
+        }
+
+        .status-property-content {
+          padding: 15px;
+        }
+
+        .status-property-value {
+          font-size: 16px;
+          padding: 10px 12px;
+        }
+
+        .user-card {
+          padding: 12px;
+        }
+
+        .user-detail-item {
+          padding: 8px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          padding: 20px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .button-group {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+
+        .button-group .btn:nth-child(5) {
+          grid-column: 1 / -1;
+        }
+
+        .btn {
+          font-size: 14px;
+          padding: 12px 20px;
+        }
+
+        .map-item {
+          flex-direction: column;
+          gap: 10px;
+          text-align: center;
+        }
+
+        .rcon-map-item {
+          flex-direction: column;
+          gap: 10px;
+          text-align: center;
+        }
+
+        .rcon-maps-dialog {
+          width: 95%;
+          padding: 20px;
+          max-height: 85vh;
+        }
+
+        .rcon-maps-title {
+          font-size: 20px;
+        }
+
+        .notification-container {
+          top: 10px;
+          right: 10px;
+          left: 10px;
+          max-width: none;
+        }
+
+        .confirm-dialog {
+          padding: 30px 20px;
+        }
+
+        .confirm-buttons {
+          flex-direction: column;
+        }
+
+        .status-dialog {
+          width: 95%;
+          padding: 20px;
+          max-height: 85vh;
+        }
+
+        .status-title {
+          font-size: 20px;
+        }
+
+        .status-item {
+          flex-direction: column;
+          gap: 8px;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .button-group {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .button-group .btn:nth-child(5) {
+          grid-column: 1 / -1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>L4D2地图管理</h1>
+      </div>
+
+      <div class="form-section">
+        <div class="form-group">
+          <label>密码</label>
+          <input id="password" type="password" placeholder="请输入管理密码" />
+        </div>
+
+        <div class="form-group">
+          <label>地图文件</label>
+          <div class="file-input-wrapper">
+            <input id="map" type="file" accept=".vpk,.zip" multiple />
+            <div class="file-input-button" onclick="document.getElementById('map').click()">
+              <span class="file-input-icon">📁</span>
+              <div class="file-input-text">选择地图文件</div>
+              <div class="file-input-hint">支持 .vpk 格式，可多选</div>
+            </div>
+            <div id="file-selected-info" class="file-selected-info">
+              <div id="file-count" class="file-count"></div>
+              <div id="file-list" class="file-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="upload" class="btn btn-primary" onclick="uploadHandler()">上传地图</button>
+        <button id="restart" class="btn btn-warning" onclick="restartHandler()">重启服务器</button>
+        <button id="clear" class="btn btn-danger" onclick="clearHandler()">清空地图目录</button>
+        <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
+          查看已加载地图
+        </button>
+        <button id="server-status" class="btn btn-primary" onclick="showServerStatusHandler()">
+          查看服务器状态
+        </button>
+      </div>
+
+      <div class="map-list-section">
+        <div class="section-title">服务器地图列表</div>
+        <div id="list" class="map-list"></div>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <div id="loading-text" class="loading-text">加载中...</div>
+        <div class="loading-progress">
+          <div id="loading-progress-bar" class="loading-progress-bar"></div>
+          <div id="loading-progress-text" class="loading-progress-text">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- 确认对话框 -->
+    <div id="confirm-overlay" class="confirm-overlay">
+      <div id="confirm-dialog" class="confirm-dialog">
+        <div class="confirm-icon">⚠️</div>
+        <div id="confirm-title" class="confirm-title">确认操作</div>
+        <div id="confirm-message" class="confirm-message">您确定要执行此操作吗？</div>
+        <div class="confirm-buttons">
+          <button id="confirm-yes" class="confirm-btn confirm-btn-primary">确认</button>
+          <button id="confirm-no" class="confirm-btn confirm-btn-secondary">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RCON地图列表模态框 -->
+    <div id="rcon-maps-overlay" class="rcon-maps-overlay">
+      <div id="rcon-maps-dialog" class="rcon-maps-dialog">
+        <div class="rcon-maps-header">
+          <div class="rcon-maps-title">🎮 已加载地图列表</div>
+          <button id="rcon-maps-close" class="rcon-maps-close">×</button>
+        </div>
+        <div id="rcon-maps-content" class="rcon-maps-content">
+          <div id="rcon-maps-loading" class="rcon-maps-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div>加载地图列表中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 服务器状态弹框 -->
+    <div id="status-overlay" class="status-overlay">
+      <div id="status-dialog" class="status-dialog">
+        <div class="status-header">
+          <div class="status-title">🖥️ 服务器状态</div>
+          <button id="status-close" class="status-close">×</button>
+        </div>
+        <div id="status-content" class="status-content">
+          <div id="status-loading" class="status-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div>获取服务器状态中...</div>
+          </div>
+        </div>
+        <button
+          id="status-refresh"
+          class="status-refresh"
+          onclick="serverStatusDialog.loadServerStatus()"
+        >
+          🔄 刷新状态
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const upload = document.getElementById('upload');
+      const restart = document.getElementById('restart');
+      const clear = document.getElementById('clear');
+      const password = document.getElementById('password');
+      const map = document.getElementById('map');
+      const list = document.getElementById('list');
+
+      // 现代化通知系统
+      class NotificationSystem {
+        constructor() {
+          this.container = document.getElementById('notification-container');
+          this.notifications = [];
+        }
+
+        show(message, type = 'info', duration = 5000, title = '') {
+          const notification = this.createNotification(message, type, title);
+          this.container.appendChild(notification);
+          this.notifications.push(notification);
+
+          // 触发显示动画
+          setTimeout(() => {
+            notification.classList.add('show');
+          }, 100);
+
+          // 进度条动画
+          const progress = notification.querySelector('.notification-progress');
+          if (duration > 0) {
+            progress.style.width = '100%';
+            progress.style.transitionDuration = duration + 'ms';
+
+            setTimeout(() => {
+              progress.style.width = '0%';
+            }, 100);
+
+            // 自动关闭
+            setTimeout(() => {
+              this.close(notification);
+            }, duration);
+          }
+
+          return notification;
+        }
+
+        createNotification(message, type, title) {
+          const notification = document.createElement('div');
+          notification.className = `notification ${type}`;
+
+          const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️',
+          };
+
+          const titles = {
+            success: title || '成功',
+            error: title || '错误',
+            warning: title || '警告',
+            info: title || '信息',
+          };
+
+          notification.innerHTML = `
+            <div class="notification-header">
+              <div class="notification-icon">${icons[type]}</div>
+              <div class="notification-title">${titles[type]}</div>
+              <button class="notification-close" onclick="notificationSystem.close(this.closest('.notification'))">×</button>
+            </div>
+            <div class="notification-message">${message}</div>
+            <div class="notification-progress"></div>
+          `;
+
+          return notification;
+        }
+
+        close(notification) {
+          notification.classList.remove('show');
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+              this.notifications = this.notifications.filter((n) => n !== notification);
+            }
+          }, 400);
+        }
+
+        success(message, title, duration = 5000) {
+          return this.show(message, 'success', duration, title);
+        }
+
+        error(message, title, duration = 8000) {
+          return this.show(message, 'error', duration, title);
+        }
+
+        warning(message, title, duration = 6000) {
+          return this.show(message, 'warning', duration, title);
+        }
+
+        info(message, title, duration = 5000) {
+          return this.show(message, 'info', duration, title);
+        }
+      }
+
+      // 确认对话框系统
+      class ConfirmDialog {
+        constructor() {
+          this.overlay = document.getElementById('confirm-overlay');
+          this.dialog = document.getElementById('confirm-dialog');
+          this.titleElement = document.getElementById('confirm-title');
+          this.messageElement = document.getElementById('confirm-message');
+          this.yesButton = document.getElementById('confirm-yes');
+          this.noButton = document.getElementById('confirm-no');
+
+          this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+              this.close(false);
+            }
+          });
+        }
+
+        show(message, title = '确认操作') {
+          return new Promise((resolve) => {
+            this.titleElement.textContent = title;
+            this.messageElement.textContent = message;
+            this.overlay.style.display = 'flex';
+
+            setTimeout(() => {
+              this.dialog.classList.add('show');
+            }, 50);
+
+            const handleYes = () => {
+              this.close(true);
+              resolve(true);
+              cleanup();
+            };
+
+            const handleNo = () => {
+              this.close(false);
+              resolve(false);
+              cleanup();
+            };
+
+            const cleanup = () => {
+              this.yesButton.removeEventListener('click', handleYes);
+              this.noButton.removeEventListener('click', handleNo);
+            };
+
+            this.yesButton.addEventListener('click', handleYes);
+            this.noButton.addEventListener('click', handleNo);
+          });
+        }
+
+        close(result) {
+          this.dialog.classList.remove('show');
+          setTimeout(() => {
+            this.overlay.style.display = 'none';
+          }, 300);
+        }
+      }
+
+      // RCON地图管理系统
+      class RconMapsDialog {
+        constructor() {
+          this.overlay = document.getElementById('rcon-maps-overlay');
+          this.dialog = document.getElementById('rcon-maps-dialog');
+          this.content = document.getElementById('rcon-maps-content');
+          this.loading = document.getElementById('rcon-maps-loading');
+          this.closeButton = document.getElementById('rcon-maps-close');
+          this.hideOfficialMaps = false;
+          this.allMaps = [];
+
+          // 官方地图列表
+          this.officialMaps = [
+            'c14m1_junkyard',
+            'c14m2_lighthouse',
+            'c10m1_caves',
+            'c10m2_drainage',
+            'c10m3_ranchhouse',
+            'c10m4_mainstreet',
+            'c10m5_houseboat',
+            'c11m1_greenhouse',
+            'c11m2_offices',
+            'c11m3_garage',
+            'c11m4_terminal',
+            'c11m5_runway',
+            'c12m1_hilltop',
+            'c12m2_traintunnel',
+            'c12m3_bridge',
+            'c12m4_barn',
+            'c12m5_cornfield',
+            'c13m1_alpinecreek',
+            'c13m2_southpinestream',
+            'c13m3_memorialbridge',
+            'c13m4_cutthroatcreek',
+            'c9m1_alleys',
+            'c9m2_lots',
+            'c7m1_docks',
+            'c7m2_barge',
+            'c7m3_port',
+            'c8m1_apartment',
+            'c8m2_subway',
+            'c8m3_sewers',
+            'c8m4_interior',
+            'c8m5_rooftop',
+            'c6m1_riverbank',
+            'c6m2_bedlam',
+            'c6m3_port',
+            'c1m1_hotel',
+            'c1m2_streets',
+            'c1m3_mall',
+            'c1m4_atrium',
+            'c2m1_highway',
+            'c2m2_fairgrounds',
+            'c2m3_coaster',
+            'c2m4_barns',
+            'c2m5_concert',
+            'c3m1_plankcountry',
+            'c3m2_swamp',
+            'c3m3_shantytown',
+            'c3m4_plantation',
+            'c4m1_milltown_a',
+            'c4m2_sugarmill_a',
+            'c4m3_sugarmill_b',
+            'c4m4_milltown_b',
+            'c4m5_milltown_escape',
+            'c5m1_waterfront',
+            'c5m1_waterfront_sndscape',
+            'c5m2_park',
+            'c5m3_cemetery',
+            'c5m4_quarter',
+            'c5m5_bridge',
+            'credits',
+            'curling_stadium',
+            'motionprimingtest',
+            'motionprimingtest_rev',
+            'navigationtest_a',
+            'styleguide_semiurban_01',
+            'styleguide_swamp01',
+            'styleguide_swamp_cheapwater01',
+            'styleguide_urban_01',
+            'test_box2',
+            'test_macguffin',
+            'test_mall',
+            'test_scavenge',
+            'tutorial_standards',
+            'tutorial_standards_vs',
+            'zoo_carnivalgames',
+            'zoo_infected2',
+            'zoo_jukebox',
+            'zoo_swamp_foliage_01',
+            'zoo_trafficsigns',
+            'zoo_urban_foliage_01',
+          ];
+
+          this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+              this.close();
+            }
+          });
+
+          this.closeButton.addEventListener('click', () => {
+            this.close();
+          });
+        }
+
+        async show() {
+          this.overlay.style.display = 'flex';
+          setTimeout(() => {
+            this.dialog.classList.add('show');
+          }, 50);
+
+          await this.loadRconMaps();
+        }
+
+        close() {
+          this.dialog.classList.remove('show');
+          setTimeout(() => {
+            this.overlay.style.display = 'none';
+          }, 300);
+        }
+
+        async loadRconMaps() {
+          this.showLoading();
+
+          try {
+            const response = await fetchServer('/rcon/maplist');
+            if (!response.ok) {
+              throw new Error(await response.text());
+            }
+
+            const maps = await response.json();
+            this.allMaps = maps; // 保存原始地图列表
+            this.displayMaps(this.getFilteredMaps());
+          } catch (error) {
+            this.showError(error.message || error);
+          }
+        }
+
+        getFilteredMaps() {
+          if (this.hideOfficialMaps) {
+            return this.allMaps.filter((map) => !this.officialMaps.includes(map));
+          }
+          return this.allMaps;
+        }
+
+        toggleOfficialMaps() {
+          this.hideOfficialMaps = !this.hideOfficialMaps;
+          this.displayMaps(this.getFilteredMaps());
+        }
+
+        showLoading() {
+          this.content.innerHTML = `
+            <div class="rcon-maps-loading">
+              <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+              <div>加载地图列表中...</div>
+            </div>
+          `;
+        }
+
+        showError(message) {
+          this.content.innerHTML = `
+            <div class="rcon-maps-error">
+              <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+              <div style="font-weight: 600; margin-bottom: 10px;">加载失败</div>
+              <div>${message}</div>
+              <button class="btn btn-primary" style="margin-top: 20px;" onclick="rconMapsDialog.loadRconMaps()">重试</button>
+            </div>
+          `;
+        }
+
+        displayMaps(maps) {
+          if (this.allMaps.length === 0) {
+            this.content.innerHTML = `
+              <div class="rcon-maps-error">
+                <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
+                <div style="font-weight: 600; margin-bottom: 10px;">暂无地图</div>
+                <div>服务器上没有找到任何地图</div>
+              </div>
+            `;
+            return;
+          }
+
+          const officialCount = this.allMaps.filter((map) =>
+            this.officialMaps.includes(map)
+          ).length;
+          const customCount = this.allMaps.length - officialCount;
+
+          const mapsHtml = maps
+            .map((mapName) => {
+              const isOfficial = this.officialMaps.includes(mapName);
+              return `
+                  <div class="rcon-map-item">
+                    <span class="rcon-map-name">
+                      ${isOfficial ? '🏛️' : '🗺️'} ${mapName}
+                      ${
+                        isOfficial
+                          ? '<span style="font-size: 12px; color: #999; margin-left: 8px;">(官方)</span>'
+                          : ''
+                      }
+                    </span>
+                    <button class="btn-switch" onclick="changeMapHandler('${mapName}')">切换</button>
+                  </div>
+                `;
+            })
+            .join('');
+
+          this.content.innerHTML = `
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="color: #667eea; font-weight: 600; font-size: 14px;">
+                  📊 地图统计：总共 ${
+                    this.allMaps.length
+                  } 个地图 (官方: ${officialCount}, 自定义: ${customCount})
+                </div>
+                <button onclick="rconMapsDialog.toggleOfficialMaps()" 
+                        style="padding: 6px 12px; background: ${
+                          this.hideOfficialMaps ? '#ff9a9e' : '#667eea'
+                        }; 
+                               color: white; border: none; border-radius: 6px; font-size: 12px; 
+                               font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                  ${this.hideOfficialMaps ? '显示官方地图' : '隐藏官方地图'}
+                </button>
+              </div>
+              <div style="color: #666; font-size: 14px;">
+                当前显示 ${maps.length} 个地图，点击切换按钮即可切换到对应地图
+              </div>
+            </div>
+            ${mapsHtml}
+          `;
+        }
+      }
+
+      // 服务器状态管理系统
+      class ServerStatusDialog {
+        constructor() {
+          this.overlay = document.getElementById('status-overlay');
+          this.dialog = document.getElementById('status-dialog');
+          this.content = document.getElementById('status-content');
+          this.loading = document.getElementById('status-loading');
+          this.closeButton = document.getElementById('status-close');
+
+          this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+              this.close();
+            }
+          });
+
+          this.closeButton.addEventListener('click', () => {
+            this.close();
+          });
+        }
+
+        async show() {
+          this.overlay.style.display = 'flex';
+          setTimeout(() => {
+            this.dialog.classList.add('show');
+          }, 50);
+
+          await this.loadServerStatus();
+        }
+
+        close() {
+          this.dialog.classList.remove('show');
+          setTimeout(() => {
+            this.overlay.style.display = 'none';
+          }, 300);
+        }
+
+        async loadServerStatus() {
+          this.showLoading();
+
+          try {
+            const response = await fetchServer('/rcon/getstatus');
+            if (!response.ok) {
+              throw new Error(await response.text());
+            }
+
+            const statusData = await response.json();
+            this.displayStatus(statusData);
+          } catch (error) {
+            this.showError(error.message || error);
+          }
+        }
+
+        showLoading() {
+          this.content.innerHTML = `
+            <div class="status-loading">
+              <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+              <div>获取服务器状态中...</div>
+            </div>
+          `;
+        }
+
+        showError(message) {
+          this.content.innerHTML = `
+            <div class="status-error">
+              <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+              <div style="font-weight: 600; margin-bottom: 10px;">获取状态失败</div>
+              <div>${message}</div>
+            </div>
+          `;
+        }
+
+        displayStatus(statusData) {
+          // 处理状态数据并显示
+          const parsedData = this.parseStatusData(statusData);
+
+          // 创建属性框的HTML
+          let propertiesHtml = '';
+
+          // 基本服务器信息
+          const basicInfo = ['Hostname', 'Map', 'Players'];
+          let basicInfoHtml = '';
+          basicInfo.forEach((key) => {
+            const data = parsedData[key];
+            if (data) {
+              basicInfoHtml += `
+                <div class="status-property-box">
+                  <div class="status-property-header">
+                    ${data.icon} ${data.label}
+                  </div>
+                  <div class="status-property-content">
+                    <div class="status-property-value">${data.value}</div>
+                  </div>
+                </div>
+              `;
+            }
+          });
+
+          if (basicInfoHtml) {
+            propertiesHtml += `
+              <div class="basic-info-container">
+                ${basicInfoHtml}
+              </div>
+            `;
+          }
+
+          // 用户列表框
+          const usersData = parsedData.Users;
+          if (usersData) {
+            propertiesHtml += `
+              <div class="status-property-box">
+                <div class="status-property-header">
+                  👥 在线用户 (${usersData.users.length} 人)
+                </div>
+                <div class="status-property-content">
+                  ${
+                    usersData.users.length === 0
+                      ? '<div class="users-empty">🚫 当前无在线用户</div>'
+                      : `<div class="users-container">${usersData.users
+                          .map((user, index) => this.createUserCard(user, index + 1))
+                          .join('')}</div>`
+                  }
+                </div>
+              </div>
+            `;
+          }
+
+          this.content.innerHTML = `
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+              <div style="color: #667eea; font-weight: 600; font-size: 14px; margin-bottom: 8px;">
+                📊 服务器实时状态
+              </div>
+              <div style="color: #666; font-size: 12px;">
+                最后更新时间: ${new Date().toLocaleString()}
+              </div>
+            </div>
+            ${propertiesHtml}
+          `;
+        }
+
+        createUserCard(user, userNumber) {
+          const userName = user.name || user.Name || `用户${userNumber}`;
+          const userInitial = userName.charAt(0).toUpperCase();
+
+          return `
+            <div class="user-card">
+              <div class="user-header">
+                <div class="user-avatar">${userInitial}</div>
+                <div class="user-info">
+                  <div class="user-name">${userName}</div>
+                  <div class="user-id">#${user.id || user.Id || userNumber}</div>
+                </div>
+              </div>
+              <div class="user-details">
+                ${
+                  user.steamid || user.SteamId
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">🆔 Steam</span>
+                    <span class="user-detail-value">${(user.steamid || user.SteamId).slice(
+                      -8
+                    )}</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.ip || user.Ip
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">🌐 IP</span>
+                    <span class="user-detail-value">${(user.ip || user.Ip).split(':')[0]}</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.status || user.Status
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">🎮 状态</span>
+                    <span class="user-detail-value">${this.formatUserStatus(
+                      user.status || user.Status
+                    )}</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.delay !== undefined || user.Delay !== undefined
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">📡 延迟</span>
+                    <span class="user-detail-value">${user.delay || user.Delay}ms</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.loss !== undefined || user.Loss !== undefined
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">📉 丢包</span>
+                    <span class="user-detail-value">${user.loss || user.Loss}%</span>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  user.duration || user.Duration
+                    ? `
+                  <div class="user-detail-item">
+                    <span class="user-detail-label">⏱️ 时长</span>
+                    <span class="user-detail-value">${user.duration || user.Duration}</span>
+                  </div>
+                `
+                    : ''
+                }
+              </div>
+            </div>
+          `;
+        }
+
+        parseStatusData(data) {
+          const result = {};
+
+          // 如果是字符串，尝试解析
+          if (typeof data === 'string') {
+            try {
+              data = JSON.parse(data);
+            } catch (e) {
+              // 如果不是JSON，按行解析
+              const lines = data.split('\n').filter((line) => line.trim());
+              lines.forEach((line) => {
+                if (line.includes(':')) {
+                  const [key, ...valueParts] = line.split(':');
+                  const value = valueParts.join(':').trim();
+                  const normalizedKey =
+                    key.trim().charAt(0).toUpperCase() + key.trim().slice(1).toLowerCase();
+                  result[normalizedKey] = {
+                    label: key.trim(),
+                    value: value,
+                    icon: '�',
+                  };
+                }
+              });
+              return result;
+            }
+          }
+
+          // 如果是对象，处理各个属性
+          if (typeof data === 'object' && data !== null) {
+            // 处理服务器名称
+            if (data.hostname || data.Hostname) {
+              result.Hostname = {
+                label: '服务器名称',
+                value: data.hostname || data.Hostname,
+                icon: '🏠',
+              };
+            }
+
+            // 处理地图
+            if (data.map || data.Map) {
+              result.Map = {
+                label: '当前地图',
+                value: data.map || data.Map,
+                icon: '🗺️',
+              };
+            }
+
+            // 处理玩家数
+            if (data.players || data.Players) {
+              result.Players = {
+                label: '在线玩家',
+                value: data.players || data.Players,
+                icon: '👥',
+              };
+            }
+
+            // 处理用户列表
+            const users = data.users || data.Users;
+            if (users && Array.isArray(users)) {
+              result.Users = {
+                label: '在线用户',
+                users: users,
+                icon: '👥',
+              };
+            }
+          }
+
+          return result;
+        }
+
+        // 格式化用户状态 (字符串格式)
+        formatUserStatus(status) {
+          if (typeof status === 'string') {
+            const statusNames = {
+              active: '🎮 活跃',
+              idle: '😴 空闲',
+              dead: '💀 死亡',
+              spectator: '👀 观察',
+              connecting: '🔄 连接中',
+              disconnected: '❌ 已断开',
+            };
+            return statusNames[status.toLowerCase()] || `🔧 ${status}`;
+          }
+          return status;
+        }
+
+        // 格式化连接速率
+        formatLinkRate(rate) {
+          if (typeof rate !== 'number') return rate;
+
+          if (rate >= 1000000) {
+            return `${(rate / 1000000).toFixed(1)}Mbps`;
+          } else if (rate >= 1000) {
+            return `${(rate / 1000).toFixed(1)}Kbps`;
+          } else {
+            return `${rate}bps`;
+          }
+        }
+      }
+
+      // 初始化RCON地图对话框
+      const rconMapsDialog = new RconMapsDialog();
+
+      // 初始化服务器状态对话框
+      const serverStatusDialog = new ServerStatusDialog();
+
+      // 显示RCON地图列表
+      const showRconMapsHandler = async () => {
+        if (password.value === '') {
+          showWarning('请先输入管理密码！');
+          return;
+        }
+        rconMapsDialog.show();
+      };
+
+      // 显示服务器状态
+      const showServerStatusHandler = async () => {
+        if (password.value === '') {
+          showWarning('请先输入管理密码！');
+          return;
+        }
+        serverStatusDialog.show();
+      };
+
+      // 切换地图处理
+      const changeMapHandler = async (mapName) => {
+        const confirmed = await confirmAction(
+          `确定要切换到地图 "${mapName}" 吗？\n切换地图将重新开始游戏。`,
+          '切换地图'
+        );
+
+        if (!confirmed) return;
+
+        // 禁用所有切换按钮防止重复点击
+        const switchButtons = document.querySelectorAll('.btn-switch');
+        switchButtons.forEach((btn) => (btn.disabled = true));
+
+        try {
+          const response = await fetchServerWithMapName('/rcon/changemap', mapName);
+
+          if (response.ok) {
+            const message = await response.text();
+            showNotification(message, '地图切换成功');
+            rconMapsDialog.close();
+          } else {
+            throw new Error(await response.text());
+          }
+        } catch (error) {
+          showError(error.message || error);
+        } finally {
+          // 重新启用切换按钮
+          switchButtons.forEach((btn) => (btn.disabled = false));
+        }
+      };
+
+      // 初始化系统
+      const notificationSystem = new NotificationSystem();
+      const confirmDialog = new ConfirmDialog();
+
+      // 替换原生alert和confirm
+      const showNotification = notificationSystem.success.bind(notificationSystem);
+      const showError = notificationSystem.error.bind(notificationSystem);
+      const showWarning = notificationSystem.warning.bind(notificationSystem);
+      const showInfo = notificationSystem.info.bind(notificationSystem);
+      const confirmAction = confirmDialog.show.bind(confirmDialog);
+
+      // 更新list
+      const updateList = () => {
+        fetch('/list', {
+          method: 'post',
+        })
+          .then(async (res) => {
+            const text = await res.text();
+            maps = text.split('\n');
+            maps.pop();
+            list.innerHTML = '';
+            maps.forEach((map) => {
+              const container = document.createElement('div');
+              container.className = 'map-item';
+              const span = document.createElement('span');
+              span.className = 'map-name';
+              span.innerText = map;
+              const del = document.createElement('button');
+              del.className = 'btn-delete';
+              del.innerText = 'delete';
+              del.onclick = async () => {
+                const confirmed = await confirmAction(`确定要删除地图 "${map}" 吗？`, '删除地图');
+                if (confirmed) {
+                  fetchServer('/remove', map)
+                    .then(async (res) => {
+                      updateList();
+                      showNotification('地图删除成功！');
+                    })
+                    .catch((err) => {
+                      showError(err);
+                    });
+                }
+              };
+              container.appendChild(span);
+              container.appendChild(del);
+              list.appendChild(container);
+            });
+          })
+          .catch((err) => {
+            showError(err);
+          });
+      };
+      updateList();
+
+      const uploadHandler = async () => {
+        if (map.files.length === 0) {
+          showWarning('请先选择要上传的地图文件！');
+          return;
+        }
+
+        showLoading(`上传准备中...`, 0);
+
+        try {
+          // 先验证密码
+          const authRes = await fetchServer('/auth');
+          if (!authRes.ok) {
+            throw new Error(await authRes.text());
+          }
+
+          let successCount = 0;
+          let failedFiles = [];
+          let totalProgress = 0;
+
+          // 逐个上传文件
+          for (let i = 0; i < map.files.length; i++) {
+            const file = map.files[i];
+            const fileProgress = Math.round((i / map.files.length) * 100);
+
+            showLoading(`准备上传 (${i + 1}/${map.files.length}) - ${file.name}`, fileProgress);
+
+            try {
+              const res = await fetchServerWithFileProgress('/upload', file, (progress) => {
+                // 计算总体进度：已完成文件进度 + 当前文件进度
+                const completedFilesProgress = (i / map.files.length) * 100;
+                const currentFileProgress = progress / map.files.length;
+                const totalCurrentProgress = Math.round(
+                  completedFilesProgress + currentFileProgress
+                );
+
+                showLoading(
+                  `上传中 (${i + 1}/${map.files.length}) - ${file.name} (${Math.round(progress)}%)`,
+                  totalCurrentProgress
+                );
+              });
+
+              if (res.ok) {
+                successCount++;
+                totalProgress = Math.round(((i + 1) / map.files.length) * 100);
+                showLoading(`✅ 完成 (${i + 1}/${map.files.length}) - ${file.name}`, totalProgress);
+                // 短暂显示完成状态
+                await new Promise((resolve) => setTimeout(resolve, 300));
+              } else {
+                failedFiles.push(`${file.name}: ${await res.text()}`);
+              }
+            } catch (err) {
+              failedFiles.push(`${file.name}: ${err.message}`);
+            }
+          }
+
+          // 完成时显示100%进度
+          showLoading('🎉 上传完成！', 100);
+
+          // 延迟一下再显示结果
+          setTimeout(() => {
+            let resultMessage = `成功上传 ${successCount}/${map.files.length} 个文件`;
+            if (failedFiles.length > 0) {
+              resultMessage += `\n\n失败的文件:\n${failedFiles.join('\n')}`;
+              showWarning(resultMessage, '上传完成');
+            } else {
+              showNotification(resultMessage, '上传成功');
+            }
+            updateList();
+            hiddenLoading();
+          }, 800);
+        } catch (err) {
+          showError(err);
+          hiddenLoading();
+        }
+      };
+
+      const restartHandler = async () => {
+        const confirmed = await confirmAction(
+          '重启服务器将断开所有玩家连接，确认继续？',
+          '重启服务器'
+        );
+        if (!confirmed) return;
+
+        showLoading('重启服务器中...', 50);
+        fetchServer('/restart')
+          .then(async (res) => {
+            const text = await res.text();
+            showLoading('重启完成！', 100);
+            setTimeout(() => {
+              showNotification(text, '服务器重启');
+              hiddenLoading();
+            }, 500);
+          })
+          .catch((err) => {
+            showError(err);
+            hiddenLoading();
+          });
+      };
+
+      const clearHandler = async () => {
+        const confirmed = await confirmAction(
+          '此操作将删除服务器上的所有地图文件，确认继续？',
+          '清空地图目录'
+        );
+        if (!confirmed) return;
+
+        showLoading('清理地图目录中...', 30);
+        fetchServer('/clear')
+          .then(async (res) => {
+            const text = await res.text();
+            showLoading('清理完成！', 100);
+            setTimeout(() => {
+              updateList();
+              showNotification(text, '清理完成');
+              hiddenLoading();
+            }, 500);
+          })
+          .catch((err) => {
+            showError(err);
+            hiddenLoading();
+          });
+      };
+
+      const loadingText = document.getElementById('loading-text');
+      const loading = document.getElementById('loading');
+      const loadingProgressBar = document.getElementById('loading-progress-bar');
+      const loadingProgressText = document.getElementById('loading-progress-text');
+
+      function showLoading(text, progress = 0) {
+        loadingText.innerText = text;
+        loadingProgressBar.style.width = progress + '%';
+        loadingProgressText.innerText = Math.round(progress) + '%';
+        loading.style.display = 'flex';
+      }
+
+      function hiddenLoading() {
+        loading.style.display = 'none';
+        loadingProgressBar.style.width = '0%';
+        loadingProgressText.innerText = '0%';
+      }
+
+      function fetchServerWithFile(path, file) {
+        if (password.value === '') {
+          return Promise.reject(new Error('密码不能为空！'));
+        }
+        const fd = new FormData();
+        fd.append('password', password.value);
+        fd.append('map', file);
+
+        return fetch(path, {
+          method: 'POST',
+          body: fd,
+        });
+      }
+
+      function fetchServerWithFileProgress(path, file, progressCallback) {
+        if (password.value === '') {
+          return Promise.reject(new Error('密码不能为空！'));
+        }
+
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          const fd = new FormData();
+          fd.append('password', password.value);
+          fd.append('map', file);
+
+          // 上传进度监听
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+              const progress = (e.loaded / e.total) * 100;
+              if (progressCallback) {
+                progressCallback(progress);
+              }
+            }
+          });
+
+          // 完成监听
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve({
+                ok: true,
+                status: xhr.status,
+                text: () => Promise.resolve(xhr.responseText),
+              });
+            } else {
+              resolve({
+                ok: false,
+                status: xhr.status,
+                text: () => Promise.resolve(xhr.responseText),
+              });
+            }
+          });
+
+          // 错误监听
+          xhr.addEventListener('error', () => {
+            reject(new Error('网络错误'));
+          });
+
+          xhr.open('POST', path);
+          xhr.send(fd);
+        });
+      }
+
+      function fetchServer(path, mapName) {
+        if (password.value === '') {
+          return Promise.reject('密码不能为空！');
+        }
+        const fd = new FormData();
+        fd.append('password', password.value);
+        if (mapName) {
+          fd.append('map', mapName);
+        }
+
+        return fetch(path, {
+          method: 'POST',
+          body: fd,
+        });
+      }
+
+      function fetchServerWithMapName(path, mapName) {
+        if (password.value === '') {
+          return Promise.reject(new Error('密码不能为空！'));
+        }
+        const fd = new FormData();
+        fd.append('password', password.value);
+        fd.append('mapName', mapName);
+
+        return fetch(path, {
+          method: 'POST',
+          body: fd,
+        });
+      }
+
+      // 文件选择变化处理
+      map.addEventListener('change', function () {
+        const fileInfo = document.getElementById('file-selected-info');
+        const fileCount = document.getElementById('file-count');
+        const fileList = document.getElementById('file-list');
+
+        if (this.files.length > 0) {
+          fileCount.textContent = `已选择 ${this.files.length} 个文件`;
+          fileList.innerHTML = '';
+
+          Array.from(this.files).forEach((file) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.textContent = file.name;
+            fileList.appendChild(fileItem);
+          });
+
+          fileInfo.classList.add('show');
+        } else {
+          fileInfo.classList.remove('show');
+        }
+      });
+    </script>
+  </body>
+</html>
