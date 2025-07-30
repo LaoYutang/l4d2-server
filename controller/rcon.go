@@ -73,7 +73,7 @@ func ChangeMap(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	_, err = conn.Execute("map " + mapName)
+	_, err = conn.Execute("changelevel " + mapName)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "RCON命令执行失败: %v", err)
 		return
