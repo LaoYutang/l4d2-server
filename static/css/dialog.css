@@ -482,7 +482,7 @@
 .users-container {
   display: grid;
   gap: 15px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
 .user-card {
@@ -564,16 +564,27 @@
   background: rgba(102, 126, 234, 0.05);
   border-radius: 6px;
   font-size: 12px;
+  min-height: 32px;
+  overflow: hidden;
 }
 
 .user-detail-label {
   color: #666;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .user-detail-value {
   color: #333;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  margin-left: 8px;
 }
 
 .users-empty {
@@ -586,6 +597,47 @@
 }
 
 /* 响应式设计 */
+@media (min-width: 2000px) {
+  .users-container {
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 30px;
+  }
+  
+  .user-card {
+    padding: 25px;
+  }
+  
+  .user-details {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+  
+  .user-detail-item {
+    padding: 10px 15px;
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .users-container {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 25px;
+  }
+  
+  .user-card {
+    padding: 20px;
+  }
+  
+  .user-details {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  
+  .user-detail-item {
+    padding: 8px 12px;
+  }
+}
+
 @media (min-width: 1200px) {
   .status-dialog {
     max-width: 98vw;
@@ -594,7 +646,7 @@
   }
 
   .users-container {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 20px;
   }
 
@@ -614,6 +666,11 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
+  }
+
+  .users-container {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
   }
 
   .user-details {
