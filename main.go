@@ -32,7 +32,7 @@ func main() {
 	router.POST("/remove", middlewares.Auth(), controller.Remove)
 	router.POST("/rcon/maplist", middlewares.Auth(), controller.GetRconMapList)
 	router.POST("/rcon/changemap", middlewares.Auth(), controller.ChangeMap)
-	router.POST("/rcon/getstatus", middlewares.Auth(), controller.GetStatus)
+	router.POST("/rcon/getstatus", controller.GetStatus)
 
 	router.Run(":27020")
 }
