@@ -682,3 +682,193 @@ class MapManagementDialog {
     return this.overlay.style.display === 'flex';
   }
 }
+
+// 主页面服务器状态管理系统
+class MainServerStatus {
+  constructor() {
+    this.content = document.getElementById('server-status-content');
+    this.loading = document.getElementById('server-status-loading');
+  }
+
+  async loadServerStatus() {
+    this.showLoading();
+
+    try {
+      // 主页面的服务器状态不需要密码验证，直接调用API
+      const response = await fetch('/rcon/getstatus', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      const statusData = await response.json();
+      this.displayStatus(statusData);
+    } catch (error) {
+      this.showError(error.message || error);
+    }
+  }
+
+  showLoading() {
+    this.content.innerHTML = `
+      <div class="server-status-loading">
+        <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+        <div>获取服务器状态中...</div>
+      </div>
+    `;
+  }
+
+  showError(message) {
+    this.content.innerHTML = `
+      <div class="server-status-error">
+        <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+        <div style="font-weight: 600; margin-bottom: 10px;">获取状态失败</div>
+        <div>${message}</div>
+      </div>
+    `;
+  }
+
+  displayStatus(statusData) {
+    // 复用 ServerStatusDialog 的解析和显示逻辑
+    const serverStatusDialog = window.serverStatusDialog;
+    if (!serverStatusDialog) {
+      this.showError('系统初始化错误');
+      return;
+    }
+
+    // 处理状态数据并显示
+    const parsedData = serverStatusDialog.parseStatusData(statusData);
+
+    // 创建属性框的HTML
+    let propertiesHtml = '';
+
+    // 基本服务器信息
+    const basicInfo = ['Hostname', 'Map', 'Players'];
+    let basicInfoHtml = '';
+    basicInfo.forEach((key) => {
+      const data = parsedData[key];
+      if (data) {
+        basicInfoHtml += `
+          <div class="status-property-box">
+            <div class="status-property-header">
+              ${data.icon} ${data.label}
+            </div>
+            <div class="status-property-content">
+              <div class="status-property-value">${data.value}</div>
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    if (basicInfoHtml) {
+      propertiesHtml += `
+        <div class="basic-info-container">
+          ${basicInfoHtml}
+        </div>
+      `;
+    }
+
+    // 用户列表框
+    const usersData = parsedData.Users;
+    if (usersData) {
+      const userCount = usersData.users.length;
+      const singleUserClass = userCount === 1 ? ' single-user' : '';
+
+      propertiesHtml += `
+        <div class="status-property-box">
+          <div class="status-property-header">
+            👥 在线用户 (${userCount} 人)
+          </div>
+          <div class="status-property-content">
+            ${
+              userCount === 0
+                ? '<div class="users-empty">🚫 当前无在线用户</div>'
+                : `<div class="users-container${singleUserClass}">${usersData.users
+                    .map((user, index) => this.createUserCard(user, index + 1))
+                    .join('')}</div>`
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    this.content.innerHTML = `
+      <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+        <div style="color: #667eea; font-weight: 600; font-size: 14px; margin-bottom: 8px;">
+          📊 服务器实时状态
+        </div>
+        <div style="color: #666; font-size: 12px;">
+          最后更新时间: ${new Date().toLocaleString()}
+        </div>
+      </div>
+      ${propertiesHtml}
+    `;
+  }
+
+  createUserCard(user, userNumber) {
+    // 复用 ServerStatusDialog 的 createUserCard 方法
+    const serverStatusDialog = window.serverStatusDialog;
+    if (serverStatusDialog && typeof serverStatusDialog.createUserCard === 'function') {
+      return serverStatusDialog.createUserCard(user, userNumber);
+    }
+
+    // 如果没有可用的方法，使用简化版本
+    const userName = user.name || user.Name || `用户${userNumber}`;
+    const userInitial = userName.charAt(0).toUpperCase();
+
+    return `
+      <div class="user-card">
+        <div class="user-header">
+          <div class="user-avatar">${userInitial}</div>
+          <div class="user-info">
+            <div class="user-name">${userName}</div>
+            <div class="user-id">#${user.id || user.Id || userNumber}</div>
+          </div>
+        </div>
+        <div class="user-details">
+          ${
+            user.steamid || user.SteamId
+              ? `
+            <div class="user-detail-item">
+              <span class="user-detail-label">🆔 Steam</span>
+              <span class="user-detail-value steamid" title="${
+                user.steamid || user.SteamId
+              }">${this.formatSteamId(user.steamid || user.SteamId)}</span>
+            </div>
+          `
+              : ''
+          }
+          ${
+            user.ip || user.Ip
+              ? `
+            <div class="user-detail-item">
+              <span class="user-detail-label">🌐 IP</span>
+              <span class="user-detail-value">${(user.ip || user.Ip).split(':')[0]}</span>
+            </div>
+          `
+              : ''
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  formatSteamId(steamId) {
+    // 复用 ServerStatusDialog 的 formatSteamId 方法
+    const serverStatusDialog = window.serverStatusDialog;
+    if (serverStatusDialog && typeof serverStatusDialog.formatSteamId === 'function') {
+      return serverStatusDialog.formatSteamId(steamId);
+    }
+
+    // 如果没有可用的方法，使用简化版本
+    if (!steamId) return '';
+
+    const steamIdStr = String(steamId);
+    if (steamIdStr.length > 12) {
+      return `${steamIdStr.slice(0, 4)}...${steamIdStr.slice(-8)}`;
+    }
+    return steamIdStr;
+  }
+}
