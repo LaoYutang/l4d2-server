@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/loading.css" />
     <link rel="stylesheet" href="css/notification.css" />
     <link rel="stylesheet" href="css/dialog.css" />
+    <link rel="stylesheet" href="css/server-status.css" />
   </head>
   <body>
     <div class="container">
@@ -33,9 +34,31 @@
         <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
           🎮 加载地图
         </button>
-        <button id="server-status" class="btn btn-primary" onclick="showServerStatusHandler()">
-          🖥️ 服务器状态
-        </button>
+      </div>
+    </div>
+
+    <!-- 服务器状态卡片 -->
+    <div class="server-status-section">
+      <div class="server-status-card">
+        <div class="server-status-header">
+          <div class="server-status-title">🖥️ 服务器状态</div>
+          <button
+            id="status-refresh-main"
+            class="status-refresh-btn"
+            onclick="refreshServerStatus()"
+          >
+            🔄 刷新状态
+          </button>
+        </div>
+        <div id="server-status-content" class="server-status-content">
+          <div id="server-status-loading" class="server-status-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div>获取服务器状态中...</div>
+          </div>
+        </div>
       </div>
     </div>
 
