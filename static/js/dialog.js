@@ -393,16 +393,19 @@ class ServerStatusDialog {
     // 用户列表框
     const usersData = parsedData.Users;
     if (usersData) {
+      const userCount = usersData.users.length;
+      const singleUserClass = userCount === 1 ? ' single-user' : '';
+
       propertiesHtml += `
         <div class="status-property-box">
           <div class="status-property-header">
-            👥 在线用户 (${usersData.users.length} 人)
+            👥 在线用户 (${userCount} 人)
           </div>
           <div class="status-property-content">
             ${
-              usersData.users.length === 0
+              userCount === 0
                 ? '<div class="users-empty">🚫 当前无在线用户</div>'
-                : `<div class="users-container">${usersData.users
+                : `<div class="users-container${singleUserClass}">${usersData.users
                     .map((user, index) => this.createUserCard(user, index + 1))
                     .join('')}</div>`
             }
@@ -443,7 +446,9 @@ class ServerStatusDialog {
               ? `
             <div class="user-detail-item">
               <span class="user-detail-label">🆔 Steam</span>
-              <span class="user-detail-value">${(user.steamid || user.SteamId).slice(-8)}</span>
+              <span class="user-detail-value steamid" title="${
+                user.steamid || user.SteamId
+              }">${this.formatSteamId(user.steamid || user.SteamId)}</span>
             </div>
           `
               : ''
@@ -589,6 +594,26 @@ class ServerStatusDialog {
       return statusNames[status.toLowerCase()] || `🔧 ${status}`;
     }
     return status;
+  }
+
+  // 格式化SteamID显示
+  formatSteamId(steamId) {
+    if (!steamId) return '';
+
+    const steamIdStr = String(steamId);
+
+    // 如果是标准的Steam64ID (17位数字)
+    if (steamIdStr.length === 17 && /^\d+$/.test(steamIdStr)) {
+      return `${steamIdStr.slice(0, 5)}...${steamIdStr.slice(-8)}`;
+    }
+
+    // 如果SteamID太长，显示前4位...后8位的格式
+    if (steamIdStr.length > 12) {
+      return `${steamIdStr.slice(0, 4)}...${steamIdStr.slice(-8)}`;
+    }
+
+    // 如果不太长，直接显示
+    return steamIdStr;
   }
 
   // 格式化连接速率

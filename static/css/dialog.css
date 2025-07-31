@@ -482,7 +482,16 @@
 .users-container {
   display: grid;
   gap: 15px;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  max-width: 100%;
+  justify-content: start;
+}
+
+/* 单个用户时的特殊样式类 */
+.users-container.single-user {
+  justify-content: start;
+  grid-template-columns: minmax(320px, 400px);
+  max-width: 400px;
 }
 
 .user-card {
@@ -493,6 +502,8 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  max-width: 500px;
+  width: 100%;
 }
 
 .user-card::before {
@@ -552,7 +563,7 @@
 
 .user-details {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
@@ -587,6 +598,12 @@
   margin-left: 8px;
 }
 
+.user-detail-value.steamid {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
 .users-empty {
   text-align: center;
   padding: 40px;
@@ -599,16 +616,21 @@
 /* 响应式设计 */
 @media (min-width: 2000px) {
   .users-container {
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
     gap: 30px;
+  }
+  
+  .users-container.single-user {
+    max-width: 500px;
   }
   
   .user-card {
     padding: 25px;
+    max-width: 600px;
   }
   
   .user-details {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
   }
   
@@ -620,16 +642,21 @@
 
 @media (min-width: 1600px) {
   .users-container {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 25px;
+  }
+  
+  .users-container.single-user {
+    max-width: 450px;
   }
   
   .user-card {
     padding: 20px;
+    max-width: 550px;
   }
   
   .user-details {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
   
@@ -646,7 +673,7 @@
   }
 
   .users-container {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 20px;
   }
 
@@ -669,12 +696,12 @@
   }
 
   .users-container {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 18px;
   }
 
   .user-details {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -697,6 +724,10 @@
 
   .user-details {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .user-detail-value.steamid {
+    font-size: 10px;
   }
 
   .status-property-header {
