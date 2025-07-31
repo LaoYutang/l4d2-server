@@ -225,15 +225,6 @@ document.addEventListener('DOMContentLoaded', function () {
     rconMapsDialog.show();
   }
 
-  // 显示服务器状态
-  async function showServerStatusHandler() {
-    if (password.value === '') {
-      showWarning('请先输入管理密码！');
-      return;
-    }
-    serverStatusDialog.show();
-  }
-
   // 切换地图处理
   async function changeMapHandler(mapName) {
     const confirmed = await confirmAction(
@@ -293,10 +284,17 @@ document.addEventListener('DOMContentLoaded', function () {
   restart.addEventListener('click', restartHandler);
   clear.addEventListener('click', clearHandler);
 
+  // 初始化主页面服务器状态
+  const mainServerStatus = new MainServerStatus();
+  window.mainServerStatus = mainServerStatus;
+
+  // 页面加载后自动获取服务器状态
+  mainServerStatus.loadServerStatus();
+
   // 设置全局函数
   window.showMapManagementHandler = showMapManagementHandler;
   window.showRconMapsHandler = showRconMapsHandler;
-  window.showServerStatusHandler = showServerStatusHandler;
   window.changeMapHandler = changeMapHandler;
   window.updateList = updateList;
+  window.refreshServerStatus = () => mainServerStatus.loadServerStatus();
 });
