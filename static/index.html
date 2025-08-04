@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/notification.css" />
     <link rel="stylesheet" href="css/dialog.css" />
     <link rel="stylesheet" href="css/server-status.css" />
+    <link rel="stylesheet" href="css/footer.css" />
   </head>
   <body>
     <div class="container">
@@ -22,7 +23,7 @@
       <div class="form-section">
         <div class="form-group">
           <label>密码</label>
-          <input id="password" type="password" placeholder="请输入管理密码" />
+          <input id="password" type="password" placeholder="请输入管理密码或授权码" />
         </div>
       </div>
 
@@ -33,6 +34,9 @@
         <button id="restart" class="btn btn-warning">🔄 重启服务器</button>
         <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
           🎮 加载地图
+        </button>
+        <button id="auth-code" class="btn btn-success" onclick="showAuthCodeHandler()">
+          🔑 生成授权码
         </button>
       </div>
     </div>
@@ -99,7 +103,7 @@
                 <div class="file-input-button" onclick="document.getElementById('map').click()">
                   <span class="file-input-icon">📁</span>
                   <div class="file-input-text">选择地图文件</div>
-                  <div class="file-input-hint">支持 .vpk 格式，可多选</div>
+                  <div class="file-input-hint">支持 vpk与单层zip 格式，可多选</div>
                 </div>
                 <div id="file-selected-info" class="file-selected-info">
                   <div id="file-count" class="file-count"></div>
@@ -181,6 +185,88 @@
         </button>
       </div>
     </div>
+
+    <!-- 授权码管理弹框 -->
+    <div id="auth-code-overlay" class="auth-code-overlay">
+      <div id="auth-code-dialog" class="auth-code-dialog">
+        <div class="auth-code-header">
+          <div class="auth-code-title">🔑 生成临时授权码</div>
+          <button id="auth-code-close" class="auth-code-close">×</button>
+        </div>
+        <div class="auth-code-content">
+          <div class="form-group">
+            <label>有效期 (小时)</label>
+            <select id="auth-code-expired" class="form-select">
+              <option value="1">1小时</option>
+              <option value="2">2小时</option>
+              <option value="6">6小时</option>
+              <option value="12">12小时</option>
+              <option value="24">24小时</option>
+              <option value="72">72小时</option>
+              <option value="168">7天</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button id="generate-auth-code" class="btn btn-primary full-width">
+              🔑 生成授权码
+            </button>
+          </div>
+          <div id="auth-code-result" class="auth-code-result" style="display: none">
+            <div class="form-group">
+              <label>授权码</label>
+              <div class="auth-code-display">
+                <input id="auth-code-token" type="text" readonly class="auth-code-input" />
+                <button id="copy-auth-code" class="btn btn-copy">📋 复制</button>
+              </div>
+            </div>
+            <div class="auth-code-info">
+              <p>⚠️ 此授权码具有管理员权限，请妥善保管</p>
+              <p>🕒 有效期至：<span id="auth-code-expires"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 页面底部信息 -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <div class="footer-title">📖 开源信息</div>
+          <div class="footer-links">
+            <a href="https://github.com/LaoYutang/l4d2-server" target="_blank" class="footer-link">
+              🔗 GitHub 仓库
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <div class="footer-title">⚖️ 开源协议</div>
+          <div class="footer-text">
+            本项目基于 Apache License 2.0 开源协议发布<br />
+            欢迎贡献代码和提出建议
+          </div>
+        </div>
+        <div class="footer-section">
+          <div class="footer-title">ℹ️ 项目信息</div>
+          <div class="footer-text">
+            L4D2 服务器管理工具<br />
+            © 2025 开源社区贡献
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          Made with ❤️ by the community |
+          <a
+            href="https://github.com/LaoYutang/l4d2-server/blob/master/LICENSE"
+            target="_blank"
+            class="footer-link"
+          >
+            查看许可证
+          </a>
+        </div>
+      </div>
+    </footer>
 
     <!-- JavaScript 文件 -->
     <script src="js/notification.js"></script>
