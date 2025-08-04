@@ -295,6 +295,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 授权码管理处理函数
   function showAuthCodeHandler() {
+    if (password.value === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
     authCodeDialog.show();
   }
 
