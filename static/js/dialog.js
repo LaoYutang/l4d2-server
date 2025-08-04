@@ -872,3 +872,144 @@ class MainServerStatus {
     return steamIdStr;
   }
 }
+
+// 授权码管理弹框
+class AuthCodeDialog {
+  constructor() {
+    this.overlay = document.getElementById('auth-code-overlay');
+    this.dialog = document.getElementById('auth-code-dialog');
+    this.closeButton = document.getElementById('auth-code-close');
+    this.expiredSelect = document.getElementById('auth-code-expired');
+    this.generateButton = document.getElementById('generate-auth-code');
+    this.resultSection = document.getElementById('auth-code-result');
+    this.tokenInput = document.getElementById('auth-code-token');
+    this.copyButton = document.getElementById('copy-auth-code');
+    this.expiresSpan = document.getElementById('auth-code-expires');
+
+    this.initEventListeners();
+  }
+
+  initEventListeners() {
+    // 关闭按钮
+    this.closeButton.addEventListener('click', () => {
+      this.close();
+    });
+
+    // 点击遮罩关闭
+    this.overlay.addEventListener('click', (e) => {
+      if (e.target === this.overlay) {
+        this.close();
+      }
+    });
+
+    // 生成授权码按钮
+    this.generateButton.addEventListener('click', () => {
+      this.generateAuthCode();
+    });
+
+    // 复制按钮
+    this.copyButton.addEventListener('click', () => {
+      this.copyAuthCode();
+    });
+
+    // ESC键关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isVisible()) {
+        this.close();
+      }
+    });
+  }
+
+  show() {
+    this.overlay.style.display = 'flex';
+    this.resultSection.style.display = 'none';
+    this.expiredSelect.value = '1'; // 重置为默认值
+
+    setTimeout(() => {
+      this.dialog.classList.add('show');
+    }, 50);
+  }
+
+  close() {
+    this.dialog.classList.remove('show');
+    setTimeout(() => {
+      this.overlay.style.display = 'none';
+    }, 300);
+  }
+
+  isVisible() {
+    return this.overlay.style.display === 'flex';
+  }
+
+  async generateAuthCode() {
+    const expired = this.expiredSelect.value;
+
+    if (!serverAPI.password) {
+      showError('请先输入管理密码！');
+      return;
+    }
+
+    this.generateButton.disabled = true;
+    this.generateButton.textContent = '🔄 生成中...';
+
+    try {
+      const formData = new FormData();
+      formData.append('password', serverAPI.password);
+      formData.append('expired', expired);
+
+      const response = await fetch('/auth/getTempAuthCode', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const token = await response.text();
+        this.showAuthCodeResult(token, expired);
+        showNotification('授权码生成成功！');
+      } else {
+        const errorText = await response.text();
+        showError(`生成授权码失败: ${errorText}`);
+      }
+    } catch (error) {
+      showError(`生成授权码失败: ${error.message}`);
+    } finally {
+      this.generateButton.disabled = false;
+      this.generateButton.textContent = '🔑 生成授权码';
+    }
+  }
+
+  showAuthCodeResult(token, expired) {
+    this.tokenInput.value = token;
+
+    // 计算过期时间
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + parseInt(expired));
+    this.expiresSpan.textContent = expiryDate.toLocaleString();
+
+    this.resultSection.style.display = 'block';
+  }
+
+  async copyAuthCode() {
+    try {
+      await navigator.clipboard.writeText(this.tokenInput.value);
+
+      // 临时改变按钮文本
+      const originalText = this.copyButton.textContent;
+      this.copyButton.textContent = '✅ 已复制';
+      this.copyButton.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+
+      setTimeout(() => {
+        this.copyButton.textContent = originalText;
+        this.copyButton.style.background = '';
+      }, 2000);
+
+      showNotification('授权码已复制到剪贴板！');
+    } catch (error) {
+      // 如果剪贴板API不可用，使用传统方法
+      this.tokenInput.select();
+      this.tokenInput.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      showNotification('授权码已复制到剪贴板！');
+    }
+  }
+}

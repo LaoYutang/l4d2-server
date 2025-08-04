@@ -34,6 +34,9 @@
         <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
           🎮 加载地图
         </button>
+        <button id="auth-code" class="btn btn-success" onclick="showAuthCodeHandler()">
+          🔑 生成授权码
+        </button>
       </div>
     </div>
 
@@ -179,6 +182,48 @@
         >
           🔄 刷新状态
         </button>
+      </div>
+    </div>
+
+    <!-- 授权码管理弹框 -->
+    <div id="auth-code-overlay" class="auth-code-overlay">
+      <div id="auth-code-dialog" class="auth-code-dialog">
+        <div class="auth-code-header">
+          <div class="auth-code-title">🔑 生成临时授权码</div>
+          <button id="auth-code-close" class="auth-code-close">×</button>
+        </div>
+        <div class="auth-code-content">
+          <div class="form-group">
+            <label>有效期 (小时)</label>
+            <select id="auth-code-expired" class="form-select">
+              <option value="1">1小时</option>
+              <option value="2">2小时</option>
+              <option value="6">6小时</option>
+              <option value="12">12小时</option>
+              <option value="24">24小时</option>
+              <option value="72">72小时</option>
+              <option value="168">7天</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button id="generate-auth-code" class="btn btn-primary full-width">
+              🔑 生成授权码
+            </button>
+          </div>
+          <div id="auth-code-result" class="auth-code-result" style="display: none">
+            <div class="form-group">
+              <label>授权码</label>
+              <div class="auth-code-display">
+                <input id="auth-code-token" type="text" readonly class="auth-code-input" />
+                <button id="copy-auth-code" class="btn btn-copy">📋 复制</button>
+              </div>
+            </div>
+            <div class="auth-code-info">
+              <p>⚠️ 此授权码具有管理员权限，请妥善保管</p>
+              <p>🕒 有效期至：<span id="auth-code-expires"></span></p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const rconMapsDialog = new RconMapsDialog();
   const serverStatusDialog = new ServerStatusDialog();
   const mapManagementDialog = new MapManagementDialog();
+  const authCodeDialog = new AuthCodeDialog();
 
   // 设置全局实例
   window.notificationSystem = notificationSystem;
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.rconMapsDialog = rconMapsDialog;
   window.serverStatusDialog = serverStatusDialog;
   window.mapManagementDialog = mapManagementDialog;
+  window.authCodeDialog = authCodeDialog;
 
   // 替换原生alert和confirm
   const showNotification = notificationSystem.success.bind(notificationSystem);
@@ -291,9 +293,15 @@ document.addEventListener('DOMContentLoaded', function () {
   // 页面加载后自动获取服务器状态
   mainServerStatus.loadServerStatus();
 
+  // 授权码管理处理函数
+  function showAuthCodeHandler() {
+    authCodeDialog.show();
+  }
+
   // 设置全局函数
   window.showMapManagementHandler = showMapManagementHandler;
   window.showRconMapsHandler = showRconMapsHandler;
+  window.showAuthCodeHandler = showAuthCodeHandler;
   window.changeMapHandler = changeMapHandler;
   window.updateList = updateList;
   window.refreshServerStatus = () => mainServerStatus.loadServerStatus();
