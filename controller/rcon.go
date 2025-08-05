@@ -170,13 +170,10 @@ func parseStatus(statusText string) *Status {
 }
 
 func parseUser(line string) *User {
-	// 移除开头的"# "
-	line = strings.TrimPrefix(line, "# ")
-
 	// 使用正则表达式解析用户信息
 	// # 125 5 "LaoYutang" STEAM_1:1:85790159  2:23:17 41 0 active 60000 61.141.153.96:52904
 	// 时间格式: \d+(?::\d+)+ 可以匹配 2:45, 2:45:54, 1:2:45:54 等
-	re := regexp.MustCompile(`^(\d+)\s+(\d+)\s+"([^"]+)"\s+([A-Z_:0-9]+)\s+(\d+(?::\d+)+)\s+(\d+)\s+(\d+)\s+(\w+)\s+(\d+)\s+([0-9.]+:\d+)`)
+	re := regexp.MustCompile(`^#\s*(\d+)\s+(\d+)\s+"([^"]+)"\s+([A-Z_:0-9]+)\s+(\d+(?::\d+)+)\s+(\d+)\s+(\d+)\s+(\w+)\s+(\d+)\s+([0-9.]+:\d+)`)
 	matches := re.FindStringSubmatch(line)
 
 	if len(matches) < 11 {
