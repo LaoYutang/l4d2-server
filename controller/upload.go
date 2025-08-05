@@ -13,9 +13,18 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shirou/gopsutil/v3/disk"
 )
 
 func Upload(c *gin.Context) {
+	if stat, err := disk.Usage(BasePath); err != nil {
+		c.String(http.StatusInternalServerError, "获取磁盘使用信息失败: %v", err)
+		return
+	} else if stat.UsedPercent > 90 {
+		c.String(http.StatusInternalServerError, "磁盘空间不足，当前使用率超过90%")
+		return
+	}
+
 	file, err := c.FormFile("map")
 	if err != nil {
 		c.String(http.StatusBadRequest, "文件信息有误")
