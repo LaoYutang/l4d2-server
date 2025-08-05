@@ -505,6 +505,18 @@ class ServerStatusDialog {
           `
               : ''
           }
+          ${
+            user.linkrate !== undefined || user.LinkRate !== undefined
+              ? `
+            <div class="user-detail-item">
+              <span class="user-detail-label">🔗 连接速率</span>
+              <span class="user-detail-value">${this.formatLinkRate(
+                user.linkrate || user.LinkRate
+              )}</span>
+            </div>
+          `
+              : ''
+          }
         </div>
       </div>
     `;
