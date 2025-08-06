@@ -289,18 +289,91 @@ body {
 }
 
 .map-item:hover {
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.map-item:hover .map-size:not(.size-small):not(.size-medium):not(.size-large) {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.12));
+  border-color: rgba(102, 126, 234, 0.25);
+  color: #5a67d8;
+  transform: scale(1.02);
 }
 
 .map-item:last-child {
   margin-bottom: 0;
 }
 
+.map-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .map-name {
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
   font-size: 16px;
+  line-height: 1.3;
+}
+
+.map-size {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+}
+
+.map-size:before {
+  content: '📦';
+  margin-right: 4px;
+  font-size: 10px;
+}
+
+/* 不同大小文件的颜色主题 */
+.map-size.size-small {
+  color: #28a745;
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08), rgba(32, 201, 151, 0.08));
+  border-color: rgba(40, 167, 69, 0.15);
+}
+
+.map-size.size-medium {
+  color: #ffc107;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.08), rgba(255, 152, 0, 0.08));
+  border-color: rgba(255, 193, 7, 0.15);
+}
+
+.map-size.size-large {
+  color: #dc3545;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.08), rgba(255, 107, 107, 0.08));
+  border-color: rgba(220, 53, 69, 0.15);
+}
+
+.map-item:hover .map-size.size-small {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.12), rgba(32, 201, 151, 0.12));
+  border-color: rgba(40, 167, 69, 0.25);
+  color: #1e7e34;
+}
+
+.map-item:hover .map-size.size-medium {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.12), rgba(255, 152, 0, 0.12));
+  border-color: rgba(255, 193, 7, 0.25);
+  color: #e0a800;
+}
+
+.map-item:hover .map-size.size-large {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.12), rgba(255, 107, 107, 0.12));
+  border-color: rgba(220, 53, 69, 0.25);
+  color: #bd2130;
 }
 
 .btn-delete {
@@ -371,6 +444,20 @@ body {
     flex-direction: column;
     gap: 10px;
     text-align: center;
+  }
+
+  .map-info {
+    align-items: center;
+    text-align: center;
+  }
+
+  .map-size {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .map-size:before {
+    font-size: 9px;
   }
 }
 

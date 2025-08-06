@@ -57,19 +57,52 @@ document.addEventListener('DOMContentLoaded', function () {
         const text = await res.text();
         const maps = text.split('\n').filter((map) => map.trim());
         list.innerHTML = '';
-        maps.forEach((map) => {
+        maps.forEach((mapInfo) => {
+          // 解析地图名和大小信息
+          const parts = mapInfo.split('$$');
+          const mapName = parts[0];
+          const mapSize = parts[1] || 'unknown';
+
           const container = document.createElement('div');
           container.className = 'map-item';
-          const span = document.createElement('span');
-          span.className = 'map-name';
-          span.innerText = map;
+
+          // 创建地图信息显示区域
+          const infoContainer = document.createElement('div');
+          infoContainer.className = 'map-info';
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'map-name';
+          nameSpan.innerText = mapName;
+
+          const sizeSpan = document.createElement('span');
+          sizeSpan.className = 'map-size';
+          sizeSpan.innerText = mapSize;
+
+          // 根据文件大小添加不同的样式类
+          if (mapSize !== 'unknown') {
+            const sizeValue = parseFloat(mapSize);
+            const sizeUnit = mapSize.slice(-2).toUpperCase();
+
+            if (sizeUnit === 'KB' || (sizeUnit === 'MB' && sizeValue < 50)) {
+              sizeSpan.classList.add('size-small');
+            } else if (sizeUnit === 'MB' && sizeValue >= 50) {
+              sizeSpan.classList.add('size-medium');
+            } else if (sizeUnit === 'GB') {
+              sizeSpan.classList.add('size-large');
+            }
+          }
+
+          infoContainer.appendChild(nameSpan);
+          infoContainer.appendChild(sizeSpan);
+
           const del = document.createElement('button');
           del.className = 'btn-delete';
           del.innerText = 'delete';
           del.onclick = async () => {
-            const confirmed = await confirmAction(`确定要删除地图 "${map}" 吗？`, '删除地图');
+            const confirmed = await confirmAction(`确定要删除地图 "${mapName}" 吗？`, '删除地图');
             if (confirmed) {
-              fetchServer('/remove', map)
+              // 删除时只传递地图名，不包含大小信息
+              fetchServer('/remove', mapName)
                 .then(async (res) => {
                   updateList();
                   showNotification('地图删除成功！');
@@ -79,7 +112,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
           };
-          container.appendChild(span);
+
+          container.appendChild(infoContainer);
           container.appendChild(del);
           list.appendChild(container);
         });
