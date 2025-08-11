@@ -129,12 +129,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const sizeValue = parseFloat(mapSize);
         const sizeUnit = mapSize.slice(-2).toUpperCase();
 
-        if (sizeUnit === 'KB' || (sizeUnit === 'MB' && sizeValue < 50)) {
-          sizeSpan.classList.add('size-small');
-        } else if (sizeUnit === 'MB' && sizeValue >= 50) {
-          sizeSpan.classList.add('size-medium');
+        // 将所有大小转换为MB单位进行比较
+        let sizeInMB = 0;
+        if (sizeUnit === 'KB') {
+          sizeInMB = sizeValue / 1024;
+        } else if (sizeUnit === 'MB') {
+          sizeInMB = sizeValue;
         } else if (sizeUnit === 'GB') {
-          sizeSpan.classList.add('size-large');
+          sizeInMB = sizeValue * 1024;
+        }
+
+        // 根据新的标准设置颜色
+        if (sizeInMB < 500) {
+          sizeSpan.classList.add('size-small'); // 绿色 - 小于500M
+        } else if (sizeInMB >= 500 && sizeInMB < 1024) {
+          sizeSpan.classList.add('size-medium'); // 黄色 - 500M-1G
+        } else if (sizeInMB >= 1024) {
+          sizeSpan.classList.add('size-large'); // 红色 - 1G以上
         }
       }
 
