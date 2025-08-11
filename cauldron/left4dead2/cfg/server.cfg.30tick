@@ -32,10 +32,10 @@ sm_cvar sb_max_team_melee_weapons "8"
 sm_cvar survivor_max_incapacitated_count "2"
 
 //设置游戏模式"coop=战役,versus=对抗,survival=生存,realism=写实"
-sm_cvar mp_gamemode "coop"
+//sm_cvar mp_gamemode "coop"
 
 //设置游戏默认难度（分别对应：简单=Easy、普通=Normal、高级=Hard、专家=Impossible）
-sm_cvar z_difficulty "Hard"
+//sm_cvar z_difficulty "Hard"
 
 //管理员密码
 rcon_password "lajijipangzi"
