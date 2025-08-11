@@ -682,6 +682,10 @@ class MapManagementDialog {
       if (window.setupMapFilter) {
         window.setupMapFilter();
       }
+      // 重新设置拖拽功能
+      if (window.setupDragAndDrop) {
+        window.setupDragAndDrop();
+      }
     }, 100);
   }
 
