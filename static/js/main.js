@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', function () {
     serverAPI.setPassword(this.value);
   });
 
+  // 存储所有地图数据
+  let allMaps = [];
+
   // 更新地图列表
   function updateList() {
     // 只有在地图管理弹框打开时才更新列表
@@ -56,71 +59,122 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(async (res) => {
         const text = await res.text();
         const maps = text.split('\n').filter((map) => map.trim());
-        list.innerHTML = '';
-        maps.forEach((mapInfo) => {
-          // 解析地图名和大小信息
+
+        // 解析并存储所有地图数据
+        allMaps = maps.map((mapInfo) => {
           const parts = mapInfo.split('$$');
-          const mapName = parts[0];
-          const mapSize = parts[1] || 'unknown';
-
-          const container = document.createElement('div');
-          container.className = 'map-item';
-
-          // 创建地图信息显示区域
-          const infoContainer = document.createElement('div');
-          infoContainer.className = 'map-info';
-
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'map-name';
-          nameSpan.innerText = mapName;
-
-          const sizeSpan = document.createElement('span');
-          sizeSpan.className = 'map-size';
-          sizeSpan.innerText = mapSize;
-
-          // 根据文件大小添加不同的样式类
-          if (mapSize !== 'unknown') {
-            const sizeValue = parseFloat(mapSize);
-            const sizeUnit = mapSize.slice(-2).toUpperCase();
-
-            if (sizeUnit === 'KB' || (sizeUnit === 'MB' && sizeValue < 50)) {
-              sizeSpan.classList.add('size-small');
-            } else if (sizeUnit === 'MB' && sizeValue >= 50) {
-              sizeSpan.classList.add('size-medium');
-            } else if (sizeUnit === 'GB') {
-              sizeSpan.classList.add('size-large');
-            }
-          }
-
-          infoContainer.appendChild(nameSpan);
-          infoContainer.appendChild(sizeSpan);
-
-          const del = document.createElement('button');
-          del.className = 'btn-delete';
-          del.innerText = 'delete';
-          del.onclick = async () => {
-            const confirmed = await confirmAction(`确定要删除地图 "${mapName}" 吗？`, '删除地图');
-            if (confirmed) {
-              // 删除时只传递地图名，不包含大小信息
-              fetchServer('/remove', mapName)
-                .then(async (res) => {
-                  updateList();
-                  showNotification('地图删除成功！');
-                })
-                .catch((err) => {
-                  showError(err);
-                });
-            }
+          return {
+            name: parts[0],
+            size: parts[1] || 'unknown',
+            info: mapInfo,
           };
-
-          container.appendChild(infoContainer);
-          container.appendChild(del);
-          list.appendChild(container);
         });
+
+        // 应用当前筛选
+        filterAndDisplayMaps();
       })
       .catch((err) => {
         showError(err);
       });
+  }
+
+  // 筛选并显示地图
+  function filterAndDisplayMaps() {
+    const filterInput = document.getElementById('map-filter');
+    const filterValue = filterInput ? filterInput.value.toLowerCase().trim() : '';
+
+    // 筛选地图
+    const filteredMaps = allMaps.filter((map) => map.name.toLowerCase().includes(filterValue));
+
+    // 更新计数显示
+    updateMapCount(filteredMaps.length, allMaps.length);
+
+    // 清空列表
+    list.innerHTML = '';
+
+    // 如果没有筛选结果，显示提示信息
+    if (filteredMaps.length === 0 && allMaps.length > 0) {
+      const noResultsDiv = document.createElement('div');
+      noResultsDiv.className = 'no-results-message';
+      noResultsDiv.innerHTML = `
+        <div class="icon">🔍</div>
+        <div class="text">没有找到匹配的地图文件</div>
+      `;
+      list.appendChild(noResultsDiv);
+      return;
+    }
+
+    // 显示筛选后的地图
+    filteredMaps.forEach((mapData) => {
+      const mapName = mapData.name;
+      const mapSize = mapData.size;
+
+      const container = document.createElement('div');
+      container.className = 'map-item';
+
+      // 创建地图信息显示区域
+      const infoContainer = document.createElement('div');
+      infoContainer.className = 'map-info';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'map-name';
+      nameSpan.innerText = mapName;
+
+      const sizeSpan = document.createElement('span');
+      sizeSpan.className = 'map-size';
+      sizeSpan.innerText = mapSize;
+
+      // 根据文件大小添加不同的样式类
+      if (mapSize !== 'unknown') {
+        const sizeValue = parseFloat(mapSize);
+        const sizeUnit = mapSize.slice(-2).toUpperCase();
+
+        if (sizeUnit === 'KB' || (sizeUnit === 'MB' && sizeValue < 50)) {
+          sizeSpan.classList.add('size-small');
+        } else if (sizeUnit === 'MB' && sizeValue >= 50) {
+          sizeSpan.classList.add('size-medium');
+        } else if (sizeUnit === 'GB') {
+          sizeSpan.classList.add('size-large');
+        }
+      }
+
+      infoContainer.appendChild(nameSpan);
+      infoContainer.appendChild(sizeSpan);
+
+      const del = document.createElement('button');
+      del.className = 'btn-delete';
+      del.innerText = 'delete';
+      del.onclick = async () => {
+        const confirmed = await confirmAction(`确定要删除地图 "${mapName}" 吗？`, '删除地图');
+        if (confirmed) {
+          // 删除时只传递地图名，不包含大小信息
+          fetchServer('/remove', mapName)
+            .then(async (res) => {
+              updateList();
+              showNotification('地图删除成功！');
+            })
+            .catch((err) => {
+              showError(err);
+            });
+        }
+      };
+
+      container.appendChild(infoContainer);
+      container.appendChild(del);
+      list.appendChild(container);
+    });
+  }
+
+  // 更新地图数量显示
+  function updateMapCount(filteredCount, totalCount) {
+    const mapCountText = document.getElementById('map-count-text');
+    if (mapCountText) {
+      if (filteredCount === totalCount) {
+        mapCountText.textContent = `总计: ${totalCount} 个地图`;
+      } else {
+        mapCountText.textContent = `显示: ${filteredCount} / ${totalCount} 个地图`;
+      }
+    }
   }
 
   // 上传处理
@@ -343,4 +397,66 @@ document.addEventListener('DOMContentLoaded', function () {
   window.changeMapHandler = changeMapHandler;
   window.updateList = updateList;
   window.refreshServerStatus = () => mainServerStatus.loadServerStatus();
+
+  // 设置筛选功能的事件监听器
+  function setupMapFilter() {
+    const filterInput = document.getElementById('map-filter');
+    const clearFilterBtn = document.getElementById('clear-filter');
+
+    if (filterInput) {
+      // 清除之前的事件监听器（避免重复绑定）
+      filterInput.removeEventListener('input', handleFilterInput);
+      filterInput.removeEventListener('keypress', handleFilterKeypress);
+
+      // 重新绑定事件监听器
+      filterInput.addEventListener('input', handleFilterInput);
+      filterInput.addEventListener('keypress', handleFilterKeypress);
+    }
+
+    if (clearFilterBtn) {
+      // 清除之前的事件监听器
+      clearFilterBtn.removeEventListener('click', handleClearFilter);
+      // 重新绑定事件监听器
+      clearFilterBtn.addEventListener('click', handleClearFilter);
+    }
+  }
+
+  // 筛选输入处理函数
+  function handleFilterInput() {
+    filterAndDisplayMaps();
+
+    const clearFilterBtn = document.getElementById('clear-filter');
+    // 控制清空按钮的显示
+    if (this.value.trim()) {
+      if (clearFilterBtn) clearFilterBtn.classList.add('visible');
+    } else {
+      if (clearFilterBtn) clearFilterBtn.classList.remove('visible');
+    }
+  }
+
+  // 按键处理函数
+  function handleFilterKeypress(e) {
+    if (e.key === 'Enter') {
+      filterAndDisplayMaps();
+    }
+  }
+
+  // 清空筛选处理函数
+  function handleClearFilter() {
+    const filterInput = document.getElementById('map-filter');
+    const clearFilterBtn = document.getElementById('clear-filter');
+
+    if (filterInput) {
+      filterInput.value = '';
+      filterInput.focus();
+    }
+    if (clearFilterBtn) {
+      clearFilterBtn.classList.remove('visible');
+    }
+    filterAndDisplayMaps();
+  }
+
+  // 设置全局函数供其他地方调用
+  window.filterAndDisplayMaps = filterAndDisplayMaps;
+  window.setupMapFilter = setupMapFilter;
 });
