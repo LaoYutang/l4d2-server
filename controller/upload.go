@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/axgle/mahonia"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v3/disk"
 )
@@ -84,6 +85,8 @@ func Upload(c *gin.Context) {
 	runtime.GC()
 }
 
+var chineseDecoder = mahonia.NewDecoder("gbk")
+
 func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
 	// 保存临时zip文件
 	tempZipPath := BasePath + "temp_" + file.Filename
@@ -104,17 +107,21 @@ func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
 
 	// 解压vpk文件
 	for _, f := range reader.File {
-		if vpkReg.MatchString(f.Name) {
+		name := f.Name
+		if f.NonUTF8 {
+			name = chineseDecoder.ConvertString(f.Name)
+		}
+		if vpkReg.MatchString(name) {
 			// 检查文件是否已存在
-			if err := checkMapExists(filepath.Base(f.Name)); err != nil {
+			if err := checkMapExists(filepath.Base(name)); err != nil {
 				return err
 			}
 
 			// 解压文件
-			if err := extractFile(f, BasePath+filepath.Base(f.Name)); err != nil {
+			if err := extractFile(f, BasePath+filepath.Base(name)); err != nil {
 				return err
 			}
-			extractedFiles = append(extractedFiles, filepath.Base(f.Name))
+			extractedFiles = append(extractedFiles, filepath.Base(name))
 		}
 	}
 
