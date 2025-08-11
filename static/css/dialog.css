@@ -933,13 +933,129 @@
   min-height: 200px;
 }
 
+/* 地图列表头部 */
+.map-management-dialog .map-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  gap: 20px;
+  min-height: 60px;
+}
+
+.map-management-dialog .header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.map-management-dialog .header-right {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .map-management-dialog .section-title {
   font-size: 18px;
   font-weight: 700;
   color: #333;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.map-management-dialog .section-title::before {
+  content: "🗺️";
+  font-size: 20px;
+}
+
+/* 地图数量显示 */
+.map-count-display {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 筛选区域 - 在标题栏中 */
+.map-list-header .filter-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  min-width: 200px;
+}
+
+.map-list-header .filter-input {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-radius: 20px;
+  font-size: 13px;
+  background: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.map-list-header .filter-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.map-list-header .filter-input::placeholder {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.map-list-header .clear-filter-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(102, 126, 234, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  color: #667eea;
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.map-list-header .clear-filter-btn.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.map-list-header .clear-filter-btn:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateY(-50%) scale(1.1);
+  color: #4c51bf;
 }
 
 .map-management-dialog .map-list {
@@ -948,6 +1064,30 @@
   border: 1px solid rgba(102, 126, 234, 0.2);
   border-radius: 12px;
   background: rgba(102, 126, 234, 0.05);
+}
+
+/* 无搜索结果提示 */
+.no-results-message {
+  text-align: center;
+  padding: 50px 20px;
+  color: #666;
+  background: rgba(102, 126, 234, 0.02);
+  border-radius: 12px;
+  border: 2px dashed rgba(102, 126, 234, 0.2);
+  margin: 20px 0;
+}
+
+.no-results-message .icon {
+  font-size: 64px;
+  margin-bottom: 15px;
+  opacity: 0.4;
+  display: block;
+}
+
+.no-results-message .text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #888;
 }
 
 /* 响应式设计 */
@@ -972,6 +1112,58 @@
   
   .map-actions {
     flex-direction: column;
+  }
+  
+  /* 新增响应式样式 */
+  .map-list-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+    padding: 15px;
+    min-height: auto;
+  }
+  
+  .map-management-dialog .header-left {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .map-management-dialog .header-right {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .map-management-dialog .section-title {
+    font-size: 16px;
+  }
+  
+  .map-management-dialog .section-title::before {
+    font-size: 18px;
+  }
+  
+  .map-count-display {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+  
+  .map-list-header .filter-input-wrapper {
+    max-width: none;
+    min-width: 0;
+  }
+  
+  .map-list-header .filter-input {
+    font-size: 14px; /* 防止iOS缩放 */
+    padding: 10px 35px 10px 15px;
+  }
+  
+  .map-list-header .clear-filter-btn {
+    width: 24px;
+    height: 24px;
+    right: 8px;
+    font-size: 14px;
   }
 }
 

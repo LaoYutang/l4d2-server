@@ -678,12 +678,26 @@ class MapManagementDialog {
       if (window.updateList) {
         window.updateList();
       }
+      // 重新设置筛选功能
+      if (window.setupMapFilter) {
+        window.setupMapFilter();
+      }
     }, 100);
   }
 
   close() {
     this.dialog.classList.remove('show');
     document.body.style.overflow = '';
+
+    // 重置筛选状态
+    const filterInput = document.getElementById('map-filter');
+    const clearFilterBtn = document.getElementById('clear-filter');
+    if (filterInput) {
+      filterInput.value = '';
+    }
+    if (clearFilterBtn) {
+      clearFilterBtn.classList.remove('visible');
+    }
 
     setTimeout(() => {
       this.overlay.style.display = 'none';

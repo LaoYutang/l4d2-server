@@ -121,7 +121,25 @@
 
           <!-- 地图列表区域 -->
           <div class="map-list-section">
-            <div class="section-title">服务器地图列表</div>
+            <div class="map-list-header">
+              <div class="header-left">
+                <div class="section-title">服务器地图列表</div>
+                <div class="map-count-display">
+                  <span id="map-count-text">总计: 0 个地图</span>
+                </div>
+              </div>
+              <div class="header-right">
+                <div class="filter-input-wrapper">
+                  <input
+                    id="map-filter"
+                    type="text"
+                    placeholder="筛选地图..."
+                    class="filter-input"
+                  />
+                  <button id="clear-filter" class="clear-filter-btn" title="清空筛选">×</button>
+                </div>
+              </div>
+            </div>
             <div id="modal-list" class="map-list"></div>
           </div>
         </div>
