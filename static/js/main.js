@@ -181,9 +181,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const mapCountText = document.getElementById('map-count-text');
     if (mapCountText) {
       if (filteredCount === totalCount) {
-        mapCountText.textContent = `总计: ${totalCount} 个地图`;
+        mapCountText.textContent = `总计: ${totalCount} 个文件`;
       } else {
-        mapCountText.textContent = `显示: ${filteredCount} / ${totalCount} 个地图`;
+        mapCountText.textContent = `显示: ${filteredCount} / ${totalCount} 个文件`;
       }
     }
   }
