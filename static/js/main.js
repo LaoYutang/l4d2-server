@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', function () {
     serverAPI.setPassword(this.value);
   });
 
+  // 存储所有地图数据
+  let allMaps = [];
+
   // 更新地图列表
   function updateList() {
     // 只有在地图管理弹框打开时才更新列表
@@ -56,71 +59,133 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(async (res) => {
         const text = await res.text();
         const maps = text.split('\n').filter((map) => map.trim());
-        list.innerHTML = '';
-        maps.forEach((mapInfo) => {
-          // 解析地图名和大小信息
+
+        // 解析并存储所有地图数据
+        allMaps = maps.map((mapInfo) => {
           const parts = mapInfo.split('$$');
-          const mapName = parts[0];
-          const mapSize = parts[1] || 'unknown';
-
-          const container = document.createElement('div');
-          container.className = 'map-item';
-
-          // 创建地图信息显示区域
-          const infoContainer = document.createElement('div');
-          infoContainer.className = 'map-info';
-
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'map-name';
-          nameSpan.innerText = mapName;
-
-          const sizeSpan = document.createElement('span');
-          sizeSpan.className = 'map-size';
-          sizeSpan.innerText = mapSize;
-
-          // 根据文件大小添加不同的样式类
-          if (mapSize !== 'unknown') {
-            const sizeValue = parseFloat(mapSize);
-            const sizeUnit = mapSize.slice(-2).toUpperCase();
-
-            if (sizeUnit === 'KB' || (sizeUnit === 'MB' && sizeValue < 50)) {
-              sizeSpan.classList.add('size-small');
-            } else if (sizeUnit === 'MB' && sizeValue >= 50) {
-              sizeSpan.classList.add('size-medium');
-            } else if (sizeUnit === 'GB') {
-              sizeSpan.classList.add('size-large');
-            }
-          }
-
-          infoContainer.appendChild(nameSpan);
-          infoContainer.appendChild(sizeSpan);
-
-          const del = document.createElement('button');
-          del.className = 'btn-delete';
-          del.innerText = 'delete';
-          del.onclick = async () => {
-            const confirmed = await confirmAction(`确定要删除地图 "${mapName}" 吗？`, '删除地图');
-            if (confirmed) {
-              // 删除时只传递地图名，不包含大小信息
-              fetchServer('/remove', mapName)
-                .then(async (res) => {
-                  updateList();
-                  showNotification('地图删除成功！');
-                })
-                .catch((err) => {
-                  showError(err);
-                });
-            }
+          return {
+            name: parts[0],
+            size: parts[1] || 'unknown',
+            info: mapInfo,
           };
-
-          container.appendChild(infoContainer);
-          container.appendChild(del);
-          list.appendChild(container);
         });
+
+        // 应用当前筛选
+        filterAndDisplayMaps();
       })
       .catch((err) => {
         showError(err);
       });
+  }
+
+  // 筛选并显示地图
+  function filterAndDisplayMaps() {
+    const filterInput = document.getElementById('map-filter');
+    const filterValue = filterInput ? filterInput.value.toLowerCase().trim() : '';
+
+    // 筛选地图
+    const filteredMaps = allMaps.filter((map) => map.name.toLowerCase().includes(filterValue));
+
+    // 更新计数显示
+    updateMapCount(filteredMaps.length, allMaps.length);
+
+    // 清空列表
+    list.innerHTML = '';
+
+    // 如果没有筛选结果，显示提示信息
+    if (filteredMaps.length === 0 && allMaps.length > 0) {
+      const noResultsDiv = document.createElement('div');
+      noResultsDiv.className = 'no-results-message';
+      noResultsDiv.innerHTML = `
+        <div class="icon">🔍</div>
+        <div class="text">没有找到匹配的地图文件</div>
+      `;
+      list.appendChild(noResultsDiv);
+      return;
+    }
+
+    // 显示筛选后的地图
+    filteredMaps.forEach((mapData) => {
+      const mapName = mapData.name;
+      const mapSize = mapData.size;
+
+      const container = document.createElement('div');
+      container.className = 'map-item';
+
+      // 创建地图信息显示区域
+      const infoContainer = document.createElement('div');
+      infoContainer.className = 'map-info';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'map-name';
+      nameSpan.innerText = mapName;
+
+      const sizeSpan = document.createElement('span');
+      sizeSpan.className = 'map-size';
+      sizeSpan.innerText = mapSize;
+
+      // 根据文件大小添加不同的样式类
+      if (mapSize !== 'unknown') {
+        const sizeValue = parseFloat(mapSize);
+        const sizeUnit = mapSize.slice(-2).toUpperCase();
+
+        // 将所有大小转换为MB单位进行比较
+        let sizeInMB = 0;
+        if (sizeUnit === 'KB') {
+          sizeInMB = sizeValue / 1024;
+        } else if (sizeUnit === 'MB') {
+          sizeInMB = sizeValue;
+        } else if (sizeUnit === 'GB') {
+          sizeInMB = sizeValue * 1024;
+        }
+
+        // 根据新的标准设置颜色
+        if (sizeInMB < 500) {
+          sizeSpan.classList.add('size-small'); // 绿色 - 小于500M
+        } else if (sizeInMB >= 500 && sizeInMB < 1024) {
+          sizeSpan.classList.add('size-medium'); // 黄色 - 500M-1G
+        } else if (sizeInMB >= 1024) {
+          sizeSpan.classList.add('size-large'); // 红色 - 1G以上
+        }
+      }
+
+      infoContainer.appendChild(nameSpan);
+      infoContainer.appendChild(sizeSpan);
+
+      const del = document.createElement('button');
+      del.className = 'btn-delete';
+      del.innerText = 'delete';
+      del.onclick = async () => {
+        const confirmed = await confirmAction(`确定要删除地图 "${mapName}" 吗？`, '删除地图');
+        if (confirmed) {
+          // 删除时只传递地图名，不包含大小信息
+          fetchServer('/remove', mapName)
+            .then(async (res) => {
+              updateList();
+              showNotification('地图删除成功！');
+            })
+            .catch((err) => {
+              showError(err);
+            });
+        }
+      };
+
+      container.appendChild(infoContainer);
+      container.appendChild(del);
+      list.appendChild(container);
+    });
+  }
+
+  // 更新地图数量显示
+  function updateMapCount(filteredCount, totalCount) {
+    const mapCountText = document.getElementById('map-count-text');
+    if (mapCountText) {
+      if (filteredCount === totalCount) {
+        mapCountText.textContent = `总计: ${totalCount} 个文件`;
+      } else {
+        mapCountText.textContent = `显示: ${filteredCount} / ${totalCount} 个文件`;
+      }
+    }
   }
 
   // 上传处理
@@ -293,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 文件选择变化处理
-  map.addEventListener('change', function () {
+  map.addEventListener('change', function (e) {
     const fileInfo = document.getElementById('file-selected-info');
     const fileCount = document.getElementById('file-count');
     const fileList = document.getElementById('file-list');
@@ -310,10 +375,96 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       fileInfo.classList.add('show');
+
+      // 检查是否是通过拖拽触发的change事件
+      // 通过检查事件是否是人工触发的来判断
+      if (e.isTrusted === false) {
+        // 这是拖拽触发的事件，显示拖拽成功提示
+        showInfo(`已通过拖拽选择 ${this.files.length} 个文件`);
+      }
     } else {
       fileInfo.classList.remove('show');
     }
   });
+
+  // 拖拽上传功能
+  function setupDragAndDrop() {
+    const fileInputButton = document.querySelector('.file-input-button');
+    const fileInputWrapper = document.querySelector('.file-input-wrapper');
+
+    if (!fileInputButton || !fileInputWrapper) return;
+
+    // 检查是否已经绑定过事件，避免重复绑定
+    if (fileInputButton.dataset.dragSetup === 'true') {
+      return;
+    }
+
+    // 标记已经设置过拖拽功能
+    fileInputButton.dataset.dragSetup = 'true';
+
+    // 防止默认拖拽行为
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+      fileInputButton.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // 拖拽进入和悬停时的视觉反馈
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      fileInputButton.addEventListener(eventName, highlight, false);
+    });
+
+    // 拖拽离开时移除视觉反馈
+    ['dragleave', 'drop'].forEach((eventName) => {
+      fileInputButton.addEventListener(eventName, unhighlight, false);
+    });
+
+    // 处理文件拖放
+    fileInputButton.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight() {
+      fileInputButton.classList.add('drag-over');
+    }
+
+    function unhighlight() {
+      fileInputButton.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+
+      // 过滤出支持的文件类型
+      const validFiles = Array.from(files).filter((file) => {
+        const extension = file.name.toLowerCase().split('.').pop();
+        return extension === 'vpk' || extension === 'zip';
+      });
+
+      if (validFiles.length > 0) {
+        // 创建新的FileList对象（通过DataTransfer）
+        const dataTransfer = new DataTransfer();
+        validFiles.forEach((file) => {
+          dataTransfer.items.add(file);
+        });
+
+        // 将文件赋值给input元素
+        map.files = dataTransfer.files;
+
+        // 触发change事件来更新UI
+        const changeEvent = new Event('change', { bubbles: true });
+        map.dispatchEvent(changeEvent);
+
+        // 只显示一次提示，不重复显示
+        // 移除了原来的showInfo和showWarning调用，避免与change事件的处理重复
+      } else {
+        showError('请拖拽 .vpk 或 .zip 格式的地图文件');
+      }
+    }
+  }
 
   // 绑定事件处理程序
   upload.addEventListener('click', uploadHandler);
@@ -343,4 +494,67 @@ document.addEventListener('DOMContentLoaded', function () {
   window.changeMapHandler = changeMapHandler;
   window.updateList = updateList;
   window.refreshServerStatus = () => mainServerStatus.loadServerStatus();
+
+  // 设置筛选功能的事件监听器
+  function setupMapFilter() {
+    const filterInput = document.getElementById('map-filter');
+    const clearFilterBtn = document.getElementById('clear-filter');
+
+    if (filterInput) {
+      // 清除之前的事件监听器（避免重复绑定）
+      filterInput.removeEventListener('input', handleFilterInput);
+      filterInput.removeEventListener('keypress', handleFilterKeypress);
+
+      // 重新绑定事件监听器
+      filterInput.addEventListener('input', handleFilterInput);
+      filterInput.addEventListener('keypress', handleFilterKeypress);
+    }
+
+    if (clearFilterBtn) {
+      // 清除之前的事件监听器
+      clearFilterBtn.removeEventListener('click', handleClearFilter);
+      // 重新绑定事件监听器
+      clearFilterBtn.addEventListener('click', handleClearFilter);
+    }
+  }
+
+  // 筛选输入处理函数
+  function handleFilterInput() {
+    filterAndDisplayMaps();
+
+    const clearFilterBtn = document.getElementById('clear-filter');
+    // 控制清空按钮的显示
+    if (this.value.trim()) {
+      if (clearFilterBtn) clearFilterBtn.classList.add('visible');
+    } else {
+      if (clearFilterBtn) clearFilterBtn.classList.remove('visible');
+    }
+  }
+
+  // 按键处理函数
+  function handleFilterKeypress(e) {
+    if (e.key === 'Enter') {
+      filterAndDisplayMaps();
+    }
+  }
+
+  // 清空筛选处理函数
+  function handleClearFilter() {
+    const filterInput = document.getElementById('map-filter');
+    const clearFilterBtn = document.getElementById('clear-filter');
+
+    if (filterInput) {
+      filterInput.value = '';
+      filterInput.focus();
+    }
+    if (clearFilterBtn) {
+      clearFilterBtn.classList.remove('visible');
+    }
+    filterAndDisplayMaps();
+  }
+
+  // 设置全局函数供其他地方调用
+  window.filterAndDisplayMaps = filterAndDisplayMaps;
+  window.setupMapFilter = setupMapFilter;
+  window.setupDragAndDrop = setupDragAndDrop;
 });

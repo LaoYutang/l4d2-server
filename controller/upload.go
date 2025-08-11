@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/axgle/mahonia"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v3/disk"
 )
@@ -55,6 +56,9 @@ func Upload(c *gin.Context) {
 	}
 
 	// 处理vpk文件
+	// 清理文件名
+	cleanFilename := sanitizeFilename(file.Filename)
+
 	_, statErr := os.Stat(BasePath + "maplist.txt")
 	if !os.IsNotExist(statErr) {
 		maps, readErr := os.ReadFile(BasePath + "maplist.txt")
@@ -63,25 +67,44 @@ func Upload(c *gin.Context) {
 			return
 		}
 		for _, mapName := range strings.Split(string(maps), "\n") {
-			if mapName == file.Filename {
+			if mapName == cleanFilename {
 				c.String(http.StatusBadRequest, "地图已经存在")
 				return
 			}
 		}
 	}
 
-	if err := c.SaveUploadedFile(file, BasePath+file.Filename); err != nil {
+	if err := c.SaveUploadedFile(file, BasePath+cleanFilename); err != nil {
 		c.String(http.StatusInternalServerError, "文件写入失败")
 		return
 	}
 
-	if err := recordMap(file.Filename); err != nil {
+	if err := recordMap(cleanFilename); err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.String(http.StatusOK, "上传成功！")
 	runtime.GC()
+}
+
+var chineseDecoder = mahonia.NewDecoder("gbk")
+
+// sanitizeFilename 清理文件名中的空格和特殊符号，替换为下划线
+func sanitizeFilename(filename string) string {
+	// 分离文件名和扩展名
+	ext := filepath.Ext(filename)
+	nameWithoutExt := strings.TrimSuffix(filename, ext)
+
+	// 使用正则表达式匹配需要替换的字符
+	// 匹配空格、特殊符号等，但保留中文字符、英文字母、数字、连字符、下划线和点号
+	reg := regexp.MustCompile(`[^\p{L}\p{N}\-_.]+`)
+	cleanName := reg.ReplaceAllString(nameWithoutExt, "_")
+
+	// 如果存在myl4d2addons_前缀则去除
+	cleanName = strings.TrimPrefix(cleanName, "myl4d2addons_")
+
+	return cleanName + ext
 }
 
 func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
@@ -104,17 +127,24 @@ func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
 
 	// 解压vpk文件
 	for _, f := range reader.File {
-		if vpkReg.MatchString(f.Name) {
+		name := f.Name
+		if f.NonUTF8 {
+			name = chineseDecoder.ConvertString(f.Name)
+		}
+		if vpkReg.MatchString(name) {
+			// 清理文件名
+			cleanName := sanitizeFilename(filepath.Base(name))
+
 			// 检查文件是否已存在
-			if err := checkMapExists(filepath.Base(f.Name)); err != nil {
+			if err := checkMapExists(cleanName); err != nil {
 				return err
 			}
 
 			// 解压文件
-			if err := extractFile(f, BasePath+filepath.Base(f.Name)); err != nil {
+			if err := extractFile(f, BasePath+cleanName); err != nil {
 				return err
 			}
-			extractedFiles = append(extractedFiles, filepath.Base(f.Name))
+			extractedFiles = append(extractedFiles, cleanName)
 		}
 	}
 
