@@ -115,6 +115,29 @@ body {
   left: 100%;
 }
 
+/* 拖拽状态样式 */
+.file-input-button.drag-over {
+  border-color: #4c51bf;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(102, 126, 234, 0.3);
+}
+
+.file-input-button.drag-over .file-input-text {
+  color: #4c51bf;
+  font-weight: 600;
+}
+
+.file-input-button.drag-over .file-input-hint {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.file-input-button.drag-over .file-input-icon {
+  color: #4c51bf;
+  transform: scale(1.1);
+}
+
 .file-input-icon {
   font-size: 24px;
   color: #667eea;

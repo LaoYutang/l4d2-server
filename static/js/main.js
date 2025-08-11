@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 文件选择变化处理
-  map.addEventListener('change', function () {
+  map.addEventListener('change', function (e) {
     const fileInfo = document.getElementById('file-selected-info');
     const fileCount = document.getElementById('file-count');
     const fileList = document.getElementById('file-list');
@@ -364,10 +364,96 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       fileInfo.classList.add('show');
+
+      // 检查是否是通过拖拽触发的change事件
+      // 通过检查事件是否是人工触发的来判断
+      if (e.isTrusted === false) {
+        // 这是拖拽触发的事件，显示拖拽成功提示
+        showInfo(`已通过拖拽选择 ${this.files.length} 个文件`);
+      }
     } else {
       fileInfo.classList.remove('show');
     }
   });
+
+  // 拖拽上传功能
+  function setupDragAndDrop() {
+    const fileInputButton = document.querySelector('.file-input-button');
+    const fileInputWrapper = document.querySelector('.file-input-wrapper');
+
+    if (!fileInputButton || !fileInputWrapper) return;
+
+    // 检查是否已经绑定过事件，避免重复绑定
+    if (fileInputButton.dataset.dragSetup === 'true') {
+      return;
+    }
+
+    // 标记已经设置过拖拽功能
+    fileInputButton.dataset.dragSetup = 'true';
+
+    // 防止默认拖拽行为
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+      fileInputButton.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // 拖拽进入和悬停时的视觉反馈
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      fileInputButton.addEventListener(eventName, highlight, false);
+    });
+
+    // 拖拽离开时移除视觉反馈
+    ['dragleave', 'drop'].forEach((eventName) => {
+      fileInputButton.addEventListener(eventName, unhighlight, false);
+    });
+
+    // 处理文件拖放
+    fileInputButton.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight() {
+      fileInputButton.classList.add('drag-over');
+    }
+
+    function unhighlight() {
+      fileInputButton.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+
+      // 过滤出支持的文件类型
+      const validFiles = Array.from(files).filter((file) => {
+        const extension = file.name.toLowerCase().split('.').pop();
+        return extension === 'vpk' || extension === 'zip';
+      });
+
+      if (validFiles.length > 0) {
+        // 创建新的FileList对象（通过DataTransfer）
+        const dataTransfer = new DataTransfer();
+        validFiles.forEach((file) => {
+          dataTransfer.items.add(file);
+        });
+
+        // 将文件赋值给input元素
+        map.files = dataTransfer.files;
+
+        // 触发change事件来更新UI
+        const changeEvent = new Event('change', { bubbles: true });
+        map.dispatchEvent(changeEvent);
+
+        // 只显示一次提示，不重复显示
+        // 移除了原来的showInfo和showWarning调用，避免与change事件的处理重复
+      } else {
+        showError('请拖拽 .vpk 或 .zip 格式的地图文件');
+      }
+    }
+  }
 
   // 绑定事件处理程序
   upload.addEventListener('click', uploadHandler);
@@ -459,4 +545,5 @@ document.addEventListener('DOMContentLoaded', function () {
   // 设置全局函数供其他地方调用
   window.filterAndDisplayMaps = filterAndDisplayMaps;
   window.setupMapFilter = setupMapFilter;
+  window.setupDragAndDrop = setupDragAndDrop;
 });
