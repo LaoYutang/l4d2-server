@@ -931,6 +931,7 @@
 .map-management-dialog .map-list-section {
   flex: 1;
   min-height: 200px;
+  margin-top: 0;
 }
 
 /* 地图列表头部 */
