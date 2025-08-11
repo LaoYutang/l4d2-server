@@ -103,7 +103,7 @@
                 <div class="file-input-button" onclick="document.getElementById('map').click()">
                   <span class="file-input-icon">📁</span>
                   <div class="file-input-text">选择地图文件</div>
-                  <div class="file-input-hint">支持 vpk与单层zip 格式，可多选</div>
+                  <div class="file-input-hint">支持 vpk/zip 格式，可多选，可拖拽上传</div>
                 </div>
                 <div id="file-selected-info" class="file-selected-info">
                   <div id="file-count" class="file-count"></div>
@@ -121,7 +121,25 @@
 
           <!-- 地图列表区域 -->
           <div class="map-list-section">
-            <div class="section-title">服务器地图列表</div>
+            <div class="map-list-header">
+              <div class="header-left">
+                <div class="section-title">服务器地图列表</div>
+                <div class="map-count-display">
+                  <span id="map-count-text">总计: 0 个文件</span>
+                </div>
+              </div>
+              <div class="header-right">
+                <div class="filter-input-wrapper">
+                  <input
+                    id="map-filter"
+                    type="text"
+                    placeholder="筛选地图..."
+                    class="filter-input"
+                  />
+                  <button id="clear-filter" class="clear-filter-btn" title="清空筛选">×</button>
+                </div>
+              </div>
+            </div>
             <div id="modal-list" class="map-list"></div>
           </div>
         </div>
