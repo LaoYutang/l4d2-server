@@ -316,7 +316,27 @@ document.addEventListener('DOMContentLoaded', function () {
       showWarning('请先输入管理密码！');
       return;
     }
-    mapManagementDialog.show();
+
+    // 显示加载动画
+    showLoading('验证密码中...');
+
+    try {
+      // 验证密码
+      const result = await serverAPI.validatePassword();
+
+      if (result.success) {
+        // 密码正确，显示地图管理弹框
+        hiddenLoading();
+        mapManagementDialog.show();
+      } else {
+        // 密码错误
+        hiddenLoading();
+        showError(result.message || '密码验证失败');
+      }
+    } catch (error) {
+      hiddenLoading();
+      showError('密码验证失败: ' + error.message);
+    }
   }
 
   // 显示RCON地图列表
@@ -325,7 +345,27 @@ document.addEventListener('DOMContentLoaded', function () {
       showWarning('请先输入管理密码！');
       return;
     }
-    rconMapsDialog.show();
+
+    // 显示加载动画
+    showLoading('验证密码中...');
+
+    try {
+      // 验证密码
+      const result = await serverAPI.validatePassword();
+
+      if (result.success) {
+        // 密码正确，显示RCON地图列表弹框
+        hiddenLoading();
+        rconMapsDialog.show();
+      } else {
+        // 密码错误
+        hiddenLoading();
+        showError(result.message || '密码验证失败');
+      }
+    } catch (error) {
+      hiddenLoading();
+      showError('密码验证失败: ' + error.message);
+    }
   }
 
   // 切换地图处理
@@ -495,21 +535,61 @@ document.addEventListener('DOMContentLoaded', function () {
   mainServerStatus.loadServerStatus();
 
   // 授权码管理处理函数
-  function showAuthCodeHandler() {
+  async function showAuthCodeHandler() {
     if (password.value === '') {
       showWarning('请先输入管理密码！');
       return;
     }
-    authCodeDialog.show();
+
+    // 显示加载动画
+    showLoading('验证密码中...');
+
+    try {
+      // 验证密码
+      const result = await serverAPI.validatePassword();
+
+      if (result.success) {
+        // 密码正确，显示授权码管理弹框
+        hiddenLoading();
+        authCodeDialog.show();
+      } else {
+        // 密码错误
+        hiddenLoading();
+        showError(result.message || '密码验证失败');
+      }
+    } catch (error) {
+      hiddenLoading();
+      showError('密码验证失败: ' + error.message);
+    }
   }
 
   // 显示下载任务管理弹框
-  function showDownloadManagementHandler() {
+  async function showDownloadManagementHandler() {
     if (password.value === '') {
       showWarning('请先输入管理密码！');
       return;
     }
-    downloadManagementDialog.show();
+
+    // 显示加载动画
+    showLoading('验证密码中...');
+
+    try {
+      // 验证密码
+      const result = await serverAPI.validatePassword();
+
+      if (result.success) {
+        // 密码正确，显示下载任务管理弹框
+        hiddenLoading();
+        downloadManagementDialog.show();
+      } else {
+        // 密码错误
+        hiddenLoading();
+        showError(result.message || '密码验证失败');
+      }
+    } catch (error) {
+      hiddenLoading();
+      showError('密码验证失败: ' + error.message);
+    }
   }
 
   // 设置全局函数
