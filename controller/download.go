@@ -195,6 +195,7 @@ func (d *downloader) GetTasksInfo() []map[string]any {
 	var tasksInfo []map[string]any
 	for _, task := range d.tasks {
 		tasksInfo = append(tasksInfo, map[string]any{
+			"url":      task.url,
 			"status":   task.GetStatus(),
 			"progress": task.GetProgress(),
 			"message":  task.GetMessage(),
@@ -227,9 +228,6 @@ func AddDownloadTask(c *gin.Context) {
 }
 
 func ClearTasks(c *gin.Context) {
-	downloadMutex.Lock()
-	defer downloadMutex.Unlock()
-
 	tasks := make([]*downloadTask, 0)
 	for _, task := range Downloader.tasks {
 		if task.GetStatus() == DOWNLOAD_STATUS_IN_PROGRESS || task.GetStatus() == DOWNLOAD_STATUS_PENDING {

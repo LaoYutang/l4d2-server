@@ -103,6 +103,73 @@ class ServerAPI {
       body: fd,
     });
   }
+
+  // 下载任务相关API
+  async addDownloadTask(url) {
+    try {
+      const response = await this.fetchServerWithUrl('/download/add', url);
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: text };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  async getDownloadTasks() {
+    try {
+      const response = await this.fetchServer('/download/list');
+      const text = await response.text();
+
+      if (response.ok) {
+        try {
+          const data = JSON.parse(text);
+          return { success: true, data: data };
+        } catch (e) {
+          // 如果不是JSON格式，返回空数组
+          return { success: true, data: [] };
+        }
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  async clearDownloadTasks() {
+    try {
+      const response = await this.fetchServer('/download/clear');
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: text };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  // 带URL的请求
+  fetchServerWithUrl(path, url) {
+    if (!this.password || this.password === '') {
+      return Promise.reject(new Error('密码不能为空！'));
+    }
+    const fd = new FormData();
+    fd.append('password', this.password);
+    fd.append('url', url);
+
+    return fetch(path, {
+      method: 'POST',
+      body: fd,
+    });
+  }
 }
 
 // 加载动画管理
