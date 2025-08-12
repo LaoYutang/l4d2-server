@@ -87,7 +87,10 @@ func (dt *downloadTask) download() {
 		dt.status = DOWNLOAD_STATUS_FAILED
 		return
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		os.Remove(filePath) // 清理临时文件
+	}()
 
 	// 获取文件总大小
 	totalSize := resp.ContentLength
@@ -132,13 +135,9 @@ func (dt *downloadTask) download() {
 	if err := ProcessFile(filePath); err != nil {
 		dt.message = fmt.Sprintf("文件处理失败: %v", err)
 		dt.status = DOWNLOAD_STATUS_FAILED
-		// 清理下载的文件
-		os.Remove(filePath)
 		return
 	}
 
-	// 清理临时下载文件
-	os.Remove(filePath)
 	fmt.Printf("文件下载并处理完成: %s\n", fileName)
 }
 
