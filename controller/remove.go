@@ -9,6 +9,9 @@ import (
 )
 
 func Remove(c *gin.Context) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	mapPath := BasePath + c.PostForm("map")
 	err := os.Remove(mapPath)
 	if err != nil {

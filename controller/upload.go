@@ -1,18 +1,12 @@
 package controller
 
 import (
-	"archive/zip"
-	"errors"
-	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
 	"regexp"
 	"runtime"
-	"strings"
 
-	"github.com/axgle/mahonia"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v3/disk"
 )
@@ -59,52 +53,28 @@ func Upload(c *gin.Context) {
 	// 清理文件名
 	cleanFilename := sanitizeFilename(file.Filename)
 
-	_, statErr := os.Stat(BasePath + "maplist.txt")
-	if !os.IsNotExist(statErr) {
-		maps, readErr := os.ReadFile(BasePath + "maplist.txt")
-		if readErr != nil {
-			c.String(http.StatusInternalServerError, "获取地图记录文件失败")
-			return
-		}
-		for _, mapName := range strings.Split(string(maps), "\n") {
-			if mapName == cleanFilename {
-				c.String(http.StatusBadRequest, "地图已经存在")
-				return
-			}
-		}
+	// 检查文件是否已存在
+	if err := checkMapExists(cleanFilename); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
 	}
 
-	if err := c.SaveUploadedFile(file, BasePath+cleanFilename); err != nil {
+	// 保存上传的文件
+	tempPath := BasePath + "temp_" + cleanFilename
+	if err := c.SaveUploadedFile(file, tempPath); err != nil {
 		c.String(http.StatusInternalServerError, "文件写入失败")
 		return
 	}
 
-	if err := recordMap(cleanFilename); err != nil {
+	// 使用共用的文件处理方法
+	if err := ProcessVpkFile(tempPath); err != nil {
+		os.Remove(tempPath) // 清理临时文件
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.String(http.StatusOK, "上传成功！")
 	runtime.GC()
-}
-
-var chineseDecoder = mahonia.NewDecoder("gbk")
-
-// sanitizeFilename 清理文件名中的空格和特殊符号，替换为下划线
-func sanitizeFilename(filename string) string {
-	// 分离文件名和扩展名
-	ext := filepath.Ext(filename)
-	nameWithoutExt := strings.TrimSuffix(filename, ext)
-
-	// 使用正则表达式匹配需要替换的字符
-	// 匹配空格、特殊符号等，但保留中文字符、英文字母、数字、连字符、下划线和点号
-	reg := regexp.MustCompile(`[^\p{L}\p{N}\-_.]+`)
-	cleanName := reg.ReplaceAllString(nameWithoutExt, "_")
-
-	// 如果存在myl4d2addons_前缀则去除
-	cleanName = strings.TrimPrefix(cleanName, "myl4d2addons_")
-
-	return cleanName + ext
 }
 
 func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
@@ -115,95 +85,6 @@ func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
 	}
 	defer os.Remove(tempZipPath) // 清理临时文件
 
-	// 打开zip文件
-	reader, err := zip.OpenReader(tempZipPath)
-	if err != nil {
-		return err
-	}
-	defer reader.Close()
-
-	vpkReg := regexp.MustCompile(`\.vpk$`)
-	var extractedFiles []string
-
-	// 解压vpk文件
-	for _, f := range reader.File {
-		name := f.Name
-		if f.NonUTF8 {
-			name = chineseDecoder.ConvertString(f.Name)
-		}
-		if vpkReg.MatchString(name) {
-			// 清理文件名
-			cleanName := sanitizeFilename(filepath.Base(name))
-
-			// 检查文件是否已存在
-			if err := checkMapExists(cleanName); err != nil {
-				return err
-			}
-
-			// 解压文件
-			if err := extractFile(f, BasePath+cleanName); err != nil {
-				return err
-			}
-			extractedFiles = append(extractedFiles, cleanName)
-		}
-	}
-
-	if len(extractedFiles) == 0 {
-		return errors.New("zip文件中未找到vpk文件")
-	}
-
-	// 记录所有解压的vpk文件
-	for _, fileName := range extractedFiles {
-		if err := recordMap(fileName); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func checkMapExists(filename string) error {
-	_, statErr := os.Stat(BasePath + "maplist.txt")
-	if !os.IsNotExist(statErr) {
-		maps, readErr := os.ReadFile(BasePath + "maplist.txt")
-		if readErr != nil {
-			return errors.New("获取地图记录文件失败")
-		}
-		for _, mapName := range strings.Split(string(maps), "\n") {
-			if mapName == filename {
-				return errors.New("地图 " + filename + " 已经存在")
-			}
-		}
-	}
-	return nil
-}
-
-func extractFile(f *zip.File, destPath string) error {
-	rc, err := f.Open()
-	if err != nil {
-		return err
-	}
-	defer rc.Close()
-
-	outFile, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-	if err != nil {
-		return err
-	}
-	defer outFile.Close()
-
-	_, err = io.Copy(outFile, rc)
-	return err
-}
-
-func recordMap(filename string) error {
-	list, openErr := os.OpenFile(BasePath+"maplist.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
-	if openErr != nil {
-		return errors.New("获取地图记录文件句柄失败")
-	}
-	defer list.Close()
-
-	if _, err := list.WriteString(filename + "\n"); err != nil {
-		return errors.New("写入地图记录失败")
-	}
-	return nil
+	// 使用共用的zip文件处理方法
+	return ProcessZipFile(tempZipPath)
 }
