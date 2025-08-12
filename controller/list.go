@@ -6,11 +6,17 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
 
+var mutex sync.RWMutex
+
 func List(c *gin.Context) {
+	mutex.RLock()
+	defer mutex.RUnlock()
+
 	file, err := os.ReadFile(BasePath + "maplist.txt")
 	if err != nil {
 		c.String(http.StatusInternalServerError, "读取地图列表失败")
