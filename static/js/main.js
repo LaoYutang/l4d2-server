@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const serverStatusDialog = new ServerStatusDialog();
   const mapManagementDialog = new MapManagementDialog();
   const authCodeDialog = new AuthCodeDialog();
+  const downloadManagementDialog = new DownloadManagementDialog();
 
   // 设置全局实例
   window.notificationSystem = notificationSystem;
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.serverStatusDialog = serverStatusDialog;
   window.mapManagementDialog = mapManagementDialog;
   window.authCodeDialog = authCodeDialog;
+  window.downloadManagementDialog = downloadManagementDialog;
 
   // 替换原生alert和confirm
   const showNotification = notificationSystem.success.bind(notificationSystem);
@@ -471,6 +473,20 @@ document.addEventListener('DOMContentLoaded', function () {
   restart.addEventListener('click', restartHandler);
   clear.addEventListener('click', clearHandler);
 
+  // 下载任务管理按钮
+  const downloadManagement = document.getElementById('download-management');
+  if (downloadManagement) {
+    downloadManagement.addEventListener('click', showDownloadManagementHandler);
+  }
+
+  // 地图列表刷新按钮
+  const refreshMapList = document.getElementById('refresh-map-list');
+  if (refreshMapList) {
+    refreshMapList.addEventListener('click', () => {
+      updateList();
+    });
+  }
+
   // 初始化主页面服务器状态
   const mainServerStatus = new MainServerStatus();
   window.mainServerStatus = mainServerStatus;
@@ -487,9 +503,19 @@ document.addEventListener('DOMContentLoaded', function () {
     authCodeDialog.show();
   }
 
+  // 显示下载任务管理弹框
+  function showDownloadManagementHandler() {
+    if (password.value === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
+    downloadManagementDialog.show();
+  }
+
   // 设置全局函数
   window.showMapManagementHandler = showMapManagementHandler;
   window.showRconMapsHandler = showRconMapsHandler;
+  window.showDownloadManagementHandler = showDownloadManagementHandler;
   window.showAuthCodeHandler = showAuthCodeHandler;
   window.changeMapHandler = changeMapHandler;
   window.updateList = updateList;
