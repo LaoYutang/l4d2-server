@@ -1504,6 +1504,11 @@
 
 .download-task-speed {
   font-weight: 600;
+  color: #007bff;
+  background: rgba(0, 123, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .download-tasks-empty {

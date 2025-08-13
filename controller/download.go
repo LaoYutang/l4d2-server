@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v3/disk"
@@ -25,19 +26,32 @@ const (
 )
 
 type downloadTask struct {
-	url      string          // 下载链接
-	status   DOWNLOAD_STATUS // 状态
-	message  string          // 错误消息
-	progress float64         // 进度
-	cancel   chan struct{}   // 取消信号通道
+	url              string          // 下载链接
+	status           DOWNLOAD_STATUS // 状态
+	message          string          // 错误消息
+	progress         float64         // 进度
+	cancel           chan struct{}   // 取消信号通道
+	downloadSpeed    float64         // 下载速度 (bytes/second)
+	startTime        time.Time       // 下载开始时间
+	lastUpdate       time.Time       // 上次更新时间
+	downloadedBytes  int64           // 已下载字节数
+	lastSecondBytes  int64           // 上一秒的下载字节数
+	speedUpdateTimer *time.Ticker    // 速度更新定时器
+	mu               sync.RWMutex    // 读写锁，保护并发访问
 }
 
 // 新增下载任务
 func NewDownloadTask(url string) *downloadTask {
 	res := &downloadTask{
-		url:    url,
-		status: DOWNLOAD_STATUS_PENDING,
-		cancel: make(chan struct{}),
+		url:              url,
+		status:           DOWNLOAD_STATUS_PENDING,
+		cancel:           make(chan struct{}),
+		downloadSpeed:    0,
+		startTime:        time.Now(),
+		lastUpdate:       time.Now(),
+		downloadedBytes:  0,
+		lastSecondBytes:  0,
+		speedUpdateTimer: time.NewTicker(5 * time.Second),
 	}
 
 	// 启动协程下载文件
@@ -49,6 +63,33 @@ func NewDownloadTask(url string) *downloadTask {
 // 添加取消方法
 func (dt *downloadTask) Cancel() {
 	close(dt.cancel)
+	if dt.speedUpdateTimer != nil {
+		dt.speedUpdateTimer.Stop()
+	}
+}
+
+// 定期更新下载速度
+func (dt *downloadTask) updateSpeedPeriodically() {
+	defer func() {
+		if dt.speedUpdateTimer != nil {
+			dt.speedUpdateTimer.Stop()
+		}
+	}()
+
+	for {
+		select {
+		case <-dt.cancel:
+			return
+		case <-dt.speedUpdateTimer.C:
+			dt.mu.Lock()
+			currentBytes := dt.downloadedBytes
+			bytesInPeriod := currentBytes - dt.lastSecondBytes
+			// 计算每秒平均速度 (5秒内下载的字节数 / 5)
+			dt.downloadSpeed = float64(bytesInPeriod) / 5.0
+			dt.lastSecondBytes = currentBytes
+			dt.mu.Unlock()
+		}
+	}
 }
 
 // 执行实际的文件下载
@@ -66,6 +107,11 @@ func (dt *downloadTask) download() {
 	}
 
 	dt.status = DOWNLOAD_STATUS_IN_PROGRESS
+	dt.startTime = time.Now()
+	dt.lastUpdate = time.Now()
+
+	// 启动速度计算协程
+	go dt.updateSpeedPeriodically()
 
 	// 发送HTTP请求
 	resp, err := http.Get(dt.url)
@@ -138,10 +184,17 @@ func (dt *downloadTask) download() {
 
 			downloaded += int64(n)
 
+			// 线程安全地更新下载字节数
+			dt.mu.Lock()
+			dt.downloadedBytes = downloaded
+			dt.mu.Unlock()
+
 			// 更新进度
 			if totalSize > 0 {
 				dt.progress = float64(downloaded) / float64(totalSize) * 100.0
 			}
+
+			dt.lastUpdate = time.Now()
 		}
 
 		if err == io.EOF {
@@ -156,6 +209,11 @@ func (dt *downloadTask) download() {
 
 	dt.progress = 100.0
 	dt.status = DOWNLOAD_STATUS_COMPLETED
+
+	// 停止速度更新定时器
+	if dt.speedUpdateTimer != nil {
+		dt.speedUpdateTimer.Stop()
+	}
 
 	// 下载完成后处理文件
 	if err := ProcessFile(filePath); err != nil {
@@ -190,6 +248,27 @@ func (dt *downloadTask) GetProgress() float64 {
 // 获取错误消息
 func (dt *downloadTask) GetMessage() string {
 	return dt.message
+}
+
+// 获取下载速度 (bytes/second)
+func (dt *downloadTask) GetDownloadSpeed() float64 {
+	dt.mu.RLock()
+	defer dt.mu.RUnlock()
+	return dt.downloadSpeed
+}
+
+// 格式化下载速度为可读字符串
+func (dt *downloadTask) GetFormattedSpeed() string {
+	speed := dt.GetDownloadSpeed()
+	if speed < 1024 {
+		return fmt.Sprintf("%.2f B/s", speed)
+	} else if speed < 1024*1024 {
+		return fmt.Sprintf("%.2f KB/s", speed/1024)
+	} else if speed < 1024*1024*1024 {
+		return fmt.Sprintf("%.2f MB/s", speed/(1024*1024))
+	} else {
+		return fmt.Sprintf("%.2f GB/s", speed/(1024*1024*1024))
+	}
 }
 
 func splitURLString(urlString string) []string {
@@ -229,10 +308,12 @@ func (d *downloader) GetTasksInfo() []map[string]any {
 	var tasksInfo []map[string]any
 	for _, task := range d.tasks {
 		tasksInfo = append(tasksInfo, map[string]any{
-			"url":      task.url,
-			"status":   task.GetStatus(),
-			"progress": task.GetProgress(),
-			"message":  task.GetMessage(),
+			"url":            task.url,
+			"status":         task.GetStatus(),
+			"progress":       task.GetProgress(),
+			"message":        task.GetMessage(),
+			"downloadSpeed":  task.GetDownloadSpeed(),
+			"formattedSpeed": task.GetFormattedSpeed(),
 		})
 	}
 	return tasksInfo
