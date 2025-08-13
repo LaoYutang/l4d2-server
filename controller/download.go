@@ -39,6 +39,7 @@ type downloadTask struct {
 	speedUpdateTimer *time.Ticker    // 速度更新定时器
 	mu               sync.RWMutex    // 读写锁，保护并发访问
 	semaphore        chan struct{}   // 并发控制信号量
+	totalSize        int64           // 文件总大小
 }
 
 // 新增下载任务
@@ -54,6 +55,7 @@ func NewDownloadTask(url string, semaphore chan struct{}) *downloadTask {
 		lastSecondBytes:  0,
 		speedUpdateTimer: time.NewTicker(5 * time.Second),
 		semaphore:        semaphore,
+		totalSize:        0, // 初始化文件总大小
 	}
 
 	// 启动协程下载文件
@@ -159,6 +161,11 @@ func (dt *downloadTask) download() {
 	totalSize := resp.ContentLength
 	var downloaded int64 = 0
 
+	// 保存文件总大小到任务结构体中
+	dt.mu.Lock()
+	dt.totalSize = totalSize
+	dt.mu.Unlock()
+
 	// 创建一个带缓冲的读取器
 	buffer := make([]byte, 8192)
 
@@ -257,6 +264,13 @@ func (dt *downloadTask) GetDownloadSpeed() float64 {
 	return dt.downloadSpeed
 }
 
+// 获取文件总大小 (bytes)
+func (dt *downloadTask) GetTotalSize() int64 {
+	dt.mu.RLock()
+	defer dt.mu.RUnlock()
+	return dt.totalSize
+}
+
 // 格式化下载速度为可读字符串
 func (dt *downloadTask) GetFormattedSpeed() string {
 	speed := dt.GetDownloadSpeed()
@@ -268,6 +282,23 @@ func (dt *downloadTask) GetFormattedSpeed() string {
 		return fmt.Sprintf("%.2f MB/s", speed/(1024*1024))
 	} else {
 		return fmt.Sprintf("%.2f GB/s", speed/(1024*1024*1024))
+	}
+}
+
+// 格式化文件大小为可读字符串
+func (dt *downloadTask) GetFormattedSize() string {
+	size := dt.GetTotalSize()
+	if size <= 0 {
+		return "未知大小"
+	}
+	if size < 1024 {
+		return fmt.Sprintf("%d B", size)
+	} else if size < 1024*1024 {
+		return fmt.Sprintf("%.2f KB", float64(size)/1024)
+	} else if size < 1024*1024*1024 {
+		return fmt.Sprintf("%.2f MB", float64(size)/(1024*1024))
+	} else {
+		return fmt.Sprintf("%.2f GB", float64(size)/(1024*1024*1024))
 	}
 }
 
@@ -316,6 +347,8 @@ func (d *downloader) GetTasksInfo() []map[string]any {
 			"message":        task.GetMessage(),
 			"downloadSpeed":  task.GetDownloadSpeed(),
 			"formattedSpeed": task.GetFormattedSpeed(),
+			"totalSize":      task.GetTotalSize(),
+			"formattedSize":  task.GetFormattedSize(),
 		})
 	}
 	return tasksInfo
