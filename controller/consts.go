@@ -1,3 +1,3 @@
 package controller
 
-const BasePath = "/addons/"
+const BasePath = "./addons/"

@@ -8,6 +8,33 @@ class ServerAPI {
     this.password = password;
   }
 
+  // 验证密码是否正确
+  async validatePassword() {
+    if (!this.password || this.password === '') {
+      return { success: false, message: '密码不能为空！' };
+    }
+
+    try {
+      const fd = new FormData();
+      fd.append('password', this.password);
+
+      const response = await fetch('/auth', {
+        method: 'POST',
+        body: fd,
+      });
+
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: '密码验证成功' };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: '网络错误: ' + error.message };
+    }
+  }
+
   // 基础请求方法
   fetchServer(path, mapName) {
     if (!this.password || this.password === '') {
@@ -97,6 +124,73 @@ class ServerAPI {
     const fd = new FormData();
     fd.append('password', this.password);
     fd.append('mapName', mapName);
+
+    return fetch(path, {
+      method: 'POST',
+      body: fd,
+    });
+  }
+
+  // 下载任务相关API
+  async addDownloadTask(url) {
+    try {
+      const response = await this.fetchServerWithUrl('/download/add', url);
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: text };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  async getDownloadTasks() {
+    try {
+      const response = await this.fetchServer('/download/list');
+      const text = await response.text();
+
+      if (response.ok) {
+        try {
+          const data = JSON.parse(text);
+          return { success: true, data: data };
+        } catch (e) {
+          // 如果不是JSON格式，返回空数组
+          return { success: true, data: [] };
+        }
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  async clearDownloadTasks() {
+    try {
+      const response = await this.fetchServer('/download/clear');
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: text };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  // 带URL的请求
+  fetchServerWithUrl(path, url) {
+    if (!this.password || this.password === '') {
+      return Promise.reject(new Error('密码不能为空！'));
+    }
+    const fd = new FormData();
+    fd.append('password', this.password);
+    fd.append('url', url);
 
     return fetch(path, {
       method: 'POST',

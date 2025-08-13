@@ -277,6 +277,28 @@ body {
   box-shadow: 0 12px 25px rgba(79, 172, 254, 0.4);
 }
 
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+  box-shadow: 0 8px 15px rgba(23, 162, 184, 0.3);
+}
+
+.btn-info:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(23, 162, 184, 0.4);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  box-shadow: 0 8px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(108, 117, 125, 0.4);
+}
+
 /* 地图列表样式 */
 .map-list-section {
   margin-top: 40px;

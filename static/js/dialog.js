@@ -1043,3 +1043,336 @@ class AuthCodeDialog {
     }
   }
 }
+
+// 下载任务管理弹框系统
+class DownloadManagementDialog {
+  constructor() {
+    this.overlay = document.getElementById('download-management-overlay');
+    this.dialog = document.getElementById('download-management-dialog');
+    this.closeButton = document.getElementById('download-management-close');
+    this.urlInput = document.getElementById('download-url');
+    this.addTaskButton = document.getElementById('add-download-task');
+    this.refreshButton = document.getElementById('refresh-download-tasks');
+    this.clearButton = document.getElementById('clear-download-tasks');
+    this.tasksList = document.getElementById('download-tasks-list');
+    this.tasksLoading = document.getElementById('download-tasks-loading');
+
+    this.tasks = [];
+    this.refreshInterval = null;
+
+    this.init();
+  }
+
+  init() {
+    // 绑定关闭事件
+    this.closeButton.addEventListener('click', () => this.close());
+    this.overlay.addEventListener('click', (e) => {
+      if (e.target === this.overlay) {
+        this.close();
+      }
+    });
+
+    // ESC键关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.overlay.style.display === 'flex') {
+        this.close();
+      }
+    });
+
+    // 绑定按钮事件
+    this.addTaskButton.addEventListener('click', () => this.addDownloadTask());
+    this.refreshButton.addEventListener('click', () => this.refreshTasks());
+    this.clearButton.addEventListener('click', () => this.clearAllTasks());
+
+    // URL输入框快捷键
+    this.urlInput.addEventListener('keydown', (e) => {
+      // Ctrl+Enter 或 Cmd+Enter 提交任务
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        this.addDownloadTask();
+      }
+    });
+  }
+
+  show() {
+    this.overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    setTimeout(() => {
+      this.dialog.classList.add('show');
+    }, 50);
+
+    // 加载任务列表
+    this.refreshTasks();
+
+    // 注释掉自动刷新功能，只在用户点击刷新时调用
+    // this.startAutoRefresh();
+  }
+
+  close() {
+    this.dialog.classList.remove('show');
+    document.body.style.overflow = '';
+
+    setTimeout(() => {
+      this.overlay.style.display = 'none';
+    }, 300);
+
+    // 停止定时刷新
+    this.stopAutoRefresh();
+
+    // 清空输入框
+    this.urlInput.value = '';
+  }
+
+  startAutoRefresh() {
+    this.stopAutoRefresh();
+    this.refreshInterval = setInterval(() => {
+      this.refreshTasks(true); // 静默刷新
+    }, 2000); // 每2秒刷新一次
+  }
+
+  stopAutoRefresh() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+  }
+
+  async addDownloadTask() {
+    const urlText = this.urlInput.value.trim();
+
+    if (!urlText) {
+      showError('请输入下载链接');
+      return;
+    }
+
+    // 使用正则表达式提取所有http/https链接
+    const urlRegex = /(https?:\/\/[^\s\n\r]+)/g;
+    const urls = urlText.match(urlRegex) || [];
+
+    if (urls.length === 0) {
+      showError('请输入有效的 HTTP 或 HTTPS 链接');
+      return;
+    }
+
+    // 验证每个URL的格式
+    const invalidUrls = [];
+    for (const url of urls) {
+      try {
+        const urlObj = new URL(url);
+        if (!['http:', 'https:'].includes(urlObj.protocol)) {
+          invalidUrls.push(url);
+        }
+      } catch (e) {
+        invalidUrls.push(url);
+      }
+    }
+
+    if (invalidUrls.length > 0) {
+      showError(
+        `以下链接格式无效：\n${invalidUrls.slice(0, 3).join('\n')}${
+          invalidUrls.length > 3 ? '\n...' : ''
+        }`
+      );
+      return;
+    }
+
+    try {
+      // 将所有链接作为一个字符串发送给后端，后端会自动分割处理
+      const response = await serverAPI.addDownloadTask(urlText);
+
+      if (response.success) {
+        showNotification(`成功添加 ${urls.length} 个下载任务！`);
+        this.urlInput.value = '';
+        this.refreshTasks();
+      } else {
+        showError(response.message || '添加下载任务失败');
+      }
+    } catch (error) {
+      showError('添加下载任务失败: ' + error.message);
+    }
+  }
+
+  async refreshTasks(silent = false) {
+    if (!silent) {
+      this.showLoading();
+    }
+
+    try {
+      const response = await serverAPI.getDownloadTasks();
+
+      if (response.success) {
+        this.tasks = response.data || [];
+        this.renderTasks();
+      } else {
+        if (!silent) {
+          showError(response.message || '获取任务列表失败');
+        }
+        this.showError('获取任务列表失败');
+      }
+    } catch (error) {
+      if (!silent) {
+        showError('获取任务列表失败: ' + error.message);
+      }
+      this.showError('获取任务列表失败');
+    }
+  }
+
+  async clearAllTasks() {
+    const confirmed = await confirmAction(
+      '清空已完成任务',
+      '您确定要清空已完成下载任务吗？正在进行中的任务将保留。',
+      '清空',
+      '取消'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await serverAPI.clearDownloadTasks();
+
+      if (response.success) {
+        showNotification('已清空完成任务！');
+        this.refreshTasks();
+      } else {
+        showError(response.message || '清空任务失败');
+      }
+    } catch (error) {
+      showError('清空任务失败: ' + error.message);
+    }
+  }
+
+  showLoading() {
+    this.tasksLoading.style.display = 'flex';
+    this.tasksList.innerHTML = '';
+  }
+
+  showError(message) {
+    this.tasksLoading.style.display = 'none';
+    this.tasksList.innerHTML = `
+      <div class="download-tasks-empty">
+        <div class="icon">❌</div>
+        <div>${message}</div>
+      </div>
+    `;
+  }
+
+  renderTasks() {
+    this.tasksLoading.style.display = 'none';
+
+    if (this.tasks.length === 0) {
+      this.tasksList.innerHTML = `
+        <div class="download-tasks-empty">
+          <div class="icon">📥</div>
+          <div>暂无下载任务</div>
+          <div style="margin-top: 10px; font-size: 12px; color: #999;">
+            在上方输入下载链接添加任务
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const tasksHtml = this.tasks.map((task) => this.renderTaskItem(task)).join('');
+    this.tasksList.innerHTML = tasksHtml;
+  }
+
+  renderTaskItem(task) {
+    const statusClass = this.getStatusClass(task.status);
+    const statusText = this.getStatusText(task.status);
+    const progress = task.progress || 0;
+    const message = task.message || '';
+    const url = task.url || '未知链接';
+
+    return `
+      <div class="download-task-item">
+        <div class="download-task-header">
+          <div class="download-task-url" title="${this.getDisplayUrl(url)}">${this.truncateUrl(
+      url
+    )}</div>
+          <div class="download-task-status ${statusClass}">${statusText}</div>
+        </div>
+        
+        ${
+          task.status === 1
+            ? `
+          <div class="download-task-progress">
+            <div class="download-progress-bar">
+              <div class="download-progress-fill" style="width: ${progress}%"></div>
+            </div>
+          </div>
+        `
+            : ''
+        }
+        
+        <div class="download-task-info">
+          <div>
+            ${task.status === 1 ? `${progress.toFixed(1)}%` : ''}
+            ${message ? `<span style="color: #999; font-size: 11px;">${message}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  getDisplayUrl(url) {
+    try {
+      // 对完整URL进行解码，用于title显示
+      return decodeURIComponent(url);
+    } catch (error) {
+      // 如果解码失败，返回原始URL
+      return url;
+    }
+  }
+
+  truncateUrl(url, maxLength = 60) {
+    try {
+      // 尝试从URL中提取文件名
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+
+      // 获取路径中的最后一部分作为文件名
+      let filename = pathname.split('/').pop();
+
+      // 如果没有文件名或文件名为空，使用完整URL
+      if (!filename || filename === '') {
+        if (url.length <= maxLength) return url;
+        return url.substring(0, maxLength - 3) + '...';
+      }
+
+      // 对文件名进行URI解码
+      filename = decodeURIComponent(filename);
+
+      // 如果解码后的文件名过长，则截断
+      if (filename.length > maxLength) {
+        return filename.substring(0, maxLength - 3) + '...';
+      }
+
+      return filename;
+    } catch (error) {
+      // 如果URL解析失败，使用原来的截断逻辑
+      if (url.length <= maxLength) return url;
+      return url.substring(0, maxLength - 3) + '...';
+    }
+  }
+
+  getStatusClass(status) {
+    const statusMap = {
+      0: 'pending', // DOWNLOAD_STATUS_PENDING
+      1: 'downloading', // DOWNLOAD_STATUS_IN_PROGRESS
+      2: 'completed', // DOWNLOAD_STATUS_COMPLETED
+      3: 'failed', // DOWNLOAD_STATUS_FAILED
+    };
+    return statusMap[status] || 'pending';
+  }
+
+  getStatusText(status) {
+    const statusMap = {
+      0: '等待中', // DOWNLOAD_STATUS_PENDING
+      1: '下载中', // DOWNLOAD_STATUS_IN_PROGRESS
+      2: '已完成', // DOWNLOAD_STATUS_COMPLETED
+      3: '失败', // DOWNLOAD_STATUS_FAILED
+    };
+    return statusMap[status] || '未知';
+  }
+}
