@@ -1445,6 +1445,13 @@
   line-height: 1.4;
 }
 
+.download-task-status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .download-task-status {
   flex-shrink: 0;
   padding: 4px 12px;
@@ -1453,6 +1460,28 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.download-task-cancel-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.download-task-cancel-btn:hover {
+  background: rgba(255, 0, 0, 0.1);
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .download-task-status.pending {
