@@ -1287,7 +1287,9 @@ class DownloadManagementDialog {
     return `
       <div class="download-task-item">
         <div class="download-task-header">
-          <div class="download-task-url" title="${url}">${this.truncateUrl(url)}</div>
+          <div class="download-task-url" title="${this.getDisplayUrl(url)}">${this.truncateUrl(
+      url
+    )}</div>
           <div class="download-task-status ${statusClass}">${statusText}</div>
         </div>
         
@@ -1313,9 +1315,45 @@ class DownloadManagementDialog {
     `;
   }
 
+  getDisplayUrl(url) {
+    try {
+      // 对完整URL进行解码，用于title显示
+      return decodeURIComponent(url);
+    } catch (error) {
+      // 如果解码失败，返回原始URL
+      return url;
+    }
+  }
+
   truncateUrl(url, maxLength = 60) {
-    if (url.length <= maxLength) return url;
-    return url.substring(0, maxLength - 3) + '...';
+    try {
+      // 尝试从URL中提取文件名
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+
+      // 获取路径中的最后一部分作为文件名
+      let filename = pathname.split('/').pop();
+
+      // 如果没有文件名或文件名为空，使用完整URL
+      if (!filename || filename === '') {
+        if (url.length <= maxLength) return url;
+        return url.substring(0, maxLength - 3) + '...';
+      }
+
+      // 对文件名进行URI解码
+      filename = decodeURIComponent(filename);
+
+      // 如果解码后的文件名过长，则截断
+      if (filename.length > maxLength) {
+        return filename.substring(0, maxLength - 3) + '...';
+      }
+
+      return filename;
+    } catch (error) {
+      // 如果URL解析失败，使用原来的截断逻辑
+      if (url.length <= maxLength) return url;
+      return url.substring(0, maxLength - 3) + '...';
+    }
   }
 
   getStatusClass(status) {
