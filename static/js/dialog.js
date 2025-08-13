@@ -1105,8 +1105,8 @@ class DownloadManagementDialog {
     // 加载任务列表
     this.refreshTasks();
 
-    // 注释掉自动刷新功能，只在用户点击刷新时调用
-    // this.startAutoRefresh();
+    // 启动自动刷新功能，用于实时更新下载速度
+    this.startAutoRefresh();
   }
 
   close() {
@@ -1310,6 +1310,11 @@ class DownloadManagementDialog {
             ${task.status === 1 ? `${progress.toFixed(1)}%` : ''}
             ${message ? `<span style="color: #999; font-size: 11px;">${message}</span>` : ''}
           </div>
+          ${
+            task.status === 1 && task.formattedSpeed
+              ? `<div class="download-task-speed">${task.formattedSpeed}</div>`
+              : ''
+          }
         </div>
       </div>
     `;
