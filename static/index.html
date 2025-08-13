@@ -116,6 +116,7 @@
             <div class="map-actions">
               <button id="upload" class="btn btn-primary">📤 上传地图</button>
               <button id="clear" class="btn btn-danger">🗑️ 清空目录</button>
+              <button id="download-management" class="btn btn-info">📥 下载任务管理</button>
             </div>
           </div>
 
@@ -138,6 +139,9 @@
                   />
                   <button id="clear-filter" class="clear-filter-btn" title="清空筛选">×</button>
                 </div>
+                <button id="refresh-map-list" class="btn btn-secondary" title="刷新地图列表">
+                  🔄 刷新
+                </button>
               </div>
             </div>
             <div id="modal-list" class="map-list"></div>
@@ -240,6 +244,56 @@
             <div class="auth-code-info">
               <p>⚠️ 此授权码具有管理员权限，请妥善保管</p>
               <p>🕒 有效期至：<span id="auth-code-expires"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 下载任务管理弹框 -->
+    <div id="download-management-overlay" class="download-management-overlay">
+      <div id="download-management-dialog" class="download-management-dialog">
+        <div class="download-management-header">
+          <div class="download-management-title">📥 下载任务管理</div>
+          <button id="download-management-close" class="download-management-close">×</button>
+        </div>
+        <div class="download-management-content">
+          <!-- 添加下载任务区域 -->
+          <div class="download-add-section">
+            <div class="section-title">📥 添加下载任务</div>
+            <div class="form-group">
+              <label>下载链接</label>
+              <textarea
+                id="download-url"
+                placeholder="仅支持 HTTP 或 HTTPS 开头的链接。支持多个下载链接，每行链接http开头即可。"
+                class="form-textarea"
+                rows="4"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <button id="add-download-task" class="btn btn-primary full-width">
+                ➕ 添加下载任务
+              </button>
+            </div>
+          </div>
+
+          <!-- 任务列表区域 -->
+          <div class="download-list-section">
+            <div class="download-list-header">
+              <div class="section-title">📋 任务列表</div>
+              <div class="download-actions">
+                <button id="refresh-download-tasks" class="btn btn-secondary">🔄 刷新</button>
+                <button id="clear-download-tasks" class="btn btn-danger">🗑️ 清空已完成任务</button>
+              </div>
+            </div>
+            <div id="download-tasks-list" class="download-tasks-list">
+              <div id="download-tasks-loading" class="download-tasks-loading">
+                <div
+                  class="loading-spinner"
+                  style="width: 30px; height: 30px; margin: 0 auto 15px"
+                ></div>
+                <div>加载任务列表中...</div>
+              </div>
             </div>
           </div>
         </div>

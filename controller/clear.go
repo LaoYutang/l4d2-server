@@ -9,6 +9,9 @@ import (
 )
 
 func Clear(c *gin.Context) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	fileBytes, err := os.ReadFile(BasePath + "maplist.txt")
 	if err != nil {
 		c.String(http.StatusInternalServerError, "获取地图记录文件失败")
