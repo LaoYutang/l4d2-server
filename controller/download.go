@@ -38,10 +38,11 @@ type downloadTask struct {
 	lastSecondBytes  int64           // 上一秒的下载字节数
 	speedUpdateTimer *time.Ticker    // 速度更新定时器
 	mu               sync.RWMutex    // 读写锁，保护并发访问
+	semaphore        chan struct{}   // 并发控制信号量
 }
 
 // 新增下载任务
-func NewDownloadTask(url string) *downloadTask {
+func NewDownloadTask(url string, semaphore chan struct{}) *downloadTask {
 	res := &downloadTask{
 		url:              url,
 		status:           DOWNLOAD_STATUS_PENDING,
@@ -52,6 +53,7 @@ func NewDownloadTask(url string) *downloadTask {
 		downloadedBytes:  0,
 		lastSecondBytes:  0,
 		speedUpdateTimer: time.NewTicker(5 * time.Second),
+		semaphore:        semaphore,
 	}
 
 	// 启动协程下载文件
@@ -94,8 +96,9 @@ func (dt *downloadTask) updateSpeedPeriodically() {
 
 // 执行实际的文件下载
 func (dt *downloadTask) download() {
-	downloadMutex.Lock()
-	defer downloadMutex.Unlock()
+	// 获取信号量，最多允许3个并发下载
+	dt.semaphore <- struct{}{}
+	defer func() { <-dt.semaphore }() // 释放信号量
 
 	// 检查是否收到取消信号
 	select {
@@ -290,17 +293,19 @@ func splitURLString(urlString string) []string {
 }
 
 type downloader struct {
-	tasks []*downloadTask
+	tasks     []*downloadTask
+	semaphore chan struct{} // 控制最大并发下载数的信号量
 }
 
 func NewDownloader() *downloader {
 	return &downloader{
-		tasks: make([]*downloadTask, 0),
+		tasks:     make([]*downloadTask, 0),
+		semaphore: make(chan struct{}, 3), // 允许最多3个并发下载
 	}
 }
 
 func (d *downloader) AddTask(url string) {
-	task := NewDownloadTask(url)
+	task := NewDownloadTask(url, d.semaphore)
 	d.tasks = append(d.tasks, task)
 }
 
@@ -320,7 +325,6 @@ func (d *downloader) GetTasksInfo() []map[string]any {
 }
 
 var Downloader *downloader
-var downloadMutex sync.Mutex
 
 func init() {
 	Downloader = NewDownloader()
