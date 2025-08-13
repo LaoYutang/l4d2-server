@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -28,6 +29,7 @@ type downloadTask struct {
 	status   DOWNLOAD_STATUS // 状态
 	message  string          // 错误消息
 	progress float64         // 进度
+	cancel   chan struct{}   // 取消信号通道
 }
 
 // 新增下载任务
@@ -35,6 +37,7 @@ func NewDownloadTask(url string) *downloadTask {
 	res := &downloadTask{
 		url:    url,
 		status: DOWNLOAD_STATUS_PENDING,
+		cancel: make(chan struct{}),
 	}
 
 	// 启动协程下载文件
@@ -43,10 +46,24 @@ func NewDownloadTask(url string) *downloadTask {
 	return res
 }
 
+// 添加取消方法
+func (dt *downloadTask) Cancel() {
+	close(dt.cancel)
+}
+
 // 执行实际的文件下载
 func (dt *downloadTask) download() {
 	downloadMutex.Lock()
 	defer downloadMutex.Unlock()
+
+	// 检查是否收到取消信号
+	select {
+	case <-dt.cancel:
+		dt.message = "下载已取消"
+		dt.status = DOWNLOAD_STATUS_FAILED
+		return
+	default:
+	}
 
 	dt.status = DOWNLOAD_STATUS_IN_PROGRESS
 
@@ -100,6 +117,15 @@ func (dt *downloadTask) download() {
 	buffer := make([]byte, 8192)
 
 	for {
+		// 检查是否收到取消信号
+		select {
+		case <-dt.cancel:
+			dt.message = "下载已取消"
+			dt.status = DOWNLOAD_STATUS_FAILED
+			return
+		default:
+		}
+
 		n, err := resp.Body.Read(buffer)
 		if n > 0 {
 			// 写入文件
@@ -239,6 +265,29 @@ func AddDownloadTask(c *gin.Context) {
 		Downloader.AddTask(singleURL)
 	}
 	c.String(http.StatusOK, "下载任务已添加")
+}
+
+func CancelDownloadTask(c *gin.Context) {
+	indexStr := c.PostForm("index")
+	if indexStr == "" {
+		c.String(http.StatusBadRequest, "任务索引不能为空")
+		return
+	}
+
+	index, err := strconv.Atoi(indexStr)
+	if err != nil {
+		c.String(http.StatusBadRequest, "任务索引格式错误")
+		return
+	}
+
+	if index < 0 || index >= len(Downloader.tasks) {
+		c.String(http.StatusBadRequest, "任务索引超出范围")
+		return
+	}
+
+	// 取消指定索引的下载任务
+	Downloader.tasks[index].Cancel()
+	c.String(http.StatusOK, "下载任务已取消")
 }
 
 func ClearTasks(c *gin.Context) {
