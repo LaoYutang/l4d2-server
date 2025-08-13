@@ -96,18 +96,15 @@ func (dt *downloadTask) updateSpeedPeriodically() {
 
 // 执行实际的文件下载
 func (dt *downloadTask) download() {
-	// 获取信号量，最多允许3个并发下载
-	dt.semaphore <- struct{}{}
-	defer func() { <-dt.semaphore }() // 释放信号量
-
-	// 检查是否收到取消信号
 	select {
 	case <-dt.cancel:
 		dt.message = "下载已取消"
 		dt.status = DOWNLOAD_STATUS_FAILED
 		return
-	default:
+	case dt.semaphore <- struct{}{}:
 	}
+
+	defer func() { <-dt.semaphore }() // 释放信号量
 
 	dt.status = DOWNLOAD_STATUS_IN_PROGRESS
 	dt.startTime = time.Now()
