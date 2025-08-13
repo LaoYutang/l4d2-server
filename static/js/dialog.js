@@ -1242,6 +1242,30 @@ class DownloadManagementDialog {
     }
   }
 
+  async cancelTask(index) {
+    const confirmed = await confirmAction(
+      '取消下载任务',
+      '您确定要取消这个下载任务吗？',
+      '取消任务',
+      '保留任务'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await serverAPI.cancelDownloadTask(index);
+
+      if (response.success) {
+        showNotification('下载任务已取消！');
+        this.refreshTasks();
+      } else {
+        showError(response.message || '取消任务失败');
+      }
+    } catch (error) {
+      showError('取消任务失败: ' + error.message);
+    }
+  }
+
   showLoading() {
     this.tasksLoading.style.display = 'flex';
     this.tasksList.innerHTML = '';
@@ -1273,11 +1297,11 @@ class DownloadManagementDialog {
       return;
     }
 
-    const tasksHtml = this.tasks.map((task) => this.renderTaskItem(task)).join('');
+    const tasksHtml = this.tasks.map((task, index) => this.renderTaskItem(task, index)).join('');
     this.tasksList.innerHTML = tasksHtml;
   }
 
-  renderTaskItem(task) {
+  renderTaskItem(task, index) {
     const statusClass = this.getStatusClass(task.status);
     const statusText = this.getStatusText(task.status);
     const progress = task.progress || 0;
@@ -1290,7 +1314,14 @@ class DownloadManagementDialog {
           <div class="download-task-url" title="${this.getDisplayUrl(url)}">${this.truncateUrl(
       url
     )}</div>
-          <div class="download-task-status ${statusClass}">${statusText}</div>
+          <div class="download-task-status-wrapper">
+            <div class="download-task-status ${statusClass}">${statusText}</div>
+            ${
+              task.status === 0 || task.status === 1 // 等待中或下载中状态显示取消按钮
+                ? `<button class="download-task-cancel-btn" onclick="downloadManagementDialog.cancelTask(${index})" title="取消下载">❌</button>`
+                : ''
+            }
+          </div>
         </div>
         
         ${
