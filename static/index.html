@@ -263,12 +263,12 @@
             <div class="section-title">📥 添加下载任务</div>
             <div class="form-group">
               <label>下载链接</label>
-              <input
+              <textarea
                 id="download-url"
-                type="url"
-                placeholder="请输入下载链接 (支持 HTTP/HTTPS)"
-                class="form-input"
-              />
+                placeholder="仅支持 HTTP 或 HTTPS 开头的链接。支持多个下载链接，每行链接http开头即可。"
+                class="form-textarea"
+                rows="4"
+              ></textarea>
             </div>
             <div class="form-group">
               <button id="add-download-task" class="btn btn-primary full-width">

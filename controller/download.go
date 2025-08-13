@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -137,8 +137,6 @@ func (dt *downloadTask) download() {
 		dt.status = DOWNLOAD_STATUS_FAILED
 		return
 	}
-
-	fmt.Printf("文件下载并处理完成: %s\n", fileName)
 }
 
 // 从URL中提取文件名
@@ -168,6 +166,24 @@ func (dt *downloadTask) GetMessage() string {
 	return dt.message
 }
 
+func splitURLString(urlString string) []string {
+	urls := make([]string, 0)
+
+	// 使用正则表达式匹配http和https开头的URL
+	re := regexp.MustCompile(`(https?://[^\s\n\r]+)`)
+	matches := re.FindAllString(urlString, -1)
+
+	for _, match := range matches {
+		// 清理URL，移除可能的尾随空白字符
+		cleanURL := strings.TrimSpace(match)
+		if cleanURL != "" {
+			urls = append(urls, cleanURL)
+		}
+	}
+
+	return urls
+}
+
 type downloader struct {
 	tasks []*downloadTask
 }
@@ -178,16 +194,9 @@ func NewDownloader() *downloader {
 	}
 }
 
-func (d *downloader) AddTask(url string) error {
-	if stat, err := disk.Usage(BasePath); err != nil {
-		return fmt.Errorf("获取磁盘使用信息失败: %v", err)
-	} else if stat.UsedPercent > 90 {
-		return errors.New("磁盘空间不足，当前使用率超过90%")
-	}
-
+func (d *downloader) AddTask(url string) {
 	task := NewDownloadTask(url)
 	d.tasks = append(d.tasks, task)
-	return nil
 }
 
 func (d *downloader) GetTasksInfo() []map[string]any {
@@ -211,18 +220,24 @@ func init() {
 }
 
 func AddDownloadTask(c *gin.Context) {
+	if stat, err := disk.Usage(BasePath); err != nil {
+		c.String(http.StatusInternalServerError, "获取磁盘使用信息失败: %v", err)
+	} else if stat.UsedPercent > 90 {
+		c.String(http.StatusInsufficientStorage, "磁盘空间不足，当前使用率超过90%")
+		return
+	}
+
 	url := c.PostForm("url")
 	if url == "" {
 		c.String(http.StatusBadRequest, "下载链接不能为空")
 		return
 	}
 
-	err := Downloader.AddTask(url)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "添加下载任务失败: %v", err)
-		return
+	// 识别切分多个http连接
+	urls := splitURLString(url)
+	for _, singleURL := range urls {
+		Downloader.AddTask(singleURL)
 	}
-
 	c.String(http.StatusOK, "下载任务已添加")
 }
 

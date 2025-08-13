@@ -1084,9 +1084,11 @@ class DownloadManagementDialog {
     this.refreshButton.addEventListener('click', () => this.refreshTasks());
     this.clearButton.addEventListener('click', () => this.clearAllTasks());
 
-    // URL输入框回车添加任务
-    this.urlInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
+    // URL输入框快捷键
+    this.urlInput.addEventListener('keydown', (e) => {
+      // Ctrl+Enter 或 Cmd+Enter 提交任务
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
         this.addDownloadTask();
       }
     });
@@ -1137,26 +1139,50 @@ class DownloadManagementDialog {
   }
 
   async addDownloadTask() {
-    const url = this.urlInput.value.trim();
+    const urlText = this.urlInput.value.trim();
 
-    if (!url) {
+    if (!urlText) {
       showError('请输入下载链接');
       return;
     }
 
-    // 简单的URL验证
-    try {
-      new URL(url);
-    } catch (e) {
-      showError('请输入有效的URL');
+    // 使用正则表达式提取所有http/https链接
+    const urlRegex = /(https?:\/\/[^\s\n\r]+)/g;
+    const urls = urlText.match(urlRegex) || [];
+
+    if (urls.length === 0) {
+      showError('请输入有效的 HTTP 或 HTTPS 链接');
+      return;
+    }
+
+    // 验证每个URL的格式
+    const invalidUrls = [];
+    for (const url of urls) {
+      try {
+        const urlObj = new URL(url);
+        if (!['http:', 'https:'].includes(urlObj.protocol)) {
+          invalidUrls.push(url);
+        }
+      } catch (e) {
+        invalidUrls.push(url);
+      }
+    }
+
+    if (invalidUrls.length > 0) {
+      showError(
+        `以下链接格式无效：\n${invalidUrls.slice(0, 3).join('\n')}${
+          invalidUrls.length > 3 ? '\n...' : ''
+        }`
+      );
       return;
     }
 
     try {
-      const response = await serverAPI.addDownloadTask(url);
+      // 将所有链接作为一个字符串发送给后端，后端会自动分割处理
+      const response = await serverAPI.addDownloadTask(urlText);
 
       if (response.success) {
-        showNotification('下载任务添加成功！');
+        showNotification(`成功添加 ${urls.length} 个下载任务！`);
         this.urlInput.value = '';
         this.refreshTasks();
       } else {
