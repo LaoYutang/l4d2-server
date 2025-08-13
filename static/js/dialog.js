@@ -1307,6 +1307,7 @@ class DownloadManagementDialog {
     const progress = task.progress || 0;
     const message = task.message || '';
     const url = task.url || '未知链接';
+    const fileSize = task.formattedSize || '';
 
     return `
       <div class="download-task-item">
@@ -1339,7 +1340,8 @@ class DownloadManagementDialog {
         <div class="download-task-info">
           <div>
             ${task.status === 1 ? `${progress.toFixed(1)}%` : ''}
-            ${message ? `<span style="color: #999; font-size: 11px;">${message}</span>` : ''}
+            ${fileSize ? `<span style="color: #666; font-size: 11px; ${task.status === 1 ? 'margin-left: 8px;' : ''}">文件大小: ${fileSize}</span>` : ''}
+            ${message ? `<span style="color: #999; font-size: 11px; ${fileSize || task.status === 1 ? 'margin-left: 8px;' : ''}">${message}</span>` : ''}
           </div>
           ${
             task.status === 1 && task.formattedSpeed
