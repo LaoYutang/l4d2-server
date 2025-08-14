@@ -183,6 +183,36 @@ class ServerAPI {
     }
   }
 
+  async cancelDownloadTask(index) {
+    try {
+      const response = await this.fetchServerWithIndex('/download/cancel', index);
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: text };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  async restartDownloadTask(index) {
+    try {
+      const response = await this.fetchServerWithIndex('/download/restart', index);
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: text };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
   // 带URL的请求
   fetchServerWithUrl(path, url) {
     if (!this.password || this.password === '') {
@@ -191,6 +221,21 @@ class ServerAPI {
     const fd = new FormData();
     fd.append('password', this.password);
     fd.append('url', url);
+
+    return fetch(path, {
+      method: 'POST',
+      body: fd,
+    });
+  }
+
+  // 带索引的请求
+  fetchServerWithIndex(path, index) {
+    if (!this.password || this.password === '') {
+      return Promise.reject(new Error('密码不能为空！'));
+    }
+    const fd = new FormData();
+    fd.append('password', this.password);
+    fd.append('index', index.toString());
 
     return fetch(path, {
       method: 'POST',

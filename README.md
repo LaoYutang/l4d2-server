@@ -66,8 +66,6 @@ services:
     environment:
       - L4D2_TICK=60 # 30,60,100
       - L4D2_RCON_PASSWORD=[rcon密码]
-    depends_on:
-      - l4d2-manager
 
   # 地图管理器，可选
   l4d2-manager:
