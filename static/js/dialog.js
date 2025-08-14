@@ -1266,6 +1266,30 @@ class DownloadManagementDialog {
     }
   }
 
+  async restartTask(index) {
+    const confirmed = await confirmAction(
+      '重新下载任务',
+      '您确定要重新下载这个任务吗？当前任务将被取消并重新开始。',
+      '重新下载',
+      '取消'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await serverAPI.restartDownloadTask(index);
+
+      if (response.success) {
+        showNotification('下载任务已重新开始！');
+        this.refreshTasks();
+      } else {
+        showError(response.message || '重新下载失败');
+      }
+    } catch (error) {
+      showError('重新下载失败: ' + error.message);
+    }
+  }
+
   showLoading() {
     this.tasksLoading.style.display = 'flex';
     this.tasksList.innerHTML = '';
@@ -1317,11 +1341,18 @@ class DownloadManagementDialog {
     )}</div>
           <div class="download-task-status-wrapper">
             <div class="download-task-status ${statusClass}">${statusText}</div>
-            ${
-              task.status === 0 || task.status === 1 // 等待中或下载中状态显示取消按钮
-                ? `<button class="download-task-cancel-btn" onclick="downloadManagementDialog.cancelTask(${index})" title="取消下载">❌</button>`
-                : ''
-            }
+            <div class="download-task-actions">
+              ${
+                task.status === 0 || task.status === 1 // 等待中或下载中状态显示取消按钮
+                  ? `<button class="download-task-cancel-btn" onclick="downloadManagementDialog.cancelTask(${index})" title="取消下载">❌</button>`
+                  : ''
+              }
+              ${
+                task.status === 1 || task.status === 3 // 下载中或失败状态显示重新下载按钮
+                  ? `<button class="download-task-restart-btn" onclick="downloadManagementDialog.restartTask(${index})" title="重新下载">🔄</button>`
+                  : ''
+              }
+            </div>
           </div>
         </div>
         

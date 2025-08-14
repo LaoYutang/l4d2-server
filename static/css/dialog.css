@@ -1484,6 +1484,34 @@
   transform: scale(1.1);
 }
 
+.download-task-restart-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+.download-task-restart-btn:hover {
+  background: rgba(0, 123, 255, 0.1);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.download-task-actions {
+  display: flex;
+  align-items: center;
+}
+
 .download-task-status.pending {
   background: rgba(255, 193, 7, 0.2);
   color: #ff6b35;

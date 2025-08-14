@@ -31,6 +31,7 @@ type downloadTask struct {
 	message          string          // 错误消息
 	progress         float64         // 进度
 	cancel           chan struct{}   // 取消信号通道
+	cancelled        bool            // 标记是否已取消
 	downloadSpeed    float64         // 下载速度 (bytes/second)
 	startTime        time.Time       // 下载开始时间
 	lastUpdate       time.Time       // 上次更新时间
@@ -48,6 +49,7 @@ func NewDownloadTask(url string, semaphore chan struct{}) *downloadTask {
 		url:              url,
 		status:           DOWNLOAD_STATUS_PENDING,
 		cancel:           make(chan struct{}),
+		cancelled:        false,
 		downloadSpeed:    0,
 		startTime:        time.Now(),
 		lastUpdate:       time.Now(),
@@ -66,7 +68,14 @@ func NewDownloadTask(url string, semaphore chan struct{}) *downloadTask {
 
 // 添加取消方法
 func (dt *downloadTask) Cancel() {
-	close(dt.cancel)
+	dt.mu.Lock()
+	defer dt.mu.Unlock()
+
+	if !dt.cancelled {
+		dt.cancelled = true
+		close(dt.cancel)
+	}
+
 	if dt.speedUpdateTimer != nil {
 		dt.speedUpdateTimer.Stop()
 	}
@@ -418,4 +427,38 @@ func ClearTasks(c *gin.Context) {
 
 func GetDownloadTasksInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, Downloader.GetTasksInfo())
+}
+
+func RestartDownloadTask(c *gin.Context) {
+	indexStr := c.PostForm("index")
+	if indexStr == "" {
+		c.String(http.StatusBadRequest, "任务索引不能为空")
+		return
+	}
+
+	index, err := strconv.Atoi(indexStr)
+	if err != nil {
+		c.String(http.StatusBadRequest, "任务索引格式错误")
+		return
+	}
+
+	if index < 0 || index >= len(Downloader.tasks) {
+		c.String(http.StatusBadRequest, "任务索引超出范围")
+		return
+	}
+
+	// 获取原任务的URL
+	originalTask := Downloader.tasks[index]
+	taskURL := originalTask.url
+
+	// 取消原任务
+	originalTask.Cancel()
+
+	// 创建新的下载任务
+	newTask := NewDownloadTask(taskURL, Downloader.semaphore)
+
+	// 替换原任务
+	Downloader.tasks[index] = newTask
+
+	c.String(http.StatusOK, "下载任务已重新开始")
 }
