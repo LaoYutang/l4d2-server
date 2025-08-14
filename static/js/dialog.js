@@ -1105,8 +1105,8 @@ class DownloadManagementDialog {
     // 加载任务列表
     this.refreshTasks();
 
-    // 注释掉自动刷新功能，只在用户点击刷新时调用
-    // this.startAutoRefresh();
+    // 启动自动刷新功能，用于实时更新下载速度
+    this.startAutoRefresh();
   }
 
   close() {
@@ -1242,6 +1242,54 @@ class DownloadManagementDialog {
     }
   }
 
+  async cancelTask(index) {
+    const confirmed = await confirmAction(
+      '取消下载任务',
+      '您确定要取消这个下载任务吗？',
+      '取消任务',
+      '保留任务'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await serverAPI.cancelDownloadTask(index);
+
+      if (response.success) {
+        showNotification('下载任务已取消！');
+        this.refreshTasks();
+      } else {
+        showError(response.message || '取消任务失败');
+      }
+    } catch (error) {
+      showError('取消任务失败: ' + error.message);
+    }
+  }
+
+  async restartTask(index) {
+    const confirmed = await confirmAction(
+      '重新下载任务',
+      '您确定要重新下载这个任务吗？当前任务将被取消并重新开始。',
+      '重新下载',
+      '取消'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await serverAPI.restartDownloadTask(index);
+
+      if (response.success) {
+        showNotification('下载任务已重新开始！');
+        this.refreshTasks();
+      } else {
+        showError(response.message || '重新下载失败');
+      }
+    } catch (error) {
+      showError('重新下载失败: ' + error.message);
+    }
+  }
+
   showLoading() {
     this.tasksLoading.style.display = 'flex';
     this.tasksList.innerHTML = '';
@@ -1273,16 +1321,17 @@ class DownloadManagementDialog {
       return;
     }
 
-    const tasksHtml = this.tasks.map((task) => this.renderTaskItem(task)).join('');
+    const tasksHtml = this.tasks.map((task, index) => this.renderTaskItem(task, index)).join('');
     this.tasksList.innerHTML = tasksHtml;
   }
 
-  renderTaskItem(task) {
+  renderTaskItem(task, index) {
     const statusClass = this.getStatusClass(task.status);
     const statusText = this.getStatusText(task.status);
     const progress = task.progress || 0;
     const message = task.message || '';
     const url = task.url || '未知链接';
+    const fileSize = task.formattedSize || '';
 
     return `
       <div class="download-task-item">
@@ -1290,7 +1339,21 @@ class DownloadManagementDialog {
           <div class="download-task-url" title="${this.getDisplayUrl(url)}">${this.truncateUrl(
       url
     )}</div>
-          <div class="download-task-status ${statusClass}">${statusText}</div>
+          <div class="download-task-status-wrapper">
+            <div class="download-task-status ${statusClass}">${statusText}</div>
+            <div class="download-task-actions">
+              ${
+                task.status === 0 || task.status === 1 // 等待中或下载中状态显示取消按钮
+                  ? `<button class="download-task-cancel-btn" onclick="downloadManagementDialog.cancelTask(${index})" title="取消下载">❌</button>`
+                  : ''
+              }
+              ${
+                task.status === 1 || task.status === 3 // 下载中或失败状态显示重新下载按钮
+                  ? `<button class="download-task-restart-btn" onclick="downloadManagementDialog.restartTask(${index})" title="重新下载">🔄</button>`
+                  : ''
+              }
+            </div>
+          </div>
         </div>
         
         ${
@@ -1308,8 +1371,26 @@ class DownloadManagementDialog {
         <div class="download-task-info">
           <div>
             ${task.status === 1 ? `${progress.toFixed(1)}%` : ''}
-            ${message ? `<span style="color: #999; font-size: 11px;">${message}</span>` : ''}
+            ${
+              fileSize
+                ? `<span style="color: #666; font-size: 11px; ${
+                    task.status === 1 ? 'margin-left: 8px;' : ''
+                  }">文件大小: ${fileSize}</span>`
+                : ''
+            }
+            ${
+              message
+                ? `<span style="color: #999; font-size: 11px; ${
+                    fileSize || task.status === 1 ? 'margin-left: 8px;' : ''
+                  }">${message}</span>`
+                : ''
+            }
           </div>
+          ${
+            task.status === 1 && task.formattedSpeed
+              ? `<div class="download-task-speed">${task.formattedSpeed}</div>`
+              : ''
+          }
         </div>
       </div>
     `;

@@ -61,8 +61,6 @@ services:
     environment:
       - L4D2_TICK=60 # 30,60,100
       - L4D2_RCON_PASSWORD=$L4D2_RCON_PASSWORD
-    depends_on:
-      - l4d2-manager
 
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
