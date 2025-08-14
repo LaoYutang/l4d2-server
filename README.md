@@ -4,7 +4,7 @@
 完整的求生之路2服务端镜像，内置了完整的豆瓣整合包，开箱即用！
 地图管理界面，不再需要登录服务器传图重启，页面操作即可！(随便写的比较简陋，但是也够用了！)
 
-# 一键部署
+## 一键部署
 需要docker与docker compose环境，需要能够拉取镜像源，国内需要配置镜像源或代理。
 ```sh
 bash <(curl -sL https://raw.githubusercontent.com/LaoYutang/l4d2-server/master/install.sh)
@@ -83,6 +83,18 @@ services:
     networks:
       - l4d2-network
 ```
+
+## 环境变量
+### L4D2
+- L4D2_TICK: 游戏 tickrate，可选，默认为 60
+- L4D2_RCON_PASSWORD: RCON 密码，必填
+### L4D2-MANAGER
+- L4D2_MANAGER_PASSWORD: 管理器密码，必填
+- L4D2_RCON_URL: RCON 地址，可选，否则不支持状态获取与切图功能
+- L4D2_RCON_PASSWORD: RCON 密码，可选，否则不支持状态获取与切图功能
+- L4D2_ADDONS_PATH: addons 路径
+- L4D2_RESTART_CMD: 重启命令，可选，默认使用docker重启
+- L4D2_CONTAINER_NAME: 需要重启的docker容器名称，可选，未设置L4D2_RESTART_CMD时有效，默认为"l4d2"
 
 ## 地图管理
 ### 手动操作
