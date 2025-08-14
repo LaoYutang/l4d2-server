@@ -1,10 +1,10 @@
 # l4d2-server
 求生2服务器快速启动
 
-完整的求生之路2服务端镜像，内置了完整的豆瓣整合包，开箱即用！
-地图管理界面，不再需要登录服务器传图重启，页面操作即可！(随便写的比较简陋，但是也够用了！)
+完整的求生之路2服务端镜像，内置了完整的豆瓣整合包和大量优质插件，开箱即用！
+管理界面，不再需要登录服务器传图重启，页面操作即可！支持切图、下载任务与服务器状态显示。
 
-# 一键部署
+## 一键部署
 需要docker与docker compose环境，需要能够拉取镜像源，国内需要配置镜像源或代理。
 ```sh
 bash <(curl -sL https://raw.githubusercontent.com/LaoYutang/l4d2-server/master/install.sh)
@@ -84,6 +84,18 @@ services:
       - l4d2-network
 ```
 
+## 环境变量
+### L4D2
+- L4D2_TICK: 游戏 tickrate，可选，默认为 60
+- L4D2_RCON_PASSWORD: RCON 密码，必填
+### L4D2-MANAGER
+- L4D2_MANAGER_PASSWORD: 管理器密码，必填
+- L4D2_RCON_URL: RCON 地址，可选，否则不支持状态获取与切图功能
+- L4D2_RCON_PASSWORD: RCON 密码，可选，否则不支持状态获取与切图功能
+- L4D2_ADDONS_PATH: addons 路径
+- L4D2_RESTART_CMD: 重启命令，可选，默认使用docker重启
+- L4D2_CONTAINER_NAME: 需要重启的docker容器名称，可选，未设置L4D2_RESTART_CMD时有效，默认为"l4d2"
+
 ## 地图管理
 ### 手动操作
 1. docker volume目录下操作即可  ```/var/lib/docker/volume/addons``` 
@@ -104,6 +116,11 @@ services:
 ## 管理员设置
 进入服务器后，输入```!root 管理员密码```即可在线添加删除管理员
 ***注意：管理员密码在```addons/sourcemod/configs/l4d2_admins_simple.cfg```中设置，请及时修改默认密码，重启生效***
+
+## windows服务器管理器使用说明
+windows服务器可以自行下载服务器启动，使用编译好的l4d2-manager.exe，设置好环境变量启动即可！
+***注意***: 非docker启动的l4d2服务器，重启功能需要自行配置环境变量```L4D2_RESTART_CMD```与```L4D2_ADDONS_PATH```，重启脚本可参考项目目录下的```restart.dat```。
+
 
 ## 自行打包docker镜像
 ```docker build -f l4d2.Dockerfile -t l4d2 .```

@@ -147,7 +147,7 @@ func (dt *downloadTask) download() {
 	}
 
 	// 创建本地文件
-	filePath := filepath.Join(BasePath+"temp", fileName)
+	filePath := filepath.Join(BasePath, "temp", fileName)
 	err = os.MkdirAll(filepath.Dir(filePath), 0755)
 	if err != nil {
 		dt.message = fmt.Sprintf("创建目录失败: %v", err)

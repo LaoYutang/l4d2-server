@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ func Remove(c *gin.Context) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	mapPath := BasePath + c.PostForm("map")
+	mapPath := filepath.Join(BasePath, c.PostForm("map"))
 	err := os.Remove(mapPath)
 	if err != nil {
 		c.String(http.StatusBadRequest, "地图不存在")
@@ -20,7 +21,7 @@ func Remove(c *gin.Context) {
 	}
 
 	// 删除maplist.txt中的记录
-	mapListPath := BasePath + "maplist.txt"
+	mapListPath := MapListFilePath
 	mapListBytes, err := os.ReadFile(mapListPath)
 	if err != nil {
 		c.String(http.StatusBadRequest, "删除时maplist.txt不存在")

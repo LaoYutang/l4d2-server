@@ -4,6 +4,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"runtime"
 
@@ -60,7 +61,7 @@ func Upload(c *gin.Context) {
 	}
 
 	// 保存上传的文件
-	tempPath := BasePath + "temp_" + cleanFilename
+	tempPath := filepath.Join(BasePath, "temp_"+cleanFilename)
 	if err := c.SaveUploadedFile(file, tempPath); err != nil {
 		c.String(http.StatusInternalServerError, "文件写入失败")
 		return
@@ -79,7 +80,7 @@ func Upload(c *gin.Context) {
 
 func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
 	// 保存临时zip文件
-	tempZipPath := BasePath + "temp_" + file.Filename
+	tempZipPath := filepath.Join(BasePath, "temp_"+file.Filename)
 	if err := c.SaveUploadedFile(file, tempZipPath); err != nil {
 		return err
 	}

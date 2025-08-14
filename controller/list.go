@@ -17,7 +17,7 @@ func List(c *gin.Context) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	file, err := os.ReadFile(BasePath + "maplist.txt")
+	file, err := os.ReadFile(MapListFilePath)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "读取地图列表失败")
 		return

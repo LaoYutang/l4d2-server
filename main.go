@@ -5,6 +5,7 @@ import (
 	"l4d2-manager/middlewares"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,7 @@ func main() {
 	}
 
 	// 如果maplist.txt不存在，创建一个空的
-	mapListPath := controller.BasePath + "maplist.txt"
+	mapListPath := filepath.Join(controller.MapListFilePath)
 	if _, err := os.Stat(mapListPath); os.IsNotExist(err) {
 		err := os.WriteFile(mapListPath, []byte(""), 0755)
 		if err != nil {
