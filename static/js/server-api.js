@@ -198,6 +198,21 @@ class ServerAPI {
     }
   }
 
+  async restartDownloadTask(index) {
+    try {
+      const response = await this.fetchServerWithIndex('/download/restart', index);
+      const text = await response.text();
+
+      if (response.ok) {
+        return { success: true, message: text };
+      } else {
+        return { success: false, message: text };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
   // 带URL的请求
   fetchServerWithUrl(path, url) {
     if (!this.password || this.password === '') {

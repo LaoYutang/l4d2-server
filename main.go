@@ -55,6 +55,7 @@ func main() {
 	router.POST("/download/clear", middlewares.Auth(privateKey), controller.ClearTasks)
 	router.POST("/download/list", middlewares.Auth(privateKey), controller.GetDownloadTasksInfo)
 	router.POST("/download/cancel", middlewares.Auth(privateKey), controller.CancelDownloadTask)
+	router.POST("/download/restart", middlewares.Auth(privateKey), controller.RestartDownloadTask)
 
 	router.Run(":27020")
 }
