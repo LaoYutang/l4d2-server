@@ -118,7 +118,7 @@ services:
 ***注意：管理员密码在```addons/sourcemod/configs/l4d2_admins_simple.cfg```中设置，请及时修改默认密码，重启生效***
 
 ## windows服务器管理器使用说明
-windows服务器可以自行下载服务器启动，使用编译好的l4d2-manager.exe，设置好环境变量启动即可！
+windows服务器可以自行下载服务器启动，使用编译好的l4d2-manager.exe和static文件夹，设置好环境变量启动即可！
 ***注意***: 非docker启动的l4d2服务器，重启功能需要自行配置环境变量```L4D2_RESTART_CMD```与```L4D2_ADDONS_PATH```，重启脚本可参考项目目录下的```restart.dat```。
 
 
