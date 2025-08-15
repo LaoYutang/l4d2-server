@@ -1,6 +1,11 @@
 //隐藏服务器
 sv_tags hidden
+
+//取消一致性检查
 sv_consistency 0
+
+//解除人数上限
+sv_setmax 32
 
 //网络参数
 sm_cvar fps_max "0"
