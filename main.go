@@ -1,6 +1,7 @@
 package main
 
 import (
+	"l4d2-manager/consts"
 	"l4d2-manager/controller"
 	"l4d2-manager/middlewares"
 	"net/http"
@@ -33,7 +34,7 @@ func main() {
 	}
 
 	// 如果maplist.txt不存在，创建一个空的
-	mapListPath := filepath.Join(controller.MapListFilePath)
+	mapListPath := filepath.Join(consts.MapListFilePath)
 	if _, err := os.Stat(mapListPath); os.IsNotExist(err) {
 		err := os.WriteFile(mapListPath, []byte(""), 0755)
 		if err != nil {
