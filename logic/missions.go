@@ -44,6 +44,7 @@ func GetChapterList() []*Campaign {
 			}
 			if missionFile == nil {
 				log.Printf("在 VPK %s 中未找到任务文件", entry.Name())
+				continue
 			}
 
 			rc, err := missionFile.Open(opener)
