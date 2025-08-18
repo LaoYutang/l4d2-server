@@ -68,85 +68,133 @@ class RconMapsDialog {
 
     // 官方地图列表
     this.officialMaps = [
-      'c14m1_junkyard',
-      'c14m2_lighthouse',
-      'c10m1_caves',
-      'c10m2_drainage',
-      'c10m3_ranchhouse',
-      'c10m4_mainstreet',
-      'c10m5_houseboat',
-      'c11m1_greenhouse',
-      'c11m2_offices',
-      'c11m3_garage',
-      'c11m4_terminal',
-      'c11m5_runway',
-      'c12m1_hilltop',
-      'c12m2_traintunnel',
-      'c12m3_bridge',
-      'c12m4_barn',
-      'c12m5_cornfield',
-      'c13m1_alpinecreek',
-      'c13m2_southpinestream',
-      'c13m3_memorialbridge',
-      'c13m4_cutthroatcreek',
-      'c9m1_alleys',
-      'c9m2_lots',
-      'c7m1_docks',
-      'c7m2_barge',
-      'c7m3_port',
-      'c8m1_apartment',
-      'c8m2_subway',
-      'c8m3_sewers',
-      'c8m4_interior',
-      'c8m5_rooftop',
-      'c6m1_riverbank',
-      'c6m2_bedlam',
-      'c6m3_port',
-      'c1m1_hotel',
-      'c1m2_streets',
-      'c1m3_mall',
-      'c1m4_atrium',
-      'c2m1_highway',
-      'c2m2_fairgrounds',
-      'c2m3_coaster',
-      'c2m4_barns',
-      'c2m5_concert',
-      'c3m1_plankcountry',
-      'c3m2_swamp',
-      'c3m3_shantytown',
-      'c3m4_plantation',
-      'c4m1_milltown_a',
-      'c4m2_sugarmill_a',
-      'c4m3_sugarmill_b',
-      'c4m4_milltown_b',
-      'c4m5_milltown_escape',
-      'c5m1_waterfront',
-      'c5m1_waterfront_sndscape',
-      'c5m2_park',
-      'c5m3_cemetery',
-      'c5m4_quarter',
-      'c5m5_bridge',
-      'credits',
-      'curling_stadium',
-      'motionprimingtest',
-      'motionprimingtest_rev',
-      'navigationtest_a',
-      'styleguide_semiurban_01',
-      'styleguide_swamp01',
-      'styleguide_swamp_cheapwater01',
-      'styleguide_urban_01',
-      'test_box2',
-      'test_macguffin',
-      'test_mall',
-      'test_scavenge',
-      'tutorial_standards',
-      'tutorial_standards_vs',
-      'zoo_carnivalgames',
-      'zoo_infected2',
-      'zoo_jukebox',
-      'zoo_swamp_foliage_01',
-      'zoo_trafficsigns',
-      'zoo_urban_foliage_01',
+      {
+        Title: 'Dead Center',
+        Chapters: [
+          { Code: 'c1m1_hotel', Title: 'Hotel' },
+          { Code: 'c1m2_streets', Title: 'Streets' },
+          { Code: 'c1m3_mall', Title: 'Mall' },
+          { Code: 'c1m4_atrium', Title: 'Atrium' },
+        ],
+      },
+      {
+        Title: 'Dark Carnival',
+        Chapters: [
+          { Code: 'c2m1_highway', Title: 'Highway' },
+          { Code: 'c2m2_fairgrounds', Title: 'Fairgrounds' },
+          { Code: 'c2m3_coaster', Title: 'Coaster' },
+          { Code: 'c2m4_barns', Title: 'Barns' },
+          { Code: 'c2m5_concert', Title: 'Concert' },
+        ],
+      },
+      {
+        Title: 'Swamp Fever',
+        Chapters: [
+          { Code: 'c3m1_plankcountry', Title: 'Plank Country' },
+          { Code: 'c3m2_swamp', Title: 'Swamp' },
+          { Code: 'c3m3_shantytown', Title: 'Shantytown' },
+          { Code: 'c3m4_plantation', Title: 'Plantation' },
+        ],
+      },
+      {
+        Title: 'Hard Rain',
+        Chapters: [
+          { Code: 'c4m1_milltown_a', Title: 'Milltown A' },
+          { Code: 'c4m2_sugarmill_a', Title: 'Sugar Mill A' },
+          { Code: 'c4m3_sugarmill_b', Title: 'Sugar Mill B' },
+          { Code: 'c4m4_milltown_b', Title: 'Milltown B' },
+          { Code: 'c4m5_milltown_escape', Title: 'Milltown Escape' },
+        ],
+      },
+      {
+        Title: 'The Parish',
+        Chapters: [
+          { Code: 'c5m1_waterfront', Title: 'Waterfront' },
+          { Code: 'c5m2_park', Title: 'Park' },
+          { Code: 'c5m3_cemetery', Title: 'Cemetery' },
+          { Code: 'c5m4_quarter', Title: 'Quarter' },
+          { Code: 'c5m5_bridge', Title: 'Bridge' },
+        ],
+      },
+      {
+        Title: 'The Passing',
+        Chapters: [
+          { Code: 'c6m1_riverbank', Title: 'Riverbank' },
+          { Code: 'c6m2_bedlam', Title: 'Bedlam' },
+          { Code: 'c6m3_port', Title: 'Port' },
+        ],
+      },
+      {
+        Title: 'The Sacrifice',
+        Chapters: [
+          { Code: 'c7m1_docks', Title: 'Docks' },
+          { Code: 'c7m2_barge', Title: 'Barge' },
+          { Code: 'c7m3_port', Title: 'Port' },
+        ],
+      },
+      {
+        Title: 'No Mercy',
+        Chapters: [
+          { Code: 'c8m1_apartment', Title: 'Apartment' },
+          { Code: 'c8m2_subway', Title: 'Subway' },
+          { Code: 'c8m3_sewers', Title: 'Sewers' },
+          { Code: 'c8m4_interior', Title: 'Hospital' },
+          { Code: 'c8m5_rooftop', Title: 'Rooftop' },
+        ],
+      },
+      {
+        Title: 'Crash Course',
+        Chapters: [
+          { Code: 'c9m1_alleys', Title: 'Alleys' },
+          { Code: 'c9m2_lots', Title: 'Lots' },
+        ],
+      },
+      {
+        Title: 'Death Toll',
+        Chapters: [
+          { Code: 'c10m1_caves', Title: 'Caves' },
+          { Code: 'c10m2_drainage', Title: 'Drainage' },
+          { Code: 'c10m3_ranchhouse', Title: 'Ranchhouse' },
+          { Code: 'c10m4_mainstreet', Title: 'Main Street' },
+          { Code: 'c10m5_houseboat', Title: 'Houseboat' },
+        ],
+      },
+      {
+        Title: 'Dead Air',
+        Chapters: [
+          { Code: 'c11m1_greenhouse', Title: 'Greenhouse' },
+          { Code: 'c11m2_offices', Title: 'Offices' },
+          { Code: 'c11m3_garage', Title: 'Garage' },
+          { Code: 'c11m4_terminal', Title: 'Terminal' },
+          { Code: 'c11m5_runway', Title: 'Runway' },
+        ],
+      },
+      {
+        Title: 'Blood Harvest',
+        Chapters: [
+          { Code: 'c12m1_hilltop', Title: 'Hilltop' },
+          { Code: 'c12m2_traintunnel', Title: 'Train Tunnel' },
+          { Code: 'c12m3_bridge', Title: 'Bridge' },
+          { Code: 'c12m4_barn', Title: 'Barn' },
+          { Code: 'c12m5_cornfield', Title: 'Cornfield' },
+        ],
+      },
+      {
+        Title: 'Cold Stream',
+        Chapters: [
+          { Code: 'c13m1_alpinecreek', Title: 'Alpine Creek' },
+          { Code: 'c13m2_southpinestream', Title: 'South Pine Stream' },
+          { Code: 'c13m3_memorialbridge', Title: 'Memorial Bridge' },
+          { Code: 'c13m4_cutthroatcreek', Title: 'Cutthroat Creek' },
+        ],
+      },
+      {
+        Title: 'The Last Stand',
+        Chapters: [
+          { Code: 'c14m1_junkyard', Title: 'Junkyard' },
+          { Code: 'c14m2_lighthouse', Title: 'Lighthouse' },
+        ],
+      },
     ];
 
     this.overlay.addEventListener('click', (e) => {
@@ -185,17 +233,67 @@ class RconMapsDialog {
         throw new Error(await response.text());
       }
 
-      const maps = await response.json();
-      this.allMaps = maps; // 保存原始地图列表
+      const serverMaps = await response.json();
+
+      // 将服务器地图和官方地图合并为统一格式
+      this.allMaps = this.mergeMapData(serverMaps);
       this.displayMaps(this.getFilteredMaps());
     } catch (error) {
       this.showError(error.message || error);
     }
   }
 
+  mergeMapData(serverMaps) {
+    // 创建包含官方地图的数组，标记为非自定义
+    const allMaps = this.officialMaps.map((officialMap) => ({
+      ...officialMap,
+      IsCustom: false,
+    }));
+
+    // 处理服务器返回的地图数据
+    if (Array.isArray(serverMaps)) {
+      // 服务器返回的是 Campaign 数组格式
+      serverMaps.forEach((serverCampaign) => {
+        // 检查是否是官方地图（通过对比章节代码）
+        const isOfficialCampaign = this.officialMaps.some(
+          (officialMap) =>
+            officialMap.Chapters &&
+            serverCampaign.Chapters &&
+            serverCampaign.Chapters.some((serverChapter) =>
+              officialMap.Chapters.some(
+                (officialChapter) => officialChapter.Code === serverChapter.Code
+              )
+            )
+        );
+
+        if (!isOfficialCampaign) {
+          // 添加自定义地图
+          allMaps.push({
+            Title: serverCampaign.Title || '未知战役',
+            Chapters: serverCampaign.Chapters || [],
+            IsCustom: true,
+          });
+        }
+      });
+    } else if (typeof serverMaps === 'object' && serverMaps !== null) {
+      // 如果服务器返回的是包装在对象中的数据
+      if (Array.isArray(serverMaps.campaigns)) {
+        serverMaps.campaigns.forEach((campaign) => {
+          allMaps.push({
+            Title: campaign.Title || '未知战役',
+            Chapters: campaign.Chapters || [],
+            IsCustom: true,
+          });
+        });
+      }
+    }
+
+    return allMaps;
+  }
+
   getFilteredMaps() {
     if (this.hideOfficialMaps) {
-      return this.allMaps.filter((map) => !this.officialMaps.includes(map));
+      return this.allMaps.filter((map) => map.IsCustom);
     }
     return this.allMaps;
   }
@@ -237,25 +335,50 @@ class RconMapsDialog {
       return;
     }
 
-    const officialCount = this.allMaps.filter((map) => this.officialMaps.includes(map)).length;
-    const customCount = this.allMaps.length - officialCount;
+    const officialCount = this.allMaps.filter((map) => !map.IsCustom).length;
+    const customCount = this.allMaps.filter((map) => map.IsCustom).length;
 
     const mapsHtml = maps
-      .map((mapName) => {
-        const isOfficial = this.officialMaps.includes(mapName);
+      .map((campaign) => {
+        const isOfficial = !campaign.IsCustom;
+        const campaignIcon = isOfficial ? '🏛️' : '🗺️';
+        const campaignTitle = String(campaign.Title || '未知战役');
+        const campaignId = `campaign-${campaignTitle.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+        const chaptersHtml = (campaign.Chapters || [])
+          .map(
+            (chapter) => `
+          <div class="rcon-chapter-item">
+            <span class="rcon-chapter-name">${String(
+              chapter.Title || chapter.Code || '未知章节'
+            )}</span>
+            <button class="btn-switch" onclick="changeMapHandler('${String(
+              chapter.Code || ''
+            )}')">切换</button>
+          </div>
+        `
+          )
+          .join('');
+
         return `
-            <div class="rcon-map-item">
-              <span class="rcon-map-name">
-                ${isOfficial ? '🏛️' : '🗺️'} ${mapName}
+          <div class="rcon-campaign-item">
+            <div class="rcon-campaign-header" onclick="rconMapsDialog.toggleCampaign('${campaignId}')">
+              <span class="rcon-campaign-toggle" id="${campaignId}-toggle">▶</span>
+              <span class="rcon-campaign-name">
+                ${campaignIcon} ${campaignTitle}
                 ${
                   isOfficial
-                    ? '<span style="font-size: 12px; color: #999; margin-left: 8px;">(官方)</span>'
-                    : ''
+                    ? '<span class="official-badge">(官方)</span>'
+                    : '<span class="custom-badge">(自定义)</span>'
                 }
               </span>
-              <button class="btn-switch" onclick="changeMapHandler('${mapName}')">切换</button>
+              <span class="rcon-chapter-count">${(campaign.Chapters || []).length} 章节</span>
             </div>
-          `;
+            <div class="rcon-chapters-container" id="${campaignId}-chapters" style="display: none;">
+              ${chaptersHtml}
+            </div>
+          </div>
+        `;
       })
       .join('');
 
@@ -265,7 +388,7 @@ class RconMapsDialog {
           <div style="color: #667eea; font-weight: 600; font-size: 14px;">
             📊 地图统计：总共 ${
               this.allMaps.length
-            } 个地图 (官方: ${officialCount}, 自定义: ${customCount})
+            } 个战役 (官方: ${officialCount}, 自定义: ${customCount})
           </div>
           <button onclick="rconMapsDialog.toggleOfficialMaps()" 
                   style="padding: 6px 12px; background: ${
@@ -277,11 +400,30 @@ class RconMapsDialog {
           </button>
         </div>
         <div style="color: #666; font-size: 14px;">
-          当前显示 ${maps.length} 个地图，点击切换按钮即可切换到对应地图
+          当前显示 ${
+            maps.length
+          } 个战役，点击切换按钮切换到对应章节，如果切换失败请检查是否已经重启服务器，如果仍然失败请联系管理员排查问题。
         </div>
       </div>
       ${mapsHtml}
     `;
+  }
+
+  toggleCampaign(campaignId) {
+    const chaptersContainer = document.getElementById(`${campaignId}-chapters`);
+    const toggleIcon = document.getElementById(`${campaignId}-toggle`);
+
+    if (chaptersContainer && toggleIcon) {
+      const isExpanded = chaptersContainer.style.display !== 'none';
+
+      if (isExpanded) {
+        chaptersContainer.style.display = 'none';
+        toggleIcon.textContent = '▶';
+      } else {
+        chaptersContainer.style.display = 'block';
+        toggleIcon.textContent = '▼';
+      }
+    }
   }
 }
 
