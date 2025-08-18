@@ -58,6 +58,12 @@ func GetChapterList() []*Campaign {
 				log.Fatalf("解析 %s 任务文件失败: %v", entry.Name(), err)
 			}
 
+			// 如果已经存在相同的战役，则跳过
+			for _, cam := range temp {
+				if cam.Title == campaign.Title {
+					continue
+				}
+			}
 			temp = append(temp, campaign)
 		}
 	}
