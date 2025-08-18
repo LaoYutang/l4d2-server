@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"l4d2-manager/consts"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -13,7 +14,7 @@ import (
 )
 
 func Upload(c *gin.Context) {
-	if stat, err := disk.Usage(BasePath); err != nil {
+	if stat, err := disk.Usage(consts.BasePath); err != nil {
 		c.String(http.StatusInternalServerError, "获取磁盘使用信息失败: %v", err)
 		return
 	} else if stat.UsedPercent > 90 {
@@ -61,7 +62,7 @@ func Upload(c *gin.Context) {
 	}
 
 	// 保存上传的文件
-	tempPath := filepath.Join(BasePath, "temp_"+cleanFilename)
+	tempPath := filepath.Join(consts.BasePath, "temp_"+cleanFilename)
 	if err := c.SaveUploadedFile(file, tempPath); err != nil {
 		c.String(http.StatusInternalServerError, "文件写入失败")
 		return
@@ -80,7 +81,7 @@ func Upload(c *gin.Context) {
 
 func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
 	// 保存临时zip文件
-	tempZipPath := filepath.Join(BasePath, "temp_"+file.Filename)
+	tempZipPath := filepath.Join(consts.BasePath, "temp_"+file.Filename)
 	if err := c.SaveUploadedFile(file, tempZipPath); err != nil {
 		return err
 	}
