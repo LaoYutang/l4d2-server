@@ -163,6 +163,8 @@ func ProcessZipFile(zipPath string) error {
 // ProcessVpkFile 处理vpk文件，直接移动到目标目录
 func ProcessVpkFile(vpkPath string) error {
 	fileName := filepath.Base(vpkPath)
+	// 移除temp_前缀（如果存在）
+	fileName = strings.TrimPrefix(fileName, "temp_")
 	cleanName := sanitizeFilename(fileName)
 
 	// 检查文件是否已存在
