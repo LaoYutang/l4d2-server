@@ -59,10 +59,15 @@ func GetChapterList() []*Campaign {
 			}
 
 			// 如果已经存在相同的战役，则跳过
+			exist := false
 			for _, cam := range temp {
 				if cam.Title == campaign.Title {
-					continue
+					exist = true
+					break
 				}
+			}
+			if exist {
+				continue
 			}
 			temp = append(temp, campaign)
 		}
