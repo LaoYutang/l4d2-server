@@ -718,6 +718,7 @@ class MainServerStatus {
   constructor() {
     this.content = document.getElementById('server-status-content');
     this.loading = document.getElementById('server-status-loading');
+    this.titleUpdated = false; // 用于标记是否已经更新过页面标题
   }
 
   async loadServerStatus() {
@@ -734,9 +735,29 @@ class MainServerStatus {
       }
 
       const statusData = await response.json();
+
+      // 如果是第一次成功获取状态，尝试更新页面标题
+      if (!this.titleUpdated) {
+        this.updatePageTitle(statusData);
+      }
+
       this.displayStatus(statusData);
     } catch (error) {
       this.showError(error.message || error);
+    }
+  }
+
+  updatePageTitle(statusData) {
+    try {
+      if (typeof statusData === 'object' && statusData !== null) {
+        const serverName = statusData.Hostname;
+        if (serverName && serverName.trim()) {
+          document.title = serverName.trim();
+          this.titleUpdated = true;
+        }
+      }
+    } catch (error) {
+      console.warn('更新页面标题时出错:', error);
     }
   }
 
