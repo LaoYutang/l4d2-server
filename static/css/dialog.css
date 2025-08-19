@@ -244,6 +244,129 @@
   border: 1px solid rgba(255, 107, 107, 0.2);
 }
 
+/* 战役树形结构样式 */
+.rcon-campaign-item {
+  margin-bottom: 15px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.rcon-campaign-item:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.rcon-campaign-header {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  cursor: pointer;
+  background: rgba(102, 126, 234, 0.08);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.rcon-campaign-header:hover {
+  background: rgba(102, 126, 234, 0.12);
+}
+
+.rcon-campaign-toggle {
+  margin-right: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #667eea;
+  transition: transform 0.3s ease;
+  width: 20px;
+  text-align: center;
+}
+
+.rcon-campaign-name {
+  flex: 1;
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.official-badge {
+  font-size: 12px;
+  color: #28a745;
+  background: rgba(40, 167, 69, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.custom-badge {
+  font-size: 12px;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.rcon-chapter-count {
+  font-size: 12px;
+  color: #999;
+  background: rgba(153, 153, 153, 0.1);
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-weight: 500;
+}
+
+.rcon-chapters-container {
+  display: block;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.rcon-chapter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  margin: 0;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.rcon-chapter-item:last-child {
+  border-bottom: none;
+}
+
+.rcon-chapter-item:hover {
+  background: rgba(102, 126, 234, 0.08);
+  transform: translateX(8px);
+}
+
+.rcon-chapter-item::before {
+  content: '│';
+  position: absolute;
+  left: 30px;
+  color: rgba(102, 126, 234, 0.3);
+  font-weight: bold;
+}
+
+.rcon-chapter-name {
+  font-weight: 500;
+  color: #555;
+  font-size: 14px;
+  margin-left: 20px;
+  flex: 1;
+}
+
+.rcon-chapter-item .btn-switch {
+  padding: 6px 16px;
+  font-size: 12px;
+  min-width: 70px;
+}
+
 /* 服务器状态弹框 */
 .status-overlay {
   position: fixed;

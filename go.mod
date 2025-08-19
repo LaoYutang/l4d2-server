@@ -5,6 +5,7 @@ go 1.22
 toolchain go1.22.10
 
 require (
+	git.lubar.me/ben/valve v0.0.0-20240812171112-ca00f6e951f7
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/duke-git/lancet/v2 v2.3.7
 	github.com/gin-gonic/gin v1.9.1

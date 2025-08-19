@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"l4d2-manager/consts"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,7 +18,7 @@ func List(c *gin.Context) {
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	file, err := os.ReadFile(MapListFilePath)
+	file, err := os.ReadFile(consts.MapListFilePath)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "读取地图列表失败")
 		return
@@ -34,7 +35,7 @@ func List(c *gin.Context) {
 		}
 
 		// 构建vpk文件路径
-		vpkPath := filepath.Join(BasePath, mapName)
+		vpkPath := filepath.Join(consts.BasePath, mapName)
 
 		// 获取文件大小
 		fileInfo, err := os.Stat(vpkPath)

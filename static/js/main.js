@@ -275,7 +275,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const text = await res.text();
         showLoading('重启完成！', 100);
         setTimeout(() => {
-          showNotification(text, '服务器重启');
+          if (res.ok) {
+            showNotification(text, '服务器重启');
+          } else {
+            showError(text, '重启失败');
+          }
           hiddenLoading();
         }, 500);
       })

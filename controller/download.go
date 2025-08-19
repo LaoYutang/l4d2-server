@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"io"
+	"l4d2-manager/consts"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -147,7 +148,7 @@ func (dt *downloadTask) download() {
 	}
 
 	// 创建本地文件
-	filePath := filepath.Join(BasePath, "temp", fileName)
+	filePath := filepath.Join(consts.BasePath, "temp", fileName)
 	err = os.MkdirAll(filepath.Dir(filePath), 0755)
 	if err != nil {
 		dt.message = fmt.Sprintf("创建目录失败: %v", err)
@@ -370,7 +371,7 @@ func init() {
 }
 
 func AddDownloadTask(c *gin.Context) {
-	if stat, err := disk.Usage(BasePath); err != nil {
+	if stat, err := disk.Usage(consts.BasePath); err != nil {
 		c.String(http.StatusInternalServerError, "获取磁盘使用信息失败: %v", err)
 	} else if stat.UsedPercent > 90 {
 		c.String(http.StatusInsufficientStorage, "磁盘空间不足，当前使用率超过90%")
