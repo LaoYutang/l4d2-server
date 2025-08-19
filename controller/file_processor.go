@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"l4d2-manager/consts"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -17,9 +18,9 @@ var chineseDecoder = mahonia.NewDecoder("gbk")
 
 // checkMapExists 检查地图文件是否已存在
 func checkMapExists(filename string) error {
-	_, statErr := os.Stat(MapListFilePath)
+	_, statErr := os.Stat(consts.MapListFilePath)
 	if !os.IsNotExist(statErr) {
-		maps, readErr := os.ReadFile(MapListFilePath)
+		maps, readErr := os.ReadFile(consts.MapListFilePath)
 		if readErr != nil {
 			return errors.New("获取地图记录文件失败")
 		}
@@ -55,7 +56,7 @@ func recordMap(filename string) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	list, openErr := os.OpenFile(MapListFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	list, openErr := os.OpenFile(consts.MapListFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	if openErr != nil {
 		return errors.New("获取地图记录文件句柄失败")
 	}
@@ -137,7 +138,7 @@ func ProcessZipFile(zipPath string) error {
 			}
 
 			// 解压文件到目标目录
-			destPath := filepath.Join(BasePath, cleanName)
+			destPath := filepath.Join(consts.BasePath, cleanName)
 			if err := extractFile(f, destPath); err != nil {
 				return fmt.Errorf("解压文件失败: %v", err)
 			}
@@ -162,6 +163,8 @@ func ProcessZipFile(zipPath string) error {
 // ProcessVpkFile 处理vpk文件，直接移动到目标目录
 func ProcessVpkFile(vpkPath string) error {
 	fileName := filepath.Base(vpkPath)
+	// 移除temp_前缀（如果存在）
+	fileName = strings.TrimPrefix(fileName, "temp_")
 	cleanName := sanitizeFilename(fileName)
 
 	// 检查文件是否已存在
@@ -170,7 +173,7 @@ func ProcessVpkFile(vpkPath string) error {
 	}
 
 	// 移动文件到目标目录
-	destPath := filepath.Join(BasePath, cleanName)
+	destPath := filepath.Join(consts.BasePath, cleanName)
 	if err := os.Rename(vpkPath, destPath); err != nil {
 		// 如果重命名失败，尝试复制
 		if err := copyFile(vpkPath, destPath); err != nil {
