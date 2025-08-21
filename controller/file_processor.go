@@ -75,8 +75,8 @@ func sanitizeFilename(filename string) string {
 	nameWithoutExt := strings.TrimSuffix(filename, ext)
 
 	// 使用正则表达式匹配需要替换的字符
-	// 匹配空格、特殊符号等，但保留中文字符、英文字母、数字、连字符、下划线和点号
-	reg := regexp.MustCompile(`[^\p{L}\p{N}\-_.]+`)
+	// 匹配空格、特殊符号等，但保留中文字符、英文字母、数字、连字符、下划线
+	reg := regexp.MustCompile(`[^\p{L}\p{N}\-_]+`)
 	cleanName := reg.ReplaceAllString(nameWithoutExt, "_")
 
 	// 如果存在myl4d2addons_前缀则去除
