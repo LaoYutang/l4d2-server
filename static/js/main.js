@@ -403,6 +403,56 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // 踢出用户处理
+  async function kickUser(userName, userId) {
+    if (!serverAPI.password || serverAPI.password === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
+
+    const confirmed = await confirmAction(
+      `确定要踢出玩家 "${userName}" (#${userId}) 吗？`,
+      '踢出玩家'
+    );
+
+    if (!confirmed) return;
+
+    // 禁用踢出按钮防止重复点击
+    const kickButtons = document.querySelectorAll('.user-kick-btn');
+    kickButtons.forEach((btn) => (btn.disabled = true));
+
+    try {
+      const fd = new FormData();
+      fd.append('password', serverAPI.password);
+      fd.append('userName', userName);
+      fd.append('userId', userId);
+
+      const response = await fetch('/rcon/kickuser', {
+        method: 'POST',
+        body: fd,
+      });
+
+      if (response.ok) {
+        const message = await response.text();
+        showNotification(message, '踢出成功');
+        // 刷新服务器状态
+        if (window.mainServerStatus) {
+          window.mainServerStatus.loadServerStatus();
+        }
+        if (window.serverStatusDialog) {
+          window.serverStatusDialog.loadServerStatus();
+        }
+      } else {
+        throw new Error(await response.text());
+      }
+    } catch (error) {
+      showError(error.message || error);
+    } finally {
+      // 重新启用踢出按钮
+      kickButtons.forEach((btn) => (btn.disabled = false));
+    }
+  }
+
   // 文件选择变化处理
   map.addEventListener('change', function (e) {
     const fileInfo = document.getElementById('file-selected-info');
@@ -602,6 +652,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.showDownloadManagementHandler = showDownloadManagementHandler;
   window.showAuthCodeHandler = showAuthCodeHandler;
   window.changeMapHandler = changeMapHandler;
+  window.kickUser = kickUser;
   window.updateList = updateList;
   window.refreshServerStatus = () => mainServerStatus.loadServerStatus();
 
