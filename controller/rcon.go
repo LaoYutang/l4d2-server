@@ -69,13 +69,24 @@ func GetStatus(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	// 获取服务器状态
 	res, err := conn.Execute("status")
 	if err != nil {
 		c.String(http.StatusInternalServerError, "RCON命令执行失败: %v", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, parseStatus(res))
+	// 获取游戏难度
+	difficultyRes, err := conn.Execute("z_difficulty")
+	if err != nil {
+		// 如果获取难度失败，不影响整体状态获取，设置为未知
+		difficultyRes = "Unknown"
+	}
+
+	status := parseStatus(res)
+	status.Difficulty = parseDifficulty(difficultyRes)
+
+	c.JSON(http.StatusOK, status)
 }
 
 type User struct {
@@ -91,10 +102,11 @@ type User struct {
 }
 
 type Status struct {
-	Users    []User
-	Players  string
-	Map      string
-	Hostname string
+	Users      []User
+	Players    string
+	Map        string
+	Hostname   string
+	Difficulty string
 }
 
 func parseStatus(statusText string) *Status {
@@ -136,6 +148,37 @@ func parseStatus(statusText string) *Status {
 	}
 
 	return status
+}
+
+func parseDifficulty(difficultyText string) string {
+	// 解析z_difficulty命令的返回值
+	// 格式类似: "z_difficulty" = "Easy" ( def. "Normal" )
+	//          game replicated
+	//          - Difficulty of the current game (Easy, Normal, Hard, Impossible)
+
+	// 使用正则表达式提取难度值
+	re := regexp.MustCompile(`"z_difficulty"\s*=\s*"([^"]+)"`)
+	matches := re.FindStringSubmatch(difficultyText)
+
+	if len(matches) > 1 {
+		difficulty := matches[1]
+
+		// 转换为中文显示
+		switch strings.ToLower(difficulty) {
+		case "easy":
+			return "简单"
+		case "normal":
+			return "普通"
+		case "hard":
+			return "高级"
+		case "impossible":
+			return "专家"
+		default:
+			return difficulty
+		}
+	}
+
+	return "未知"
 }
 
 func parseUser(line string) *User {
