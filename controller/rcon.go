@@ -166,3 +166,36 @@ func parseUser(line string) *User {
 		LinkRate: linkRate,
 	}
 }
+
+func KickUser(c *gin.Context) {
+	url := os.Getenv("L4D2_RCON_URL")
+	if url == "" {
+		c.String(http.StatusInternalServerError, "服务端未配置RCON链接")
+		return
+	}
+	pwd := os.Getenv("L4D2_RCON_PASSWORD")
+	if pwd == "" {
+		c.String(http.StatusInternalServerError, "服务端未配置RCON密码")
+		return
+	}
+
+	userId := c.PostForm("userId")
+	if userId == "" {
+		c.String(http.StatusBadRequest, "用户ID不能为空")
+		return
+	}
+
+	conn, err := rcon.Dial(url, pwd)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "RCON连接失败: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	_, err = conn.Execute("kick " + userId)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "RCON命令执行失败: %v", err)
+		return
+	}
+	c.String(http.StatusOK, "用户踢出成功")
+}
