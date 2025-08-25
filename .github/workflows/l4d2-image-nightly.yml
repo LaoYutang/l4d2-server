@@ -1,4 +1,4 @@
-name: Build and Push Docker Image (nightly)
+name: Build and Push L4D2 Image (develop nightly)
 
 on:
   workflow_dispatch:
