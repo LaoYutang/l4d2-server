@@ -506,7 +506,7 @@ class ServerStatusDialog {
     let propertiesHtml = '';
 
     // 基本服务器信息
-    const basicInfo = ['Hostname', 'Map', 'Players'];
+    const basicInfo = ['Hostname', 'Map', 'Difficulty', 'Players'];
     let basicInfoHtml = '';
     basicInfo.forEach((key) => {
       const data = parsedData[key];
@@ -714,6 +714,15 @@ class ServerStatusDialog {
           label: '当前地图',
           value: data.map || data.Map,
           icon: '🗺️',
+        };
+      }
+
+      // 处理难度
+      if (data.difficulty || data.Difficulty) {
+        result.Difficulty = {
+          label: '游戏难度',
+          value: data.difficulty || data.Difficulty,
+          icon: '⚔️',
         };
       }
 
@@ -943,7 +952,7 @@ class MainServerStatus {
     let propertiesHtml = '';
 
     // 基本服务器信息
-    const basicInfo = ['Hostname', 'Map', 'Players'];
+    const basicInfo = ['Hostname', 'Map', 'Difficulty', 'Players'];
     let basicInfoHtml = '';
     basicInfo.forEach((key) => {
       const data = parsedData[key];
