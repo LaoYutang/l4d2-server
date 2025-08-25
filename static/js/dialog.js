@@ -603,9 +603,16 @@ class ServerStatusDialog {
               <div class="user-id">#${userId}</div>
             </div>
           </div>
-          <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="踢出玩家">
-            🥾
-          </button>
+          <div class="user-actions">
+            <button class="user-playtime-btn" onclick="getUserPlaytime('${userName}', '${
+      user.steamid || user.SteamId || ''
+    }')" title="获取游戏时长" ${!(user.steamid || user.SteamId) ? 'disabled' : ''}>
+              ⏱️
+            </button>
+            <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="踢出玩家">
+              🥾
+            </button>
+          </div>
         </div>
         <div class="user-details">
           ${
@@ -1075,9 +1082,16 @@ class MainServerStatus {
               <div class="user-id">#${userId}</div>
             </div>
           </div>
-          <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="踢出玩家">
-            🥾
-          </button>
+          <div class="user-actions">
+            <button class="user-playtime-btn" onclick="getUserPlaytime('${userName}', '${
+      user.steamid || user.SteamId || ''
+    }')" title="获取游戏时长" ${!(user.steamid || user.SteamId) ? 'disabled' : ''}>
+              ⏱️
+            </button>
+            <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="踢出玩家">
+              🥾
+            </button>
+          </div>
         </div>
         <div class="user-details">
           ${

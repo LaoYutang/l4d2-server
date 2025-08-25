@@ -455,6 +455,56 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // 获取用户游戏时长处理
+  async function getUserPlaytime(userName, steamId) {
+    if (!serverAPI.password || serverAPI.password === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
+
+    if (!steamId || steamId === '') {
+      showWarning('该玩家没有有效的Steam ID，无法获取游戏时长！');
+      return;
+    }
+
+    // 禁用获取时长按钮防止重复点击
+    const playtimeButtons = document.querySelectorAll('.user-playtime-btn');
+    playtimeButtons.forEach((btn) => (btn.disabled = true));
+
+    try {
+      const fd = new FormData();
+      fd.append('password', serverAPI.password);
+      fd.append('steamid', steamId);
+
+      const response = await fetch('/getUserPlaytime', {
+        method: 'POST',
+        body: fd,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const hours = Math.round(data.playtime * 10) / 10; // 保留一位小数
+        showNotification(`玩家 "${userName}" 的Left 4 Dead 2游戏时长: ${hours} 小时`, '游戏时长');
+      } else {
+        // 处理错误响应，可能是JSON也可能是纯文本
+        let errorMessage;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          errorMessage = errorData.error || '获取游戏时长失败';
+        } else {
+          errorMessage = await response.text();
+        }
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      showError(error.message || error);
+    } finally {
+      // 重新启用获取时长按钮
+      playtimeButtons.forEach((btn) => (btn.disabled = false));
+    }
+  }
+
   // 文件选择变化处理
   map.addEventListener('change', function (e) {
     const fileInfo = document.getElementById('file-selected-info');
@@ -655,6 +705,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.showAuthCodeHandler = showAuthCodeHandler;
   window.changeMapHandler = changeMapHandler;
   window.kickUser = kickUser;
+  window.getUserPlaytime = getUserPlaytime;
   window.updateList = updateList;
   window.refreshServerStatus = () => mainServerStatus.loadServerStatus();
 
