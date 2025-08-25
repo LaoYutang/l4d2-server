@@ -1,12 +1,9 @@
 name: Build and Push Docker Image (nightly)
 
 on:
-  push:
-    branches:
-      - develop
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 16 * * *'
 
 jobs:
   build:
@@ -45,25 +42,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Wait before building manager image
-        run: sleep 300
-
-      - name: Extract metadata for manager
-        id: meta-manager
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKER_USERNAME }}/l4d2-manager
-          tags: |
-            type=raw,value=nightly
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-            type=sha
-
-      - name: Build Manager and Push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: manager.Dockerfile
-          push: true
-          tags: ${{ steps.meta-manager.outputs.tags }}
-          labels: ${{ steps.meta-manager.outputs.labels }}
