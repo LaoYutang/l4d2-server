@@ -46,6 +46,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Wait before building manager image
+        run: sleep 300
+
       - name: Extract metadata for manager
         id: meta-manager
         uses: docker/metadata-action@v5
