@@ -250,3 +250,50 @@ func KickUser(c *gin.Context) {
 	}
 	c.String(http.StatusOK, "用户踢出成功")
 }
+
+func ChangeDifficulty(c *gin.Context) {
+	url := os.Getenv("L4D2_RCON_URL")
+	if url == "" {
+		c.String(http.StatusInternalServerError, "服务端未配置RCON链接")
+		return
+	}
+	pwd := os.Getenv("L4D2_RCON_PASSWORD")
+	if pwd == "" {
+		c.String(http.StatusInternalServerError, "服务端未配置RCON密码")
+		return
+	}
+
+	difficulty := c.PostForm("difficulty")
+	if difficulty == "" {
+		c.String(http.StatusBadRequest, "难度不能为空")
+		return
+	}
+
+	// 验证难度值
+	validDifficulties := map[string]string{
+		"简单": "Easy",
+		"普通": "Normal",
+		"高级": "Hard",
+		"专家": "Impossible",
+	}
+
+	englishDifficulty, ok := validDifficulties[difficulty]
+	if !ok {
+		c.String(http.StatusBadRequest, "无效的难度值")
+		return
+	}
+
+	conn, err := rcon.Dial(url, pwd)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "RCON连接失败: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	_, err = conn.Execute("z_difficulty " + englishDifficulty)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "RCON命令执行失败: %v", err)
+		return
+	}
+	c.String(http.StatusOK, "难度切换成功")
+}

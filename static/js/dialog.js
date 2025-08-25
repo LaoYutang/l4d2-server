@@ -511,16 +511,35 @@ class ServerStatusDialog {
     basicInfo.forEach((key) => {
       const data = parsedData[key];
       if (data) {
-        basicInfoHtml += `
-          <div class="status-property-box">
-            <div class="status-property-header">
-              ${data.icon} ${data.label}
+        // 特殊处理难度，添加更改按钮
+        if (key === 'Difficulty') {
+          basicInfoHtml += `
+            <div class="status-property-box">
+              <div class="status-property-header">
+                ${data.icon} ${data.label}
+              </div>
+              <div class="status-property-content">
+                <div class="status-property-value-with-button">
+                  <span class="status-property-value">${data.value}</span>
+                  <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="更改难度">
+                    ⚙️
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="status-property-content">
-              <div class="status-property-value">${data.value}</div>
+          `;
+        } else {
+          basicInfoHtml += `
+            <div class="status-property-box">
+              <div class="status-property-header">
+                ${data.icon} ${data.label}
+              </div>
+              <div class="status-property-content">
+                <div class="status-property-value">${data.value}</div>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
       }
     });
 
@@ -957,16 +976,35 @@ class MainServerStatus {
     basicInfo.forEach((key) => {
       const data = parsedData[key];
       if (data) {
-        basicInfoHtml += `
-          <div class="status-property-box">
-            <div class="status-property-header">
-              ${data.icon} ${data.label}
+        // 特殊处理难度，添加更改按钮
+        if (key === 'Difficulty') {
+          basicInfoHtml += `
+            <div class="status-property-box">
+              <div class="status-property-header">
+                ${data.icon} ${data.label}
+              </div>
+              <div class="status-property-content">
+                <div class="status-property-value-with-button">
+                  <span class="status-property-value">${data.value}</span>
+                  <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="更改难度">
+                    ⚙️
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="status-property-content">
-              <div class="status-property-value">${data.value}</div>
+          `;
+        } else {
+          basicInfoHtml += `
+            <div class="status-property-box">
+              <div class="status-property-header">
+                ${data.icon} ${data.label}
+              </div>
+              <div class="status-property-content">
+                <div class="status-property-value">${data.value}</div>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
       }
     });
 
@@ -1639,5 +1677,142 @@ class DownloadManagementDialog {
       3: '失败', // DOWNLOAD_STATUS_FAILED
     };
     return statusMap[status] || '未知';
+  }
+}
+
+// 难度更改弹框
+class DifficultyChangeDialog {
+  constructor() {
+    this.overlay = document.getElementById('difficulty-change-overlay');
+    this.dialog = document.getElementById('difficulty-change-dialog');
+    this.closeButton = document.getElementById('difficulty-change-close');
+    this.confirmButton = document.getElementById('change-difficulty-confirm');
+    this.selectedDifficulty = null;
+
+    this.initEventListeners();
+  }
+
+  initEventListeners() {
+    // 关闭按钮
+    this.closeButton.addEventListener('click', () => {
+      this.close();
+    });
+
+    // 点击遮罩关闭
+    this.overlay.addEventListener('click', (e) => {
+      if (e.target === this.overlay) {
+        this.close();
+      }
+    });
+
+    // 难度选项点击
+    const difficultyOptions = document.querySelectorAll('.difficulty-option');
+    difficultyOptions.forEach((option) => {
+      option.addEventListener('click', () => {
+        this.selectDifficulty(option);
+      });
+    });
+
+    // 确认按钮
+    this.confirmButton.addEventListener('click', () => {
+      this.changeDifficulty();
+    });
+
+    // ESC键关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isVisible()) {
+        this.close();
+      }
+    });
+  }
+
+  show() {
+    this.overlay.style.display = 'flex';
+    this.selectedDifficulty = null;
+    this.confirmButton.disabled = true;
+
+    // 清除之前的选择
+    document.querySelectorAll('.difficulty-option').forEach((option) => {
+      option.classList.remove('selected');
+    });
+
+    setTimeout(() => {
+      this.dialog.classList.add('show');
+    }, 50);
+  }
+
+  close() {
+    this.dialog.classList.remove('show');
+    setTimeout(() => {
+      this.overlay.style.display = 'none';
+    }, 300);
+  }
+
+  isVisible() {
+    return this.overlay.style.display === 'flex';
+  }
+
+  selectDifficulty(option) {
+    // 清除之前的选择
+    document.querySelectorAll('.difficulty-option').forEach((opt) => {
+      opt.classList.remove('selected');
+    });
+
+    // 选择当前选项
+    option.classList.add('selected');
+    this.selectedDifficulty = option.dataset.difficulty;
+    this.confirmButton.disabled = false;
+  }
+
+  async changeDifficulty() {
+    if (!this.selectedDifficulty) {
+      showError('请选择一个难度！');
+      return;
+    }
+
+    // 密码验证已经在显示弹框之前完成，这里直接使用
+    if (!serverAPI.password) {
+      showError('密码已失效，请重新验证！');
+      this.close();
+      return;
+    }
+
+    this.confirmButton.disabled = true;
+    this.confirmButton.textContent = '🔄 更改中...';
+
+    try {
+      const formData = new FormData();
+      formData.append('password', serverAPI.password);
+      formData.append('difficulty', this.selectedDifficulty);
+
+      const response = await fetch('/rcon/changedifficulty', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const text = await response.text();
+        showNotification('难度更改成功！');
+        this.close();
+
+        // 刷新服务器状态
+        setTimeout(() => {
+          if (window.refreshServerStatus) {
+            window.refreshServerStatus();
+          }
+          if (window.serverStatusDialog && window.serverStatusDialog.loadServerStatus) {
+            window.serverStatusDialog.loadServerStatus();
+          }
+        }, 1000);
+      } else {
+        const errorText = await response.text();
+        showError(`更改难度失败: ${errorText}`);
+      }
+    } catch (error) {
+      showError(`更改难度失败: ${error.message}`);
+    } finally {
+      this.confirmButton.disabled = false;
+      this.confirmButton.textContent = '⚔️ 确认更改难度';
+    }
   }
 }
