@@ -179,9 +179,17 @@ func KickUser(c *gin.Context) {
 		return
 	}
 
+	// 优先接收用户名，如果没有则接收用户ID
+	userName := c.PostForm("userName")
 	userId := c.PostForm("userId")
-	if userId == "" {
-		c.String(http.StatusBadRequest, "用户ID不能为空")
+
+	var kickTarget string
+	if userName != "" {
+		kickTarget = `"` + userName + `"` // 用户名需要用引号包围
+	} else if userId != "" {
+		kickTarget = userId
+	} else {
+		c.String(http.StatusBadRequest, "用户名或用户ID不能为空")
 		return
 	}
 
@@ -192,7 +200,7 @@ func KickUser(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	_, err = conn.Execute("kick " + userId)
+	_, err = conn.Execute("kick " + kickTarget)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "RCON命令执行失败: %v", err)
 		return

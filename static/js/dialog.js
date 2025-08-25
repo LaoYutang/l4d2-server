@@ -572,15 +572,21 @@ class ServerStatusDialog {
   createUserCard(user, userNumber) {
     const userName = user.name || user.Name || `用户${userNumber}`;
     const userInitial = userName.charAt(0).toUpperCase();
+    const userId = user.id || user.Id || userNumber;
 
     return `
       <div class="user-card">
         <div class="user-header">
-          <div class="user-avatar">${userInitial}</div>
-          <div class="user-info">
-            <div class="user-name">${userName}</div>
-            <div class="user-id">#${user.id || user.Id || userNumber}</div>
+          <div class="user-left">
+            <div class="user-avatar">${userInitial}</div>
+            <div class="user-info">
+              <div class="user-name">${userName}</div>
+              <div class="user-id">#${userId}</div>
+            </div>
           </div>
+          <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="踢出玩家">
+            🥾
+          </button>
         </div>
         <div class="user-details">
           ${
@@ -683,7 +689,7 @@ class ServerStatusDialog {
             result[normalizedKey] = {
               label: key.trim(),
               value: value,
-              icon: '�',
+              icon: '���',
             };
           }
         });
@@ -1010,15 +1016,21 @@ class MainServerStatus {
     // 如果没有可用的方法，使用简化版本
     const userName = user.name || user.Name || `用户${userNumber}`;
     const userInitial = userName.charAt(0).toUpperCase();
+    const userId = user.id || user.Id || userNumber;
 
     return `
       <div class="user-card">
         <div class="user-header">
-          <div class="user-avatar">${userInitial}</div>
-          <div class="user-info">
-            <div class="user-name">${userName}</div>
-            <div class="user-id">#${user.id || user.Id || userNumber}</div>
+          <div class="user-left">
+            <div class="user-avatar">${userInitial}</div>
+            <div class="user-info">
+              <div class="user-name">${userName}</div>
+              <div class="user-id">#${userId}</div>
+            </div>
           </div>
+          <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="踢出玩家">
+            🥾
+          </button>
         </div>
         <div class="user-details">
           ${
