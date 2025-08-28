@@ -250,6 +250,48 @@
       </div>
     </div>
 
+    <!-- 难度更改弹框 -->
+    <div id="difficulty-change-overlay" class="difficulty-change-overlay">
+      <div id="difficulty-change-dialog" class="difficulty-change-dialog">
+        <div class="difficulty-change-header">
+          <div class="difficulty-change-title">⚔️ 更改游戏难度</div>
+          <button id="difficulty-change-close" class="difficulty-change-close">×</button>
+        </div>
+        <div class="difficulty-change-content">
+          <div class="form-group">
+            <label>选择难度</label>
+            <div class="difficulty-options">
+              <button class="difficulty-option" data-difficulty="简单">
+                <div class="difficulty-icon">🟢</div>
+                <div class="difficulty-label">简单</div>
+                <div class="difficulty-desc">Easy</div>
+              </button>
+              <button class="difficulty-option" data-difficulty="普通">
+                <div class="difficulty-icon">🟡</div>
+                <div class="difficulty-label">普通</div>
+                <div class="difficulty-desc">Normal</div>
+              </button>
+              <button class="difficulty-option" data-difficulty="高级">
+                <div class="difficulty-icon">🟠</div>
+                <div class="difficulty-label">高级</div>
+                <div class="difficulty-desc">Hard</div>
+              </button>
+              <button class="difficulty-option" data-difficulty="专家">
+                <div class="difficulty-icon">🔴</div>
+                <div class="difficulty-label">专家</div>
+                <div class="difficulty-desc">Impossible</div>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <button id="change-difficulty-confirm" class="btn btn-primary full-width" disabled>
+              ⚔️ 确认更改难度
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 下载任务管理弹框 -->
     <div id="download-management-overlay" class="download-management-overlay">
       <div id="download-management-dialog" class="download-management-dialog">
