@@ -1,10 +1,11 @@
-name: Build and Push Docker Image
+name: Build and Push L4D2 Image
 
 on:
   push:
     branches:
       - master
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,22 +41,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Extract metadata for manager
-        id: meta-manager
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKER_USERNAME }}/l4d2-manager
-          tags: |
-            type=raw,value=latest
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-            type=sha
-
-      - name: Build Manager and Push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: manager.Dockerfile
-          push: true
-          tags: ${{ steps.meta-manager.outputs.tags }}
-          labels: ${{ steps.meta-manager.outputs.labels }}

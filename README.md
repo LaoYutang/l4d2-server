@@ -95,6 +95,7 @@ services:
 - L4D2_ADDONS_PATH: addons 路径
 - L4D2_RESTART_CMD: 重启命令，可选，默认使用docker重启
 - L4D2_CONTAINER_NAME: 需要重启的docker容器名称，可选，未设置L4D2_RESTART_CMD时有效，默认为"l4d2"
+- STEAM_API_KEY：Steam API 密钥，可选，用于查询玩家游戏时长，可以在[steam](https://steamcommunity.com/dev/apikey)获取
 
 ## 地图管理
 ### 手动操作

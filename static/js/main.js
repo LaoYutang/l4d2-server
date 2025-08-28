@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const mapManagementDialog = new MapManagementDialog();
   const authCodeDialog = new AuthCodeDialog();
   const downloadManagementDialog = new DownloadManagementDialog();
+  const difficultyChangeDialog = new DifficultyChangeDialog();
 
   // 设置全局实例
   window.notificationSystem = notificationSystem;
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.mapManagementDialog = mapManagementDialog;
   window.authCodeDialog = authCodeDialog;
   window.downloadManagementDialog = downloadManagementDialog;
+  window.difficultyChangeDialog = difficultyChangeDialog;
 
   // 替换原生alert和confirm
   const showNotification = notificationSystem.success.bind(notificationSystem);
@@ -403,6 +405,106 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // 踢出用户处理
+  async function kickUser(userName, userId) {
+    if (!serverAPI.password || serverAPI.password === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
+
+    const confirmed = await confirmAction(
+      `确定要踢出玩家 "${userName}" (#${userId}) 吗？`,
+      '踢出玩家'
+    );
+
+    if (!confirmed) return;
+
+    // 禁用踢出按钮防止重复点击
+    const kickButtons = document.querySelectorAll('.user-kick-btn');
+    kickButtons.forEach((btn) => (btn.disabled = true));
+
+    try {
+      const fd = new FormData();
+      fd.append('password', serverAPI.password);
+      fd.append('userName', userName);
+      fd.append('userId', userId);
+
+      const response = await fetch('/rcon/kickuser', {
+        method: 'POST',
+        body: fd,
+      });
+
+      if (response.ok) {
+        const message = await response.text();
+        showNotification(message, '踢出成功');
+        // 刷新服务器状态
+        if (window.mainServerStatus) {
+          window.mainServerStatus.loadServerStatus();
+        }
+        if (window.serverStatusDialog) {
+          window.serverStatusDialog.loadServerStatus();
+        }
+      } else {
+        throw new Error(await response.text());
+      }
+    } catch (error) {
+      showError(error.message || error);
+    } finally {
+      // 重新启用踢出按钮
+      kickButtons.forEach((btn) => (btn.disabled = false));
+    }
+  }
+
+  // 获取用户游戏时长处理
+  async function getUserPlaytime(userName, steamId) {
+    if (!serverAPI.password || serverAPI.password === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
+
+    if (!steamId || steamId === '') {
+      showWarning('该玩家没有有效的Steam ID，无法获取游戏时长！');
+      return;
+    }
+
+    // 禁用获取时长按钮防止重复点击
+    const playtimeButtons = document.querySelectorAll('.user-playtime-btn');
+    playtimeButtons.forEach((btn) => (btn.disabled = true));
+
+    try {
+      const fd = new FormData();
+      fd.append('password', serverAPI.password);
+      fd.append('steamid', steamId);
+
+      const response = await fetch('/getUserPlaytime', {
+        method: 'POST',
+        body: fd,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const hours = Math.round(data.playtime * 10) / 10; // 保留一位小数
+        showNotification(`玩家 "${userName}" 的Left 4 Dead 2游戏时长: ${hours} 小时`, '游戏时长');
+      } else {
+        // 处理错误响应，可能是JSON也可能是纯文本
+        let errorMessage;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          errorMessage = errorData.error || '获取游戏时长失败';
+        } else {
+          errorMessage = await response.text();
+        }
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      showError(error.message || error);
+    } finally {
+      // 重新启用获取时长按钮
+      playtimeButtons.forEach((btn) => (btn.disabled = false));
+    }
+  }
+
   // 文件选择变化处理
   map.addEventListener('change', function (e) {
     const fileInfo = document.getElementById('file-selected-info');
@@ -602,6 +704,8 @@ document.addEventListener('DOMContentLoaded', function () {
   window.showDownloadManagementHandler = showDownloadManagementHandler;
   window.showAuthCodeHandler = showAuthCodeHandler;
   window.changeMapHandler = changeMapHandler;
+  window.kickUser = kickUser;
+  window.getUserPlaytime = getUserPlaytime;
   window.updateList = updateList;
   window.refreshServerStatus = () => mainServerStatus.loadServerStatus();
 
@@ -667,4 +771,43 @@ document.addEventListener('DOMContentLoaded', function () {
   window.filterAndDisplayMaps = filterAndDisplayMaps;
   window.setupMapFilter = setupMapFilter;
   window.setupDragAndDrop = setupDragAndDrop;
+
+  // 显示难度更改弹框（需要密码验证）
+  async function showDifficultyChangeDialog() {
+    if (!password.value || password.value === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
+
+    // 显示加载动画
+    showLoading('验证密码中...');
+
+    try {
+      // 验证密码
+      const result = await serverAPI.validatePassword();
+
+      if (result.success) {
+        // 密码正确，显示难度更改弹框
+        hiddenLoading();
+        difficultyChangeDialog.show();
+      } else {
+        // 密码错误
+        hiddenLoading();
+        showError(result.message || '密码验证失败');
+      }
+    } catch (error) {
+      hiddenLoading();
+      showError('密码验证失败: ' + error.message);
+    }
+  }
+
+  // 设置全局函数
+  window.showDifficultyChangeDialog = showDifficultyChangeDialog;
 });
+
+// 全局函数 - 显示难度更改弹框
+function showDifficultyChangeDialog() {
+  if (window.difficultyChangeDialog) {
+    window.difficultyChangeDialog.show();
+  }
+}

@@ -130,6 +130,29 @@
   text-align: center;
 }
 
+/* 难度值带按钮的样式 */
+.server-status-content .status-property-value-with-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.server-status-content .status-property-value-with-button .status-property-value {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  padding: 0;
+  border: none;
+  text-align: left;
+}
+
 /* 用户框样式 - 适用于主页面 */
 .server-status-content .users-container {
   display: grid;
@@ -151,6 +174,7 @@
   border: 1px solid rgba(102, 126, 234, 0.1);
   padding: 15px;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .server-status-content .user-card:hover {
@@ -163,7 +187,122 @@
 .server-status-content .user-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
+  position: relative;
+}
+
+.server-status-content .user-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.server-status-content .user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.server-status-content .user-playtime-btn {
+  position: static;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #5352ed;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0.7;
+  transform: scale(1);
+  border: 1px solid rgba(83, 82, 237, 0.2);
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+
+.server-status-content .user-card:hover .user-playtime-btn {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.server-status-content .user-playtime-btn:hover {
+  background: linear-gradient(135deg, #5352ed, #3c40c6) !important;
+  color: white !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 15px rgba(83, 82, 237, 0.4);
+  opacity: 1;
+  border-color: #5352ed;
+}
+
+.server-status-content .user-playtime-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.server-status-content .user-playtime-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: scale(0.9);
+  background: rgba(200, 200, 200, 0.5) !important;
+  color: #999 !important;
+}
+
+.server-status-content .user-kick-btn {
+  position: static;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #ff4757;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0.7;
+  transform: scale(1);
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+
+.server-status-content .user-card:hover .user-kick-btn {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.server-status-content .user-kick-btn:hover {
+  background: linear-gradient(135deg, #ff4757, #ff3838) !important;
+  color: white !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+  opacity: 1;
+  border-color: #ff4757;
+}
+
+.server-status-content .user-kick-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.server-status-content .user-kick-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: scale(0.9);
+  background: rgba(200, 200, 200, 0.5) !important;
+  color: #999 !important;
 }
 
 .server-status-content .user-avatar {

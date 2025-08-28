@@ -95,9 +95,10 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 		Chapters: make([]*Chapter, 0, 8), // 预分配容量
 	}
 
-	inCoopSection := false
+	inGameModeSection := false
 	braceLevel := 0
 	var tempMapName string
+	seenChapters := make(map[string]bool) // 用于去重
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -111,16 +112,18 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 			continue
 		}
 
-		// 状态机，用于进入/退出 "coop" 部分
-		// 注意：我们只在第一次找到 "coop" 的那一行之后才开始计数括号
+		// 状态机，用于进入/退出游戏模式部分
+		// 支持多种游戏模式：coop, survival, halftank, brawler 等
 		lowerLine := strings.ToLower(line)
-		if !inCoopSection && lowerLine == `"coop"` {
-			inCoopSection = true
+		if !inGameModeSection && (lowerLine == `"coop"` || lowerLine == `"survival"` ||
+			lowerLine == `"halftank"` || lowerLine == `"brawler"` || lowerLine == `"versus"` ||
+			lowerLine == `"scavenge"` || lowerLine == `"realism"`) {
+			inGameModeSection = true
 			braceLevel = 0
 			continue
 		}
 
-		if inCoopSection {
+		if inGameModeSection {
 			for _, char := range line {
 				switch char {
 				case '{':
@@ -130,10 +133,10 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 				}
 			}
 
-			// 如果 braceLevel 降为 0，说明已退出 coop 部分
+			// 如果 braceLevel 降为 0，说明已退出游戏模式部分
 			// 我们检查 braceLevel <= 0 是为了防止文件格式不规范
 			if braceLevel <= 0 {
-				inCoopSection = false
+				inGameModeSection = false
 				continue
 			}
 		}
@@ -150,18 +153,22 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 					campaign.Title = value
 				}
 
-				// 如果在 coop 区域内
-				if inCoopSection {
+				// 如果在游戏模式区域内
+				if inGameModeSection {
 					if key == "map" {
 						tempMapName = value
 					}
 
 					if key == "displayname" && tempMapName != "" {
-						chapter := &Chapter{
-							Code:  tempMapName,
-							Title: value,
+						// 检查是否已经添加过这个章节（避免重复）
+						if !seenChapters[tempMapName] {
+							chapter := &Chapter{
+								Code:  tempMapName,
+								Title: value,
+							}
+							campaign.Chapters = append(campaign.Chapters, chapter)
+							seenChapters[tempMapName] = true
 						}
-						campaign.Chapters = append(campaign.Chapters, chapter)
 						tempMapName = "" // 重置
 					}
 				}

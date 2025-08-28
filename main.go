@@ -53,11 +53,14 @@ func main() {
 	router.POST("/rcon/maplist", middlewares.Auth(privateKey), controller.GetRconMapList)
 	router.POST("/rcon/changemap", middlewares.Auth(privateKey), controller.ChangeMap)
 	router.POST("/rcon/getstatus", controller.GetStatus)
+	router.POST("/rcon/kickuser", middlewares.Auth(privateKey), controller.KickUser)
+	router.POST("/rcon/changedifficulty", middlewares.Auth(privateKey), controller.ChangeDifficulty)
 	router.POST("/download/add", middlewares.Auth(privateKey), controller.AddDownloadTask)
 	router.POST("/download/clear", middlewares.Auth(privateKey), controller.ClearTasks)
 	router.POST("/download/list", middlewares.Auth(privateKey), controller.GetDownloadTasksInfo)
 	router.POST("/download/cancel", middlewares.Auth(privateKey), controller.CancelDownloadTask)
 	router.POST("/download/restart", middlewares.Auth(privateKey), controller.RestartDownloadTask)
+	router.POST("/getUserPlaytime", middlewares.Auth(privateKey), controller.GetUserPlaytime)
 
 	router.Run(":27020")
 }
