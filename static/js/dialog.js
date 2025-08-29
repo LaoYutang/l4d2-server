@@ -71,128 +71,156 @@ class RconMapsDialog {
       {
         Title: 'Dead Center',
         Chapters: [
-          { Code: 'c1m1_hotel', Title: 'Hotel' },
-          { Code: 'c1m2_streets', Title: 'Streets' },
-          { Code: 'c1m3_mall', Title: 'Mall' },
-          { Code: 'c1m4_atrium', Title: 'Atrium' },
+          { Code: 'c1m1_hotel', Title: 'Hotel', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c1m2_streets', Title: 'Streets', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c1m3_mall', Title: 'Mall', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c1m4_atrium', Title: 'Atrium', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Dark Carnival',
         Chapters: [
-          { Code: 'c2m1_highway', Title: 'Highway' },
-          { Code: 'c2m2_fairgrounds', Title: 'Fairgrounds' },
-          { Code: 'c2m3_coaster', Title: 'Coaster' },
-          { Code: 'c2m4_barns', Title: 'Barns' },
-          { Code: 'c2m5_concert', Title: 'Concert' },
+          { Code: 'c2m1_highway', Title: 'Highway', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c2m2_fairgrounds', Title: 'Fairgrounds', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c2m3_coaster', Title: 'Coaster', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c2m4_barns', Title: 'Barns', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c2m5_concert', Title: 'Concert', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Swamp Fever',
         Chapters: [
-          { Code: 'c3m1_plankcountry', Title: 'Plank Country' },
-          { Code: 'c3m2_swamp', Title: 'Swamp' },
-          { Code: 'c3m3_shantytown', Title: 'Shantytown' },
-          { Code: 'c3m4_plantation', Title: 'Plantation' },
+          {
+            Code: 'c3m1_plankcountry',
+            Title: 'Plank Country',
+            Modes: ['coop', 'realism', 'versus'],
+          },
+          { Code: 'c3m2_swamp', Title: 'Swamp', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c3m3_shantytown', Title: 'Shantytown', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c3m4_plantation', Title: 'Plantation', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Hard Rain',
         Chapters: [
-          { Code: 'c4m1_milltown_a', Title: 'Milltown A' },
-          { Code: 'c4m2_sugarmill_a', Title: 'Sugar Mill A' },
-          { Code: 'c4m3_sugarmill_b', Title: 'Sugar Mill B' },
-          { Code: 'c4m4_milltown_b', Title: 'Milltown B' },
-          { Code: 'c4m5_milltown_escape', Title: 'Milltown Escape' },
+          { Code: 'c4m1_milltown_a', Title: 'Milltown A', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c4m2_sugarmill_a', Title: 'Sugar Mill A', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c4m3_sugarmill_b', Title: 'Sugar Mill B', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c4m4_milltown_b', Title: 'Milltown B', Modes: ['coop', 'realism', 'versus'] },
+          {
+            Code: 'c4m5_milltown_escape',
+            Title: 'Milltown Escape',
+            Modes: ['coop', 'realism', 'versus'],
+          },
         ],
       },
       {
         Title: 'The Parish',
         Chapters: [
-          { Code: 'c5m1_waterfront', Title: 'Waterfront' },
-          { Code: 'c5m2_park', Title: 'Park' },
-          { Code: 'c5m3_cemetery', Title: 'Cemetery' },
-          { Code: 'c5m4_quarter', Title: 'Quarter' },
-          { Code: 'c5m5_bridge', Title: 'Bridge' },
+          { Code: 'c5m1_waterfront', Title: 'Waterfront', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c5m2_park', Title: 'Park', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c5m3_cemetery', Title: 'Cemetery', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c5m4_quarter', Title: 'Quarter', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c5m5_bridge', Title: 'Bridge', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'The Passing',
         Chapters: [
-          { Code: 'c6m1_riverbank', Title: 'Riverbank' },
-          { Code: 'c6m2_bedlam', Title: 'Bedlam' },
-          { Code: 'c6m3_port', Title: 'Port' },
+          { Code: 'c6m1_riverbank', Title: 'Riverbank', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c6m2_bedlam', Title: 'Bedlam', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c6m3_port', Title: 'Port', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'The Sacrifice',
         Chapters: [
-          { Code: 'c7m1_docks', Title: 'Docks' },
-          { Code: 'c7m2_barge', Title: 'Barge' },
-          { Code: 'c7m3_port', Title: 'Port' },
+          { Code: 'c7m1_docks', Title: 'Docks', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c7m2_barge', Title: 'Barge', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c7m3_port', Title: 'Port', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'No Mercy',
         Chapters: [
-          { Code: 'c8m1_apartment', Title: 'Apartment' },
-          { Code: 'c8m2_subway', Title: 'Subway' },
-          { Code: 'c8m3_sewers', Title: 'Sewers' },
-          { Code: 'c8m4_interior', Title: 'Hospital' },
-          { Code: 'c8m5_rooftop', Title: 'Rooftop' },
+          { Code: 'c8m1_apartment', Title: 'Apartment', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c8m2_subway', Title: 'Subway', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c8m3_sewers', Title: 'Sewers', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c8m4_interior', Title: 'Hospital', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c8m5_rooftop', Title: 'Rooftop', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Crash Course',
         Chapters: [
-          { Code: 'c9m1_alleys', Title: 'Alleys' },
-          { Code: 'c9m2_lots', Title: 'Lots' },
+          { Code: 'c9m1_alleys', Title: 'Alleys', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c9m2_lots', Title: 'Lots', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Death Toll',
         Chapters: [
-          { Code: 'c10m1_caves', Title: 'Caves' },
-          { Code: 'c10m2_drainage', Title: 'Drainage' },
-          { Code: 'c10m3_ranchhouse', Title: 'Ranchhouse' },
-          { Code: 'c10m4_mainstreet', Title: 'Main Street' },
-          { Code: 'c10m5_houseboat', Title: 'Houseboat' },
+          { Code: 'c10m1_caves', Title: 'Caves', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c10m2_drainage', Title: 'Drainage', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c10m3_ranchhouse', Title: 'Ranchhouse', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c10m4_mainstreet', Title: 'Main Street', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c10m5_houseboat', Title: 'Houseboat', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Dead Air',
         Chapters: [
-          { Code: 'c11m1_greenhouse', Title: 'Greenhouse' },
-          { Code: 'c11m2_offices', Title: 'Offices' },
-          { Code: 'c11m3_garage', Title: 'Garage' },
-          { Code: 'c11m4_terminal', Title: 'Terminal' },
-          { Code: 'c11m5_runway', Title: 'Runway' },
+          { Code: 'c11m1_greenhouse', Title: 'Greenhouse', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c11m2_offices', Title: 'Offices', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c11m3_garage', Title: 'Garage', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c11m4_terminal', Title: 'Terminal', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c11m5_runway', Title: 'Runway', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Blood Harvest',
         Chapters: [
-          { Code: 'c12m1_hilltop', Title: 'Hilltop' },
-          { Code: 'c12m2_traintunnel', Title: 'Train Tunnel' },
-          { Code: 'c12m3_bridge', Title: 'Bridge' },
-          { Code: 'c12m4_barn', Title: 'Barn' },
-          { Code: 'c12m5_cornfield', Title: 'Cornfield' },
+          { Code: 'c12m1_hilltop', Title: 'Hilltop', Modes: ['coop', 'realism', 'versus'] },
+          {
+            Code: 'c12m2_traintunnel',
+            Title: 'Train Tunnel',
+            Modes: ['coop', 'realism', 'versus'],
+          },
+          { Code: 'c12m3_bridge', Title: 'Bridge', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c12m4_barn', Title: 'Barn', Modes: ['coop', 'realism', 'versus'] },
+          { Code: 'c12m5_cornfield', Title: 'Cornfield', Modes: ['coop', 'realism', 'versus'] },
         ],
       },
       {
         Title: 'Cold Stream',
         Chapters: [
-          { Code: 'c13m1_alpinecreek', Title: 'Alpine Creek' },
-          { Code: 'c13m2_southpinestream', Title: 'South Pine Stream' },
-          { Code: 'c13m3_memorialbridge', Title: 'Memorial Bridge' },
-          { Code: 'c13m4_cutthroatcreek', Title: 'Cutthroat Creek' },
+          {
+            Code: 'c13m1_alpinecreek',
+            Title: 'Alpine Creek',
+            Modes: ['coop', 'realism', 'versus'],
+          },
+          {
+            Code: 'c13m2_southpinestream',
+            Title: 'South Pine Stream',
+            Modes: ['coop', 'realism', 'versus'],
+          },
+          {
+            Code: 'c13m3_memorialbridge',
+            Title: 'Memorial Bridge',
+            Modes: ['coop', 'realism', 'versus'],
+          },
+          {
+            Code: 'c13m4_cutthroatcreek',
+            Title: 'Cutthroat Creek',
+            Modes: ['coop', 'realism', 'versus'],
+          },
         ],
       },
       {
         Title: 'The Last Stand',
         Chapters: [
-          { Code: 'c14m1_junkyard', Title: 'Junkyard' },
-          { Code: 'c14m2_lighthouse', Title: 'Lighthouse' },
+          { Code: 'c14m1_junkyard', Title: 'Junkyard', Modes: ['coop', 'realism', 'survival'] },
+          { Code: 'c14m2_lighthouse', Title: 'Lighthouse', Modes: ['coop', 'realism', 'survival'] },
         ],
       },
     ];
@@ -298,6 +326,31 @@ class RconMapsDialog {
     return this.allMaps;
   }
 
+  formatGameModes(modes) {
+    if (!modes || modes.length === 0) {
+      return '<span style="color: #999;">未知</span>';
+    }
+
+    const modeMapping = {
+      coop: '战役模式',
+      realism: '写实模式',
+      versus: '对抗模式',
+      survival: '生存模式',
+      scavenge: '清道夫模式',
+      halftank: '坦克模式',
+      brawler: '格斗模式',
+    };
+
+    const formattedModes = modes
+      .map((mode) => {
+        const displayName = modeMapping[mode] || mode;
+        return `<span class="mode-badge mode-${mode}">${displayName}</span>`;
+      })
+      .join(' ');
+
+    return formattedModes;
+  }
+
   toggleOfficialMaps() {
     this.hideOfficialMaps = !this.hideOfficialMaps;
     this.displayMaps(this.getFilteredMaps());
@@ -346,18 +399,29 @@ class RconMapsDialog {
         const campaignId = `campaign-${campaignTitle.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
         const chaptersHtml = (campaign.Chapters || [])
-          .map(
-            (chapter) => `
+          .map((chapter) => {
+            // 处理游戏模式显示
+            const modes = chapter.Modes || [];
+            const modeText = modes.length > 0 ? modes.join(', ') : '未知';
+            const modeDisplayText = this.formatGameModes(modes);
+
+            return `
           <div class="rcon-chapter-item">
-            <span class="rcon-chapter-name">${String(
-              chapter.Title || chapter.Code || '未知章节'
-            )}</span>
+            <div class="rcon-chapter-info">
+              <span class="rcon-chapter-name">${String(
+                chapter.Title || chapter.Code || '未知章节'
+              )}</span>
+              <div class="rcon-chapter-modes">
+                <span class="mode-label">🎮 支持模式:</span>
+                <span class="mode-text">${modeDisplayText}</span>
+              </div>
+            </div>
             <button class="btn-switch" onclick="changeMapHandler('${String(
               chapter.Code || ''
             )}')">切换</button>
           </div>
-        `
-          )
+        `;
+          })
           .join('');
 
         return `

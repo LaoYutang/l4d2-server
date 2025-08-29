@@ -353,12 +353,73 @@
   font-weight: bold;
 }
 
+.rcon-chapter-info {
+  flex: 1;
+  margin-left: 20px;
+}
+
 .rcon-chapter-name {
   font-weight: 500;
   color: #555;
   font-size: 14px;
-  margin-left: 20px;
-  flex: 1;
+  margin-bottom: 4px;
+}
+
+.rcon-chapter-modes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mode-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.mode-text {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.mode-badge {
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mode-coop {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+}
+
+.mode-realism {
+  background: linear-gradient(135deg, #FF9800, #f57c00);
+}
+
+.mode-versus {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+.mode-survival {
+  background: linear-gradient(135deg, #9C27B0, #7b1fa2);
+}
+
+.mode-scavenge {
+  background: linear-gradient(135deg, #607D8B, #455a64);
+}
+
+.mode-halftank {
+  background: linear-gradient(135deg, #795548, #5d4037);
+}
+
+.mode-brawler {
+  background: linear-gradient(135deg, #E91E63, #c2185b);
 }
 
 .rcon-chapter-item .btn-switch {

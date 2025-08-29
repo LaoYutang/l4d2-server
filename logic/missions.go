@@ -84,6 +84,7 @@ type Campaign struct {
 type Chapter struct {
 	Code  string
 	Title string
+	Modes []string // 支持的游戏模式
 }
 
 // 使用正则表达式来更可靠地提取键值对
@@ -98,7 +99,8 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 	inGameModeSection := false
 	braceLevel := 0
 	var tempMapName string
-	seenChapters := make(map[string]bool) // 用于去重
+	var currentMode string
+	seenChapters := make(map[string]*Chapter) // 用于去重和追加模式
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -120,6 +122,8 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 			lowerLine == `"scavenge"` || lowerLine == `"realism"`) {
 			inGameModeSection = true
 			braceLevel = 0
+			// 提取模式名称，去除引号
+			currentMode = strings.Trim(lowerLine, `"`)
 			continue
 		}
 
@@ -137,6 +141,7 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 			// 我们检查 braceLevel <= 0 是为了防止文件格式不规范
 			if braceLevel <= 0 {
 				inGameModeSection = false
+				currentMode = ""
 				continue
 			}
 		}
@@ -160,14 +165,19 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 					}
 
 					if key == "displayname" && tempMapName != "" {
-						// 检查是否已经添加过这个章节（避免重复）
-						if !seenChapters[tempMapName] {
+						// 检查是否已经添加过这个章节
+						if chapter, exists := seenChapters[tempMapName]; exists {
+							// 已存在，添加模式到该章节
+							chapter.Modes = append(chapter.Modes, currentMode)
+						} else {
+							// 不存在，创建新章节
 							chapter := &Chapter{
 								Code:  tempMapName,
 								Title: value,
+								Modes: []string{currentMode},
 							}
 							campaign.Chapters = append(campaign.Chapters, chapter)
-							seenChapters[tempMapName] = true
+							seenChapters[tempMapName] = chapter
 						}
 						tempMapName = "" // 重置
 					}
