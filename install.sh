@@ -61,6 +61,10 @@ services:
     environment:
       - L4D2_TICK=60 # 30,60,100
       - L4D2_RCON_PASSWORD=$L4D2_RCON_PASSWORD
+    logging:
+      options:
+        max-size: "50m" 
+        max-file: "3"
 
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
@@ -76,6 +80,10 @@ services:
       - L4D2_RCON_URL=l4d2:27015
     networks:
       - l4d2-network
+    logging:
+      options:
+        max-size: "50m" 
+        max-file: "3"
 EOF
 
 # ipinfo检测是否是国内环境，国内则增加compose中的镜像
