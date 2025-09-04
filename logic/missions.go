@@ -117,6 +117,12 @@ func parseMissionFile(reader io.Reader) (*Campaign, error) {
 		// 状态机，用于进入/退出游戏模式部分
 		// 支持多种游戏模式：coop, survival, halftank, brawler 等
 		lowerLine := strings.ToLower(line)
+
+		// 移除行内注释（//之后的内容）
+		if commentIndex := strings.Index(lowerLine, "//"); commentIndex != -1 {
+			lowerLine = strings.TrimSpace(lowerLine[:commentIndex])
+		}
+
 		if !inGameModeSection && (lowerLine == `"coop"` || lowerLine == `"survival"` ||
 			lowerLine == `"halftank"` || lowerLine == `"brawler"` || lowerLine == `"versus"` ||
 			lowerLine == `"scavenge"` || lowerLine == `"realism"`) {
