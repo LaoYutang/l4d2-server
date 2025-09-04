@@ -20,6 +20,10 @@ services:
     environment:
       - L4D2_TICK=60 # 30,60,100
       - L4D2_RCON_PASSWORD=[rcon密码]
+    logging:
+      options:
+        max-size: '50m'
+        max-file: '3'
 
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
@@ -35,3 +39,7 @@ services:
       - L4D2_RCON_PASSWORD=[rcon密码]
     networks:
       - l4d2-network
+    logging:
+      options:
+        max-size: '50m'
+        max-file: '3'
