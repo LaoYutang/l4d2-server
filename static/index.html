@@ -46,13 +46,23 @@
       <div class="server-status-card">
         <div class="server-status-header">
           <div class="server-status-title">🖥️ 服务器状态</div>
-          <button
-            id="status-refresh-main"
-            class="status-refresh-btn"
-            onclick="refreshServerStatus()"
-          >
-            🔄 刷新状态
-          </button>
+          <div class="status-buttons">
+            <button
+              id="status-refresh-main"
+              class="status-refresh-btn"
+              onclick="refreshServerStatus()"
+            >
+              🔄 刷新状态
+            </button>
+            <button
+              id="auto-refresh-toggle"
+              class="auto-refresh-btn"
+              onclick="toggleAutoRefresh()"
+              title="开启/关闭自动刷新 (每5秒)"
+            >
+              ⏱️ 自动刷新
+            </button>
+          </div>
         </div>
         <div id="server-status-content" class="server-status-content">
           <div id="server-status-loading" class="server-status-loading">
