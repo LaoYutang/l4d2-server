@@ -640,6 +640,73 @@ document.addEventListener('DOMContentLoaded', function () {
   // 页面加载后自动获取服务器状态
   mainServerStatus.loadServerStatus();
 
+  // 自动刷新功能
+  let autoRefreshInterval = null;
+  let isAutoRefreshActive = false;
+
+  // 自动刷新状态切换函数
+  function toggleAutoRefresh() {
+    const btn = document.getElementById('auto-refresh-toggle');
+
+    if (isAutoRefreshActive) {
+      // 停止自动刷新
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+      }
+      isAutoRefreshActive = false;
+      btn.classList.remove('active');
+      btn.innerHTML = '⏱️ 自动刷新';
+      btn.title = '开启自动刷新 (每5秒)';
+      showInfo('已关闭自动刷新');
+    } else {
+      // 开始自动刷新
+      isAutoRefreshActive = true;
+      btn.classList.add('active');
+      btn.innerHTML = '⏹️ 停止刷新';
+      btn.title = '关闭自动刷新';
+
+      // 立即刷新一次
+      mainServerStatus.loadServerStatus();
+
+      // 设置定时器，每5秒刷新一次
+      autoRefreshInterval = setInterval(() => {
+        mainServerStatus.loadServerStatus();
+      }, 5000);
+
+      showNotification('已开启自动刷新，每5秒更新一次状态');
+    }
+  }
+
+  // 设置全局函数
+  window.toggleAutoRefresh = toggleAutoRefresh;
+
+  // 页面隐藏时停止自动刷新，页面显示时恢复（可选优化）
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      // 页面隐藏时暂停自动刷新
+      if (autoRefreshInterval && isAutoRefreshActive) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+      }
+    } else {
+      // 页面显示时恢复自动刷新
+      if (isAutoRefreshActive && !autoRefreshInterval) {
+        autoRefreshInterval = setInterval(() => {
+          mainServerStatus.loadServerStatus();
+        }, 5000);
+      }
+    }
+  });
+
+  // 页面卸载时清理定时器
+  window.addEventListener('beforeunload', () => {
+    if (autoRefreshInterval) {
+      clearInterval(autoRefreshInterval);
+      autoRefreshInterval = null;
+    }
+  });
+
   // 授权码管理处理函数
   async function showAuthCodeHandler() {
     if (password.value === '') {
