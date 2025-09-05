@@ -965,11 +965,13 @@ class MainServerStatus {
   constructor() {
     this.content = document.getElementById('server-status-content');
     this.loading = document.getElementById('server-status-loading');
+    this.miniLoading = document.getElementById('server-status-mini-loading');
     this.titleUpdated = false; // 用于标记是否已经更新过页面标题
+    this.hasContent = false; // 用于标记是否已经有内容显示
   }
 
   async loadServerStatus() {
-    this.showLoading();
+    this.showMiniLoading();
 
     try {
       // 主页面的服务器状态不需要密码验证，直接调用API
@@ -989,8 +991,11 @@ class MainServerStatus {
       }
 
       this.displayStatus(statusData);
+      this.hasContent = true;
     } catch (error) {
       this.showError(error.message || error);
+    } finally {
+      this.hideMiniLoading();
     }
   }
 
@@ -1005,6 +1010,25 @@ class MainServerStatus {
       }
     } catch (error) {
       console.warn('更新页面标题时出错:', error);
+    }
+  }
+
+  // 显示小loading指示器
+  showMiniLoading() {
+    if (this.miniLoading) {
+      this.miniLoading.style.display = 'flex';
+    }
+
+    // 如果还没有内容，显示原来的大loading
+    if (!this.hasContent) {
+      this.showLoading();
+    }
+  }
+
+  // 隐藏小loading指示器
+  hideMiniLoading() {
+    if (this.miniLoading) {
+      this.miniLoading.style.display = 'none';
     }
   }
 

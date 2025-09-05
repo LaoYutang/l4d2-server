@@ -37,6 +37,33 @@
   background-clip: text;
 }
 
+/* 标题容器样式 */
+.server-status-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 小loading指示器样式 */
+.server-status-mini-loading {
+  display: flex;
+  align-items: center;
+}
+
+.mini-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-left-color: #667eea;
+  border-radius: 50%;
+  animation: mini-spin 1s linear infinite;
+}
+
+@keyframes mini-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .status-refresh-btn {
   padding: 12px 20px;
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -58,6 +85,54 @@
 
 .status-refresh-btn:active {
   transform: translateY(0);
+}
+
+/* 按钮容器样式 */
+.status-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 自动刷新按钮样式 */
+.auto-refresh-btn {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auto-refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(40, 167, 69, 0.3);
+}
+
+.auto-refresh-btn:active {
+  transform: translateY(0);
+}
+
+.auto-refresh-btn.active {
+  background: linear-gradient(135deg, #dc3545, #fd7e14);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
 }
 
 .server-status-content {
@@ -418,6 +493,22 @@
     flex-direction: column;
     gap: 15px;
     text-align: center;
+  }
+
+  .server-status-title-container {
+    justify-content: center;
+  }
+
+  .status-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .status-refresh-btn,
+  .auto-refresh-btn {
+    width: 100%;
+    justify-content: center;
   }
   
   .basic-info-container {
