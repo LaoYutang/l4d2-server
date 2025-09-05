@@ -45,7 +45,16 @@
     <div class="server-status-section">
       <div class="server-status-card">
         <div class="server-status-header">
-          <div class="server-status-title">🖥️ 服务器状态</div>
+          <div class="server-status-title-container">
+            <div class="server-status-title">🖥️ 服务器状态</div>
+            <div
+              id="server-status-mini-loading"
+              class="server-status-mini-loading"
+              style="display: none"
+            >
+              <div class="mini-loading-spinner"></div>
+            </div>
+          </div>
           <div class="status-buttons">
             <button
               id="status-refresh-main"

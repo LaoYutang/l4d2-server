@@ -37,6 +37,33 @@
   background-clip: text;
 }
 
+/* 标题容器样式 */
+.server-status-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 小loading指示器样式 */
+.server-status-mini-loading {
+  display: flex;
+  align-items: center;
+}
+
+.mini-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-left-color: #667eea;
+  border-radius: 50%;
+  animation: mini-spin 1s linear infinite;
+}
+
+@keyframes mini-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .status-refresh-btn {
   padding: 12px 20px;
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -466,6 +493,10 @@
     flex-direction: column;
     gap: 15px;
     text-align: center;
+  }
+
+  .server-status-title-container {
+    justify-content: center;
   }
 
   .status-buttons {
