@@ -1918,3 +1918,197 @@ class DifficultyChangeDialog {
     }
   }
 }
+
+// RCON命令对话框
+class RconCommandDialog {
+  constructor() {
+    this.overlay = document.getElementById('rcon-command-overlay');
+    this.dialog = document.getElementById('rcon-command-dialog');
+    this.closeButton = document.getElementById('rcon-command-close');
+    this.commandInput = document.getElementById('rcon-command-input');
+    this.executeButton = document.getElementById('execute-rcon-command');
+    this.resultContainer = document.getElementById('rcon-command-result');
+    this.clearButton = document.getElementById('clear-rcon-result');
+
+    this.commandHistory = [];
+
+    this.initEventListeners();
+  }
+
+  initEventListeners() {
+    // 关闭按钮
+    this.closeButton.addEventListener('click', () => {
+      this.close();
+    });
+
+    // 点击遮罩关闭
+    this.overlay.addEventListener('click', (e) => {
+      if (e.target === this.overlay) {
+        this.close();
+      }
+    });
+
+    // 执行按钮
+    this.executeButton.addEventListener('click', () => {
+      this.executeCommand();
+    });
+
+    // 清空结果按钮
+    this.clearButton.addEventListener('click', () => {
+      this.clearResult();
+    });
+
+    // 回车键执行命令
+    this.commandInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.executeCommand();
+      }
+    });
+
+    // ESC键关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isVisible()) {
+        this.close();
+      }
+    });
+  }
+
+  show() {
+    this.overlay.style.display = 'flex';
+
+    setTimeout(() => {
+      this.dialog.classList.add('show');
+      this.commandInput.focus();
+    }, 50);
+  }
+
+  close() {
+    this.dialog.classList.remove('show');
+    setTimeout(() => {
+      this.overlay.style.display = 'none';
+    }, 300);
+  }
+
+  isVisible() {
+    return this.overlay.style.display === 'flex';
+  }
+
+  async executeCommand() {
+    const command = this.commandInput.value.trim();
+
+    if (!command) {
+      showWarning('请输入RCON命令！');
+      return;
+    }
+
+    if (!serverAPI.password) {
+      showError('请先输入管理密码！');
+      return;
+    }
+
+    // 禁用输入和按钮
+    this.executeButton.disabled = true;
+    this.commandInput.disabled = true;
+    this.executeButton.textContent = '⏳ 执行中...';
+
+    try {
+      const formData = new FormData();
+      formData.append('password', serverAPI.password);
+      formData.append('cmd', command);
+
+      const response = await fetch('/rcon', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.text();
+
+      // 添加到历史记录
+      this.addToHistory(command, result, response.ok);
+
+      if (response.ok) {
+        showNotification('命令执行成功！');
+      } else {
+        showError(`命令执行失败: ${result}`);
+      }
+
+      // 清空输入框
+      this.commandInput.value = '';
+    } catch (error) {
+      this.addToHistory(command, `网络错误: ${error.message}`, false);
+      showError(`命令执行失败: ${error.message}`);
+    } finally {
+      // 恢复输入和按钮
+      this.executeButton.disabled = false;
+      this.commandInput.disabled = false;
+      this.executeButton.textContent = '▶️ 执行';
+      this.commandInput.focus();
+    }
+  }
+
+  addToHistory(command, output, isSuccess) {
+    // 移除空结果提示
+    const emptyMessage = this.resultContainer.querySelector('.rcon-result-empty');
+    if (emptyMessage) {
+      emptyMessage.remove();
+    }
+
+    // 创建结果条目
+    const entry = document.createElement('div');
+    entry.className = 'rcon-result-entry';
+
+    // 时间戳
+    const timestamp = document.createElement('div');
+    timestamp.className = 'rcon-result-timestamp';
+    timestamp.textContent = new Date().toLocaleString('zh-CN', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    entry.appendChild(timestamp);
+
+    // 命令
+    const commandDiv = document.createElement('div');
+    commandDiv.className = 'rcon-result-command';
+    commandDiv.textContent = command;
+    entry.appendChild(commandDiv);
+
+    // 输出
+    const outputDiv = document.createElement('div');
+    outputDiv.className = isSuccess ? 'rcon-result-output' : 'rcon-result-output rcon-result-error';
+    outputDiv.textContent = output || '(无输出)';
+    entry.appendChild(outputDiv);
+
+    // 添加到容器顶部
+    this.resultContainer.insertBefore(entry, this.resultContainer.firstChild);
+
+    // 保持最多50条记录
+    while (this.resultContainer.children.length > 50) {
+      this.resultContainer.removeChild(this.resultContainer.lastChild);
+    }
+
+    // 保存到历史记录
+    this.commandHistory.unshift({ command, output, isSuccess, timestamp: new Date() });
+    if (this.commandHistory.length > 50) {
+      this.commandHistory.pop();
+    }
+  }
+
+  clearResult() {
+    this.resultContainer.innerHTML = '<div class="rcon-result-empty">等待命令执行...</div>';
+    this.commandHistory = [];
+  }
+}
+
+// 设置RCON命令（从提示中）
+function setRconCommand(command) {
+  const input = document.getElementById('rcon-command-input');
+  if (input) {
+    input.value = command;
+    input.focus();
+  }
+}
+
+// 导出为全局函数
+window.setRconCommand = setRconCommand;

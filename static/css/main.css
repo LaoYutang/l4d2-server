@@ -16,7 +16,7 @@ body {
 
 /* 容器和布局 */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
@@ -198,7 +198,7 @@ body {
 /* 按钮样式 */
 .button-group {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 15px;
   margin-bottom: 40px;
 }
@@ -455,13 +455,20 @@ body {
 /* 响应式设计 */
 @media (min-width: 1600px) {
   .container {
-    max-width: 1400px;
+    max-width: 1500px;
   }
 }
 
 @media (min-width: 1920px) {
   .container {
-    max-width: 1600px;
+    max-width: 1700px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .button-group {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
   }
 }
 

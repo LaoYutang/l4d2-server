@@ -1,3 +1,42 @@
+/* 通用表单样式 */
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 文本按钮样式 */
+.btn-text {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn-text:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
 /* 确认对话框 */
 .confirm-overlay {
   position: fixed;
@@ -2004,5 +2043,329 @@
   
   .difficulty-change-btn {
     align-self: flex-end;
+  }
+}
+
+/* RCON命令弹框 */
+.rcon-command-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10003;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.3s ease;
+}
+
+.rcon-command-dialog {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 85vh;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.rcon-command-dialog.show {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.rcon-command-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  padding-bottom: 15px;
+}
+
+.rcon-command-title {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.rcon-command-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rcon-command-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+.rcon-command-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-right: 10px;
+  min-height: 0;
+}
+
+.rcon-command-input-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.rcon-command-input-wrapper .form-input {
+  flex: 1;
+}
+
+.rcon-command-input-wrapper .btn {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  white-space: nowrap;
+}
+
+.rcon-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rcon-result-header label {
+  margin: 0;
+  font-weight: 600;
+  color: #555;
+}
+
+.rcon-clear-btn {
+  padding: 4px 12px !important;
+  font-size: 12px;
+  color: #999;
+  transition: all 0.2s ease;
+}
+
+.rcon-clear-btn:hover {
+  color: #f5576c;
+  background: rgba(245, 87, 108, 0.1);
+  border-radius: 6px;
+}
+
+.rcon-command-result {
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 20px;
+  height: 350px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d4d4d4;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.rcon-result-empty {
+  color: #808080;
+  text-align: center;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+.rcon-result-entry {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rcon-result-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.rcon-result-command {
+  color: #4ec9b0;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rcon-result-command::before {
+  content: '>';
+  color: #569cd6;
+  font-weight: bold;
+}
+
+.rcon-result-output {
+  color: #d4d4d4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding-left: 20px;
+}
+
+.rcon-result-error {
+  color: #f48771;
+}
+
+.rcon-result-timestamp {
+  color: #808080;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.rcon-command-tips {
+  margin-top: 20px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  flex-shrink: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.tips-title {
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 10px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.tips-content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.tip-item {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 50px;
+}
+
+.tip-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.15);
+}
+
+.tip-item code {
+  color: #667eea;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tip-item .tip-description {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* 自定义滚动条 - 结果区域 */
+.rcon-command-result::-webkit-scrollbar {
+  width: 8px;
+}
+
+.rcon-command-result::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.rcon-command-result::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.rcon-command-result::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 自定义滚动条 - 常用命令提示区域 */
+.rcon-command-tips::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rcon-command-tips::-webkit-scrollbar-track {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 3px;
+}
+
+.rcon-command-tips::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.2);
+  border-radius: 3px;
+}
+
+.rcon-command-tips::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .rcon-command-dialog {
+    padding: 20px;
+    margin: 20px;
+    max-height: 90vh;
+  }
+  
+  .rcon-command-input-wrapper {
+    flex-direction: column;
+  }
+  
+  .rcon-command-input-wrapper .btn {
+    width: 100%;
+  }
+  
+  .tips-content {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .tip-item {
+    min-height: auto;
+  }
+  
+  .rcon-command-result {
+    height: 250px;
+    font-size: 12px;
   }
 }
