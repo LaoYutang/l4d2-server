@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const authCodeDialog = new AuthCodeDialog();
   const downloadManagementDialog = new DownloadManagementDialog();
   const difficultyChangeDialog = new DifficultyChangeDialog();
+  const rconCommandDialog = new RconCommandDialog();
 
   // 设置全局实例
   window.notificationSystem = notificationSystem;
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.authCodeDialog = authCodeDialog;
   window.downloadManagementDialog = downloadManagementDialog;
   window.difficultyChangeDialog = difficultyChangeDialog;
+  window.rconCommandDialog = rconCommandDialog;
 
   // 替换原生alert和confirm
   const showNotification = notificationSystem.success.bind(notificationSystem);
@@ -767,9 +769,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 设置全局函数
   window.showMapManagementHandler = showMapManagementHandler;
+  // 显示RCON命令弹框（需要密码验证）
+  async function showRconCommandHandler() {
+    if (!password.value || password.value === '') {
+      showWarning('请先输入管理密码！');
+      return;
+    }
+
+    // 显示加载动画
+    showLoading('验证密码中...');
+
+    try {
+      // 验证密码
+      const result = await serverAPI.validatePassword();
+
+      if (result.success) {
+        // 密码正确，显示RCON命令弹框
+        hiddenLoading();
+        rconCommandDialog.show();
+      } else {
+        // 密码错误
+        hiddenLoading();
+        showError(result.message || '密码验证失败');
+      }
+    } catch (error) {
+      hiddenLoading();
+      showError('密码验证失败: ' + error.message);
+    }
+  }
+
   window.showRconMapsHandler = showRconMapsHandler;
   window.showDownloadManagementHandler = showDownloadManagementHandler;
   window.showAuthCodeHandler = showAuthCodeHandler;
+  window.showRconCommandHandler = showRconCommandHandler;
   window.changeMapHandler = changeMapHandler;
   window.kickUser = kickUser;
   window.getUserPlaytime = getUserPlaytime;

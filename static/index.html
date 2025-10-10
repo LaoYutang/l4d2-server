@@ -35,6 +35,9 @@
         <button id="rcon-maps" class="btn btn-primary" onclick="showRconMapsHandler()">
           🎮 切换地图
         </button>
+        <button id="rcon-command" class="btn btn-info" onclick="showRconCommandHandler()">
+          🎛️ RCON命令
+        </button>
         <button id="auth-code" class="btn btn-success" onclick="showAuthCodeHandler()">
           🔑 生成授权码
         </button>
@@ -306,6 +309,68 @@
             <button id="change-difficulty-confirm" class="btn btn-primary full-width" disabled>
               ⚔️ 确认更改难度
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RCON命令弹框 -->
+    <div id="rcon-command-overlay" class="rcon-command-overlay">
+      <div id="rcon-command-dialog" class="rcon-command-dialog">
+        <div class="rcon-command-header">
+          <div class="rcon-command-title">🎛️ RCON命令控制台</div>
+          <button id="rcon-command-close" class="rcon-command-close">×</button>
+        </div>
+        <div class="rcon-command-content">
+          <div class="form-group">
+            <label>RCON命令</label>
+            <div class="rcon-command-input-wrapper">
+              <input
+                id="rcon-command-input"
+                type="text"
+                placeholder="输入RCON命令"
+                class="form-input"
+              />
+              <button id="execute-rcon-command" class="btn btn-primary">▶️ 执行</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="rcon-result-header">
+              <label>执行结果</label>
+              <button id="clear-rcon-result" class="btn btn-text rcon-clear-btn">🗑️ 清空</button>
+            </div>
+            <div id="rcon-command-result" class="rcon-command-result">
+              <div class="rcon-result-empty">等待命令执行...</div>
+            </div>
+          </div>
+          <div class="rcon-command-tips">
+            <div class="tips-title">💡 常用命令提示:</div>
+            <div class="tips-content">
+              <div class="tip-item" onclick="setRconCommand('status')">
+                <code>status</code>
+                <span class="tip-description">查看服务器状态</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('z_difficulty ')">
+                <code>z_difficulty</code>
+                <span class="tip-description">查看当前难度</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sm_cvar sar_respawn_survivor_limit ')">
+                <code>sm_cvar sar_respawn_survivor_limit</code>
+                <span class="tip-description">自动复活次数设置</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sm_timer ')">
+                <code>sm_timer</code>
+                <span class="tip-description">多特时间控制</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sv_maxplayers ')">
+                <code>sv_maxplayers</code>
+                <span class="tip-description">设置人数上限</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sv_visiblemaxplayers ')">
+                <code>sv_visiblemaxplayers</code>
+                <span class="tip-description">设置人数上限显示</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
