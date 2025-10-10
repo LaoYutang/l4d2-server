@@ -1,6 +1,6 @@
 /* 服务器状态卡片样式 */
 .server-status-section {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 40px auto 0;
 }
 
@@ -470,13 +470,13 @@
 /* 响应式设计 */
 @media (min-width: 1600px) {
   .server-status-section {
-    max-width: 1400px;
+    max-width: 1500px;
   }
 }
 
 @media (min-width: 1920px) {
   .server-status-section {
-    max-width: 1600px;
+    max-width: 1700px;
   }
 }
 
