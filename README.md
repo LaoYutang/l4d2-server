@@ -93,6 +93,7 @@ services:
 - L4D2_RCON_URL: RCON 地址，可选，否则不支持状态获取与切图功能
 - L4D2_RCON_PASSWORD: RCON 密码，可选，否则不支持状态获取与切图功能
 - L4D2_ADDONS_PATH: addons 路径
+- L4D2_RESTART_BY_RCON: 是否通过RCON命令重启服务器，默认false
 - L4D2_RESTART_CMD: 重启命令，可选，默认使用docker重启
 - L4D2_CONTAINER_NAME: 需要重启的docker容器名称，可选，未设置L4D2_RESTART_CMD时有效，默认为"l4d2"
 - STEAM_API_KEY：Steam API 密钥，可选，用于查询玩家游戏时长，可以在[steam](https://steamcommunity.com/dev/apikey)获取
@@ -120,7 +121,7 @@ services:
 
 ## windows服务器管理器使用说明
 windows服务器可以自行下载服务器启动，使用编译好的l4d2-manager.exe和static文件夹，设置好环境变量启动即可！
-***注意***: 非docker启动的l4d2服务器，重启功能需要自行配置环境变量```L4D2_RESTART_CMD```与```L4D2_ADDONS_PATH```，重启脚本可参考项目目录下的```restart.dat```。
+***注意***: 非docker启动的l4d2服务器，重启功能需要自行配置环境变量```L4D2_RESTART_BY_RCON``` 或者```L4D2_RESTART_CMD```与```L4D2_ADDONS_PATH```，重启脚本可参考项目目录下的```restart.dat```。
 
 
 ## 自行打包docker镜像
