@@ -61,6 +61,7 @@ func main() {
 	router.POST("/download/cancel", middlewares.Auth(privateKey), controller.CancelDownloadTask)
 	router.POST("/download/restart", middlewares.Auth(privateKey), controller.RestartDownloadTask)
 	router.POST("/getUserPlaytime", middlewares.Auth(privateKey), controller.GetUserPlaytime)
+	router.POST("/rcon", middlewares.Auth(privateKey), controller.Rcon)
 
 	router.Run(":27020")
 }
