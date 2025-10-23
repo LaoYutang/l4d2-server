@@ -480,6 +480,18 @@
   }
 }
 
+/* 平板和小屏幕优化 - 单列显示 */
+@media (max-width: 900px) {
+  .server-status-content .users-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .server-status-content .users-container.single-user {
+    grid-template-columns: 1fr !important;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .server-status-section {
     margin: 30px 10px 0;
@@ -516,11 +528,11 @@
   }
   
   .server-status-content .users-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
   
   .server-status-content .users-container.single-user {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     max-width: 100%;
   }
 }
