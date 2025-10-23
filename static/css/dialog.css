@@ -934,6 +934,18 @@
   }
 }
 
+/* 平板和小屏幕优化 - 玩家卡片单列 */
+@media (max-width: 900px) {
+  .users-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .users-container.single-user {
+    grid-template-columns: 1fr !important;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .status-dialog {
     width: 95%;
@@ -942,11 +954,11 @@
   }
 
   .users-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
 
   .user-details {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .user-detail-value.steamid {
