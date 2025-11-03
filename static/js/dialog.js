@@ -570,12 +570,12 @@ class ServerStatusDialog {
     let propertiesHtml = '';
 
     // 基本服务器信息
-    const basicInfo = ['Hostname', 'Map', 'Difficulty', 'Players'];
+    const basicInfo = ['Hostname', 'Map', 'GameMode', 'Difficulty', 'Players'];
     let basicInfoHtml = '';
     basicInfo.forEach((key) => {
       const data = parsedData[key];
       if (data) {
-        // 特殊处理难度，添加更改按钮
+        // 特殊处理难度和模式，添加更改按钮
         if (key === 'Difficulty') {
           basicInfoHtml += `
             <div class="status-property-box">
@@ -586,6 +586,22 @@ class ServerStatusDialog {
                 <div class="status-property-value-with-button">
                   <span class="status-property-value">${data.value}</span>
                   <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="更改难度">
+                    ⚙️
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (key === 'GameMode') {
+          basicInfoHtml += `
+            <div class="status-property-box">
+              <div class="status-property-header">
+                ${data.icon} ${data.label}
+              </div>
+              <div class="status-property-content">
+                <div class="status-property-value-with-button">
+                  <span class="status-property-value">${data.value}</span>
+                  <button class="difficulty-change-btn" onclick="showGameModeChangeDialog()" title="更改模式">
                     ⚙️
                   </button>
                 </div>
@@ -804,6 +820,15 @@ class ServerStatusDialog {
           label: '当前地图',
           value: data.map || data.Map,
           icon: '🗺️',
+        };
+      }
+
+      // 处理游戏模式
+      if (data.gameMode || data.GameMode) {
+        result.GameMode = {
+          label: '游戏模式',
+          value: data.gameMode || data.GameMode,
+          icon: '🎮',
         };
       }
 
@@ -1066,12 +1091,12 @@ class MainServerStatus {
     let propertiesHtml = '';
 
     // 基本服务器信息
-    const basicInfo = ['Hostname', 'Map', 'Difficulty', 'Players'];
+    const basicInfo = ['Hostname', 'Map', 'GameMode', 'Difficulty', 'Players'];
     let basicInfoHtml = '';
     basicInfo.forEach((key) => {
       const data = parsedData[key];
       if (data) {
-        // 特殊处理难度，添加更改按钮
+        // 特殊处理难度和模式，添加更改按钮
         if (key === 'Difficulty') {
           basicInfoHtml += `
             <div class="status-property-box">
@@ -1082,6 +1107,22 @@ class MainServerStatus {
                 <div class="status-property-value-with-button">
                   <span class="status-property-value">${data.value}</span>
                   <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="更改难度">
+                    ⚙️
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (key === 'GameMode') {
+          basicInfoHtml += `
+            <div class="status-property-box">
+              <div class="status-property-header">
+                ${data.icon} ${data.label}
+              </div>
+              <div class="status-property-content">
+                <div class="status-property-value-with-button">
+                  <span class="status-property-value">${data.value}</span>
+                  <button class="difficulty-change-btn" onclick="showGameModeChangeDialog()" title="更改模式">
                     ⚙️
                   </button>
                 </div>
@@ -1915,6 +1956,143 @@ class DifficultyChangeDialog {
     } finally {
       this.confirmButton.disabled = false;
       this.confirmButton.textContent = '⚔️ 确认更改难度';
+    }
+  }
+}
+
+// 游戏模式切换对话框
+class GameModeChangeDialog {
+  constructor() {
+    this.overlay = document.getElementById('gamemode-change-overlay');
+    this.dialog = document.getElementById('gamemode-change-dialog');
+    this.closeButton = document.getElementById('gamemode-change-close');
+    this.confirmButton = document.getElementById('change-gamemode-confirm');
+    this.selectedGameMode = null;
+
+    this.initEventListeners();
+  }
+
+  initEventListeners() {
+    // 关闭按钮
+    this.closeButton.addEventListener('click', () => {
+      this.close();
+    });
+
+    // 点击遮罩关闭
+    this.overlay.addEventListener('click', (e) => {
+      if (e.target === this.overlay) {
+        this.close();
+      }
+    });
+
+    // 模式选项点击
+    const gameModeOptions = document.querySelectorAll('.gamemode-option');
+    gameModeOptions.forEach((option) => {
+      option.addEventListener('click', () => {
+        this.selectGameMode(option);
+      });
+    });
+
+    // 确认按钮
+    this.confirmButton.addEventListener('click', () => {
+      this.changeGameMode();
+    });
+
+    // ESC键关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isVisible()) {
+        this.close();
+      }
+    });
+  }
+
+  show() {
+    this.overlay.style.display = 'flex';
+    this.selectedGameMode = null;
+    this.confirmButton.disabled = true;
+
+    // 清除之前的选择
+    document.querySelectorAll('.gamemode-option').forEach((option) => {
+      option.classList.remove('selected');
+    });
+
+    setTimeout(() => {
+      this.dialog.classList.add('show');
+    }, 50);
+  }
+
+  close() {
+    this.dialog.classList.remove('show');
+    setTimeout(() => {
+      this.overlay.style.display = 'none';
+    }, 300);
+  }
+
+  isVisible() {
+    return this.overlay.style.display === 'flex';
+  }
+
+  selectGameMode(option) {
+    // 清除之前的选择
+    document.querySelectorAll('.gamemode-option').forEach((opt) => {
+      opt.classList.remove('selected');
+    });
+
+    // 选择当前选项
+    option.classList.add('selected');
+    this.selectedGameMode = option.dataset.gamemode;
+    this.confirmButton.disabled = false;
+  }
+
+  async changeGameMode() {
+    if (!this.selectedGameMode) {
+      showError('请选择一个游戏模式！');
+      return;
+    }
+
+    // 密码验证已经在显示弹框之前完成，这里直接使用
+    if (!serverAPI.password) {
+      showError('密码已失效，请重新验证！');
+      this.close();
+      return;
+    }
+
+    this.confirmButton.disabled = true;
+    this.confirmButton.textContent = '🔄 更改中...';
+
+    try {
+      const formData = new FormData();
+      formData.append('password', serverAPI.password);
+      formData.append('gameMode', this.selectedGameMode);
+
+      const response = await fetch('/rcon/changegamemode', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const text = await response.text();
+        showNotification(text || '游戏模式更改成功！');
+        this.close();
+
+        // 刷新服务器状态
+        setTimeout(() => {
+          if (window.refreshServerStatus) {
+            window.refreshServerStatus();
+          }
+          if (window.serverStatusDialog && window.serverStatusDialog.loadServerStatus) {
+            window.serverStatusDialog.loadServerStatus();
+          }
+        }, 1000);
+      } else {
+        const errorText = await response.text();
+        showError(`更改游戏模式失败: ${errorText}`);
+      }
+    } catch (error) {
+      showError(`更改游戏模式失败: ${error.message}`);
+    } finally {
+      this.confirmButton.disabled = false;
+      this.confirmButton.textContent = '🎮 确认更改模式';
     }
   }
 }

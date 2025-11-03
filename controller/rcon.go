@@ -83,8 +83,16 @@ func GetStatus(c *gin.Context) {
 		difficultyRes = "Unknown"
 	}
 
+	// 获取游戏模式
+	gameModeRes, err := conn.Execute("sm_cvar mp_gamemode")
+	if err != nil {
+		// 如果获取模式失败，不影响整体状态获取，设置为未知
+		gameModeRes = "Unknown"
+	}
+
 	status := parseStatus(res)
 	status.Difficulty = parseDifficulty(difficultyRes)
+	status.GameMode = parseGameMode(gameModeRes)
 
 	c.JSON(http.StatusOK, status)
 }
@@ -107,6 +115,7 @@ type Status struct {
 	Map        string
 	Hostname   string
 	Difficulty string
+	GameMode   string
 }
 
 func parseStatus(statusText string) *Status {
@@ -179,6 +188,102 @@ func parseDifficulty(difficultyText string) string {
 	}
 
 	return "未知"
+}
+
+func parseGameMode(gameModeText string) string {
+	// 解析sm_cvar mp_gamemode命令的返回值
+	// 格式类似: [SM] Value of cvar "mp_gamemode": "coop"
+	// 或者: "mp_gamemode" = "coop" ( def. "coop" )
+
+	// 先尝试匹配 [SM] 格式
+	reSM := regexp.MustCompile(`\[SM\]\s*Value of cvar "mp_gamemode":\s*"([^"]+)"`)
+	matches := reSM.FindStringSubmatch(gameModeText)
+
+	if len(matches) > 1 {
+		gameMode := matches[1]
+		return translateGameMode(gameMode)
+	}
+
+	// 再尝试匹配标准格式
+	re := regexp.MustCompile(`"mp_gamemode"\s*=\s*"([^"]+)"`)
+	matches = re.FindStringSubmatch(gameModeText)
+
+	if len(matches) > 1 {
+		gameMode := matches[1]
+		return translateGameMode(gameMode)
+	}
+
+	return "未知"
+}
+
+func translateGameMode(gameMode string) string {
+	// 转换为中文显示
+	switch strings.ToLower(gameMode) {
+	case "coop":
+		return "合作"
+	case "realism":
+		return "写实"
+	case "survival":
+		return "生存"
+	case "versus":
+		return "对抗"
+	case "scavenge":
+		return "拾荒"
+	case "holdout":
+		return "坚守"
+	case "mutation1":
+		return "地球上最后一人"
+	case "mutation2":
+		return "爆头！"
+	case "mutation3":
+		return "血流不止"
+	case "mutation4":
+		return "绝境求生"
+	case "mutation5":
+		return "四剑客"
+	case "mutation7":
+		return "链锯屠杀"
+	case "mutation8":
+		return "铁人"
+	case "mutation9":
+		return "地球上最后侏儒"
+	case "mutation10":
+		return "仅容一人"
+	case "mutation11":
+		return "医疗末日"
+	case "mutation12":
+		return "写实对抗"
+	case "mutation13":
+		return "跟随公升"
+	case "mutation14":
+		return "碎尸盛宴"
+	case "mutation15":
+		return "对抗生存"
+	case "mutation16":
+		return "猎杀派对"
+	case "mutation17":
+		return "孤胆枪手"
+	case "mutation18":
+		return "失血对抗"
+	case "mutation19":
+		return "无尽坦克！"
+	case "mutation20":
+		return "治疗侏儒"
+	case "community1":
+		return "特感速递"
+	case "community2":
+		return "流感季节"
+	case "community3":
+		return "骑乘派对"
+	case "community4":
+		return "梦魇"
+	case "community5":
+		return "死亡之门"
+	case "community6":
+		return "Confogl"
+	default:
+		return gameMode
+	}
 }
 
 func parseUser(line string) *User {
@@ -296,6 +401,80 @@ func ChangeDifficulty(c *gin.Context) {
 		return
 	}
 	c.String(http.StatusOK, "难度切换成功")
+}
+
+func ChangeGameMode(c *gin.Context) {
+	url := os.Getenv("L4D2_RCON_URL")
+	if url == "" {
+		c.String(http.StatusInternalServerError, "服务端未配置RCON链接")
+		return
+	}
+	pwd := os.Getenv("L4D2_RCON_PASSWORD")
+	if pwd == "" {
+		c.String(http.StatusInternalServerError, "服务端未配置RCON密码")
+		return
+	}
+
+	gameMode := c.PostForm("gameMode")
+	if gameMode == "" {
+		c.String(http.StatusBadRequest, "游戏模式不能为空")
+		return
+	}
+
+	// 验证模式值
+	validGameModes := map[string]string{
+		"合作":      "coop",
+		"写实":      "realism",
+		"生存":      "survival",
+		"对抗":      "versus",
+		"拾荒":      "scavenge",
+		"坚守":      "holdout",
+		"地球上最后一人": "mutation1",
+		"爆头！":     "mutation2",
+		"血流不止":    "mutation3",
+		"绝境求生":    "mutation4",
+		"四剑客":     "mutation5",
+		"链锯屠杀":    "mutation7",
+		"铁人":      "mutation8",
+		"地球上最后侏儒": "mutation9",
+		"仅容一人":    "mutation10",
+		"医疗末日":    "mutation11",
+		"写实对抗":    "mutation12",
+		"跟随公升":    "mutation13",
+		"碎尸盛宴":    "mutation14",
+		"对抗生存":    "mutation15",
+		"猎杀派对":    "mutation16",
+		"孤胆枪手":    "mutation17",
+		"失血对抗":    "mutation18",
+		"无尽坦克！":   "mutation19",
+		"治疗侏儒":    "mutation20",
+		"特感速递":    "community1",
+		"流感季节":    "community2",
+		"骑乘派对":    "community3",
+		"梦魇":      "community4",
+		"死亡之门":    "community5",
+		"Confogl": "community6",
+	}
+
+	englishGameMode, ok := validGameModes[gameMode]
+	if !ok {
+		c.String(http.StatusBadRequest, "无效的游戏模式值")
+		return
+	}
+
+	conn, err := rcon.Dial(url, pwd)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "RCON连接失败: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	_, err = conn.Execute("sm_cvar mp_gamemode " + englishGameMode)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "RCON命令执行失败: %v", err)
+		return
+	}
+	c.String(http.StatusOK, "游戏模式切换成功")
 }
 
 func Rcon(c *gin.Context) {
