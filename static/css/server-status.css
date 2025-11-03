@@ -157,8 +157,8 @@
 /* 基本信息容器 */
 .basic-info-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
   margin-bottom: 25px;
 }
 

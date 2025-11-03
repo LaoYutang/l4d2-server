@@ -305,11 +305,173 @@
               </button>
             </div>
           </div>
+        </div>
+        <div class="difficulty-change-footer">
+          <button id="change-difficulty-confirm" class="btn btn-primary full-width" disabled>
+            ⚔️ 确认更改难度
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 游戏模式更改弹框 -->
+    <div id="gamemode-change-overlay" class="gamemode-change-overlay">
+      <div id="gamemode-change-dialog" class="gamemode-change-dialog">
+        <div class="gamemode-change-header">
+          <div class="gamemode-change-title">🎮 更改游戏模式</div>
+          <button id="gamemode-change-close" class="gamemode-change-close">×</button>
+        </div>
+        <div class="gamemode-change-content">
           <div class="form-group">
-            <button id="change-difficulty-confirm" class="btn btn-primary full-width" disabled>
-              ⚔️ 确认更改难度
-            </button>
+            <label>基础模式</label>
+            <div class="gamemode-options">
+              <button class="gamemode-option" data-gamemode="合作">
+                <div class="gamemode-icon">🏃</div>
+                <div class="gamemode-label">合作</div>
+                <div class="gamemode-desc">Cooperative</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="写实">
+                <div class="gamemode-icon">💀</div>
+                <div class="gamemode-label">写实</div>
+                <div class="gamemode-desc">Realism</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="生存">
+                <div class="gamemode-icon">🛡️</div>
+                <div class="gamemode-label">生存</div>
+                <div class="gamemode-desc">Survival</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="对抗">
+                <div class="gamemode-icon">⚔️</div>
+                <div class="gamemode-label">对抗</div>
+                <div class="gamemode-desc">Versus</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="拾荒">
+                <div class="gamemode-icon">⛽</div>
+                <div class="gamemode-label">拾荒</div>
+                <div class="gamemode-desc">Scavenge</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="坚守">
+                <div class="gamemode-icon">🏰</div>
+                <div class="gamemode-label">坚守</div>
+                <div class="gamemode-desc">Holdout</div>
+              </button>
+            </div>
           </div>
+          <div class="form-group">
+            <label>突变模式</label>
+            <div class="gamemode-options gamemode-mutations">
+              <button class="gamemode-option gamemode-mutation" data-gamemode="地球上最后一人">
+                <div class="gamemode-label">地球上最后一人</div>
+                <div class="gamemode-desc">Last Man on Earth</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="爆头！">
+                <div class="gamemode-label">爆头！</div>
+                <div class="gamemode-desc">Headshot!</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="血流不止">
+                <div class="gamemode-label">血流不止</div>
+                <div class="gamemode-desc">Bleed Out</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="绝境求生">
+                <div class="gamemode-label">绝境求生</div>
+                <div class="gamemode-desc">Hard Eight</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="四剑客">
+                <div class="gamemode-label">四剑客</div>
+                <div class="gamemode-desc">Four Swordsmen</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="链锯屠杀">
+                <div class="gamemode-label">链锯屠杀</div>
+                <div class="gamemode-desc">Chainsaw Massacre</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="铁人">
+                <div class="gamemode-label">铁人</div>
+                <div class="gamemode-desc">Iron Man</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="地球上最后侏儒">
+                <div class="gamemode-label">地球上最后侏儒</div>
+                <div class="gamemode-desc">Last Gnome on Earth</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="仅容一人">
+                <div class="gamemode-label">仅容一人</div>
+                <div class="gamemode-desc">Room for One</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="医疗末日">
+                <div class="gamemode-label">医疗末日</div>
+                <div class="gamemode-desc">Healthpackalypse!</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="写实对抗">
+                <div class="gamemode-label">写实对抗</div>
+                <div class="gamemode-desc">Realism Versus</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="跟随公升">
+                <div class="gamemode-label">跟随公升</div>
+                <div class="gamemode-desc">Follow the Liter</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="碎尸盛宴">
+                <div class="gamemode-label">碎尸盛宴</div>
+                <div class="gamemode-desc">Gib Fest</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="对抗生存">
+                <div class="gamemode-label">对抗生存</div>
+                <div class="gamemode-desc">Versus Survival</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="猎杀派对">
+                <div class="gamemode-label">猎杀派对</div>
+                <div class="gamemode-desc">Hunting Party</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="孤胆枪手">
+                <div class="gamemode-label">孤胆枪手</div>
+                <div class="gamemode-desc">Lone Gunman</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="失血对抗">
+                <div class="gamemode-label">失血对抗</div>
+                <div class="gamemode-desc">Bleed Out Versus</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="无尽坦克！">
+                <div class="gamemode-label">无尽坦克！</div>
+                <div class="gamemode-desc">Taaannnkk!</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="治疗侏儒">
+                <div class="gamemode-label">治疗侏儒</div>
+                <div class="gamemode-desc">Healing Gnome</div>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>社区模式</label>
+            <div class="gamemode-options gamemode-mutations">
+              <button class="gamemode-option gamemode-mutation" data-gamemode="特感速递">
+                <div class="gamemode-label">特感速递</div>
+                <div class="gamemode-desc">Special Delivery</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="流感季节">
+                <div class="gamemode-label">流感季节</div>
+                <div class="gamemode-desc">Flu Season</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="骑乘派对">
+                <div class="gamemode-label">骑乘派对</div>
+                <div class="gamemode-desc">Riding My Survivor</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="梦魇">
+                <div class="gamemode-label">梦魇</div>
+                <div class="gamemode-desc">Nightmare</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="死亡之门">
+                <div class="gamemode-label">死亡之门</div>
+                <div class="gamemode-desc">Death's Door</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="Confogl">
+                <div class="gamemode-label">Confogl</div>
+                <div class="gamemode-desc">Confogl</div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="gamemode-change-footer">
+          <button id="change-gamemode-confirm" class="btn btn-primary full-width" disabled>
+            🎮 确认更改模式
+          </button>
         </div>
       </div>
     </div>
@@ -353,6 +515,10 @@
               <div class="tip-item" onclick="setRconCommand('z_difficulty ')">
                 <code>z_difficulty</code>
                 <span class="tip-description">查看当前难度</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sm_cvar mp_gamemode ')">
+                <code>sm_cvar mp_gamemode</code>
+                <span class="tip-description">查看/设置游戏模式</span>
               </div>
               <div class="tip-item" onclick="setRconCommand('sv_maxplayers ')">
                 <code>sv_maxplayers</code>
