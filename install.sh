@@ -1,43 +1,43 @@
-# 一键安装服务器与面板
+# One-click server and panel installation
 set -e
 
-# 检测是否有docker
+# Check if Docker is installed
 if ! command -v docker &> /dev/null; then
-  # 安装docker
-  echo "Docker 未安装，正在安装..."
+  # Install Docker
+  echo "Docker is not installed, installing..."
   if curl -s ipinfo.io | grep -q '"country": "CN"'; then
     export DOWNLOAD_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce"
   fi
   curl -fsSL https://get.docker.com -o get-docker.sh 
   bash get-docker.sh 
   rm get-docker.sh
-  echo "Docker 安装完成。"
+  echo "Docker installation completed."
 fi
 
-# 询问管理密码并确认
-read -r -s -p "请设置管理密码: " admin_password
+# Ask for admin password and confirm
+read -r -s -p "Set admin password: " admin_password
 echo
-read -r -s -p "请确认管理密码: " admin_password_confirm
+read -r -s -p "Confirm admin password: " admin_password_confirm
 echo
 
 if [ "$admin_password" != "$admin_password_confirm" ]; then
-    echo "两次输入的密码不一致，请重新运行"
+    echo "Passwords do not match, please run again"
     exit 1
 fi
 
-# 询问游戏端口，默认为27015
-read -r -p "请输入游戏端口 (默认: 27015): " game_port
+# Ask for game port, default is 27015
+read -r -p "Enter game port (default: 27015): " game_port
 game_port=${game_port:-27015}
 
-# 询问管理面板端口，默认为27020
-read -r -p "请输入管理面板端口 (默认: 27020): " manager_port
+# Ask for management panel port, default is 27020
+read -r -p "Enter management panel port (default: 27020): " manager_port
 manager_port=${manager_port:-27020}
 
-# 生成随机RCON密码
+# Generate random RCON password
 L4D2_RCON_PASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
 
 mkdir -p /data/l4d2
-# 写入docker-compose文件
+# Write docker-compose file
 cat > /data/l4d2/docker-compose.yaml << EOF
 volumes:
   addons:
@@ -86,27 +86,27 @@ services:
         max-file: "3"
 EOF
 
-# ipinfo检测是否是国内环境，国内则增加compose中的镜像
+# Check if in China using ipinfo, add mirror if so
 if curl -s ipinfo.io | grep -q '"country": "CN"'; then
-  # 询问是否使用镜像源
-  read -r -p "检测到国内环境，是否使用国内镜像源？(y/n): " use_mirror
+  # Ask if using mirror source
+  read -r -p "Detected Chinese environment, use Chinese mirror source? (y/n): " use_mirror
   if [[ "$use_mirror" =~ ^[Yy]$ ]]; then
-    # 输入镜像源
-    read -r -p "请输入国内镜像源地址 (默认: docker.1ms.run): " mirror_url
+    # Enter mirror source
+    read -r -p "Enter Chinese mirror address (default: docker.1ms.run): " mirror_url
     mirror_url=${mirror_url:-docker.1ms.run}
-    echo "正在配置compose文件使用国内镜像源..."
+    echo "Configuring compose file to use Chinese mirror..."
     sed -i "s|laoyutang/l4d2:nightly|$mirror_url/laoyutang/l4d2:nightly|" /data/l4d2/docker-compose.yaml
     sed -i "s|laoyutang/l4d2-manager:latest|$mirror_url/laoyutang/l4d2-manager:latest|" /data/l4d2/docker-compose.yaml
   fi
 fi
 
-# 启动docker-compose
+# Start docker-compose
 cd /data/l4d2
 docker compose up -d
 
-# 增加软连接
+# Add soft links
 ln -s /var/lib/docker/volumes/l4d2_addons/_data ./addons
 ln -s /var/lib/docker/volumes/l4d2_cfg/_data ./cfg
 
-# 输出提示信息
-echo "L4D2 服务器和管理面板已安装并启动。"
+# Output prompt information
+echo "L4D2 server and management panel have been installed and started."
