@@ -34,28 +34,47 @@ func GetChapterList() []*Campaign {
 				continue
 			}
 
-			// 查找missions.txt文件
-			var missionFile *vpk.File
+			// 查找所有 missions/*.txt 文件
+			var missionFiles []*vpk.File
 			for _, file := range archive.Files {
 				if strings.HasPrefix(file.Name(), "missions/") && strings.HasSuffix(file.Name(), ".txt") {
-					missionFile = &file
-					break
+					fileCopy := file
+					missionFiles = append(missionFiles, &fileCopy)
 				}
 			}
-			if missionFile == nil {
+			if len(missionFiles) == 0 {
 				log.Printf("在 VPK %s 中未找到任务文件", entry.Name())
 				continue
 			}
 
-			rc, err := missionFile.Open(opener)
-			if err != nil {
-				log.Printf("打开 vpk %s 中任务文件 %s 失败: %v", entry.Name(), missionFile.Name(), err)
-			}
-			defer rc.Close()
+			// 解析并合并所有 mission 文件
+			var campaign *Campaign
+			for i, missionFile := range missionFiles {
+				rc, err := missionFile.Open(opener)
+				if err != nil {
+					log.Printf("打开 vpk %s 中任务文件 %s 失败: %v", entry.Name(), missionFile.Name(), err)
+					continue
+				}
 
-			campaign, err := parseMissionFile(rc)
-			if err != nil {
-				log.Fatalf("解析 %s 任务文件失败: %v", entry.Name(), err)
+				parsedCampaign, err := parseMissionFile(rc)
+				rc.Close()
+				if err != nil {
+					log.Printf("解析 %s 任务文件 %s 失败: %v", entry.Name(), missionFile.Name(), err)
+					continue
+				}
+
+				// 第一个文件作为基础
+				if i == 0 {
+					campaign = parsedCampaign
+				} else {
+					// 合并后续文件的章节和模式
+					campaign = mergeCampaigns(campaign, parsedCampaign)
+				}
+			}
+
+			if campaign == nil {
+				log.Printf("VPK %s 中没有成功解析任何任务文件", entry.Name())
+				continue
 			}
 
 			// 如果已经存在相同的战役，则跳过
@@ -74,6 +93,60 @@ func GetChapterList() []*Campaign {
 	}
 
 	return temp
+}
+
+// mergeCampaigns 合并两个战役数据，将第二个战役的章节和模式合并到第一个中
+func mergeCampaigns(base, additional *Campaign) *Campaign {
+	if base == nil {
+		return additional
+	}
+	if additional == nil {
+		return base
+	}
+
+	// 如果基础战役没有标题，使用额外战役的标题
+	if base.Title == "" && additional.Title != "" {
+		base.Title = additional.Title
+	}
+
+	// 创建章节映射表，用于快速查找和去重
+	chapterMap := make(map[string]*Chapter)
+	for _, chapter := range base.Chapters {
+		chapterMap[chapter.Code] = chapter
+	}
+
+	// 合并额外战役的章节
+	for _, addChapter := range additional.Chapters {
+		if existingChapter, exists := chapterMap[addChapter.Code]; exists {
+			// 章节已存在，合并游戏模式
+			existingChapter.Modes = mergeUniqueModes(existingChapter.Modes, addChapter.Modes)
+			// 如果现有章节没有标题，使用新的标题
+			if existingChapter.Title == "" && addChapter.Title != "" {
+				existingChapter.Title = addChapter.Title
+			}
+		} else {
+			// 新章节，直接添加
+			base.Chapters = append(base.Chapters, addChapter)
+			chapterMap[addChapter.Code] = addChapter
+		}
+	}
+
+	return base
+}
+
+// mergeUniqueModes 合并两个模式列表，去除重复项
+func mergeUniqueModes(modes1, modes2 []string) []string {
+	modeSet := make(map[string]bool)
+	for _, mode := range modes1 {
+		modeSet[mode] = true
+	}
+	for _, mode := range modes2 {
+		if !modeSet[mode] {
+			modes1 = append(modes1, mode)
+			modeSet[mode] = true
+		}
+	}
+	return modes1
 }
 
 type Campaign struct {
