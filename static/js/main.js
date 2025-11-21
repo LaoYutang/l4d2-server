@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
       noResultsDiv.className = 'no-results-message';
       noResultsDiv.innerHTML = `
         <div class="icon">🔍</div>
-        <div class="text">没有找到匹配的地图文件</div>
+        <div class="text">${t('no_matching_maps')}</div>
       `;
       list.appendChild(noResultsDiv);
       return;
@@ -162,15 +162,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const del = document.createElement('button');
       del.className = 'btn-delete';
-      del.innerText = 'delete';
+      del.innerText = t('delete');
       del.onclick = async () => {
-        const confirmed = await confirmAction(`确定要删除地图 "${mapName}" 吗？`, '删除地图');
+        const confirmed = await confirmAction(t('confirm_delete_map', mapName), t('delete_map'));
         if (confirmed) {
           // 删除时只传递地图名，不包含大小信息
           fetchServer('/remove', mapName)
             .then(async (res) => {
               updateList();
-              showNotification('地图删除成功！');
+              showNotification(t('map_deleted_success'));
             })
             .catch((err) => {
               showError(err);
@@ -189,9 +189,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const mapCountText = document.getElementById('map-count-text');
     if (mapCountText) {
       if (filteredCount === totalCount) {
-        mapCountText.textContent = `总计: ${totalCount} 个文件`;
+        mapCountText.textContent = t('total_files', totalCount);
       } else {
-        mapCountText.textContent = `显示: ${filteredCount} / ${totalCount} 个文件`;
+        mapCountText.textContent = t('showing_files', filteredCount, totalCount);
       }
     }
   }
@@ -199,11 +199,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // 上传处理
   async function uploadHandler() {
     if (map.files.length === 0) {
-      showWarning('请先选择要上传的地图文件！');
+      showWarning(t('select_map_first'));
       return;
     }
 
-    showLoading(`上传准备中...`, 0);
+    showLoading(t('upload_preparing'), 0);
 
     try {
       // 先验证密码
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const file = map.files[i];
         const fileProgress = Math.round((i / map.files.length) * 100);
 
-        showLoading(`准备上传 (${i + 1}/${map.files.length}) - ${file.name}`, fileProgress);
+        showLoading(t('upload_preparing_file', i + 1, map.files.length, file.name), fileProgress);
 
         try {
           const res = await fetchServerWithFileProgress('/upload', file, (progress) => {
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const totalCurrentProgress = Math.round(completedFilesProgress + currentFileProgress);
 
             showLoading(
-              `上传中 (${i + 1}/${map.files.length}) - ${file.name} (${Math.round(progress)}%)`,
+              t('uploading_file', i + 1, map.files.length, file.name, Math.round(progress)),
               totalCurrentProgress
             );
           });
@@ -238,7 +238,10 @@ document.addEventListener('DOMContentLoaded', function () {
           if (res.ok) {
             successCount++;
             const totalProgress = Math.round(((i + 1) / map.files.length) * 100);
-            showLoading(`✅ 完成 (${i + 1}/${map.files.length}) - ${file.name}`, totalProgress);
+            showLoading(
+              t('upload_completed_file', i + 1, map.files.length, file.name),
+              totalProgress
+            );
             // 短暂显示完成状态
             await new Promise((resolve) => setTimeout(resolve, 300));
           } else {
@@ -250,16 +253,16 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       // 完成时显示100%进度
-      showLoading('🎉 上传完成！', 100);
+      showLoading(t('upload_finished'), 100);
 
       // 延迟一下再显示结果
       setTimeout(() => {
-        let resultMessage = `成功上传 ${successCount}/${map.files.length} 个文件`;
+        let resultMessage = t('upload_success_count', successCount, map.files.length);
         if (failedFiles.length > 0) {
-          resultMessage += `\n\n失败的文件:\n${failedFiles.join('\n')}`;
-          showWarning(resultMessage, '上传完成');
+          resultMessage += t('upload_failed_files', failedFiles.join('\n'));
+          showWarning(resultMessage, t('upload_finished_title'));
         } else {
-          showNotification(resultMessage, '上传成功');
+          showNotification(resultMessage, t('upload_success_title'));
         }
         updateList();
         hiddenLoading();
@@ -272,19 +275,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 重启处理
   async function restartHandler() {
-    const confirmed = await confirmAction('重启服务器将断开所有玩家连接，确认继续？', '重启服务器');
+    const confirmed = await confirmAction(t('restart_confirm_message'), t('restart_server_title'));
     if (!confirmed) return;
 
-    showLoading('重启服务器中...', 50);
+    showLoading(t('restarting_server'), 50);
     fetchServer('/restart')
       .then(async (res) => {
         const text = await res.text();
-        showLoading('重启完成！', 100);
+        showLoading(t('restart_completed'), 100);
         setTimeout(() => {
           if (res.ok) {
-            showNotification(text, '服务器重启');
+            showNotification(text, t('server_restart_title'));
           } else {
-            showError(text, '重启失败');
+            showError(text, t('restart_failed_title'));
           }
           hiddenLoading();
         }, 500);
@@ -297,20 +300,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 清空处理
   async function clearHandler() {
-    const confirmed = await confirmAction(
-      '此操作将删除服务器上的所有地图文件，确认继续？',
-      '清空地图目录'
-    );
+    const confirmed = await confirmAction(t('clear_maps_confirm_message'), t('clear_maps_title'));
     if (!confirmed) return;
 
-    showLoading('清理地图目录中...', 30);
+    showLoading(t('clearing_maps'), 30);
     fetchServer('/clear')
       .then(async (res) => {
         const text = await res.text();
-        showLoading('清理完成！', 100);
+        showLoading(t('clear_completed'), 100);
         setTimeout(() => {
           updateList();
-          showNotification(text, '清理完成');
+          showNotification(text, t('clear_completed_title'));
           hiddenLoading();
         }, 500);
       })
@@ -323,12 +323,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // 显示地图管理弹框
   async function showMapManagementHandler() {
     if (password.value === '') {
-      showWarning('请先输入管理密码！');
+      showWarning(t('enter_password_first'));
       return;
     }
 
     // 显示加载动画
-    showLoading('验证密码中...');
+    showLoading(t('verifying_password'));
 
     try {
       // 验证密码
@@ -341,23 +341,23 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         // 密码错误
         hiddenLoading();
-        showError(result.message || '密码验证失败');
+        showError(result.message || t('password_verification_failed'));
       }
     } catch (error) {
       hiddenLoading();
-      showError('密码验证失败: ' + error.message);
+      showError(t('password_verification_failed') + ': ' + error.message);
     }
   }
 
   // 显示RCON地图列表
   async function showRconMapsHandler() {
     if (password.value === '') {
-      showWarning('请先输入管理密码！');
+      showWarning(t('enter_password_first'));
       return;
     }
 
     // 显示加载动画
-    showLoading('验证密码中...');
+    showLoading(t('verifying_password'));
 
     try {
       // 验证密码
@@ -370,19 +370,19 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         // 密码错误
         hiddenLoading();
-        showError(result.message || '密码验证失败');
+        showError(result.message || t('password_verification_failed'));
       }
     } catch (error) {
       hiddenLoading();
-      showError('密码验证失败: ' + error.message);
+      showError(t('password_verification_failed') + ': ' + error.message);
     }
   }
 
   // 切换地图处理
   async function changeMapHandler(mapName) {
     const confirmed = await confirmAction(
-      `确定要切换到地图 "${mapName}" 吗？\n切换地图将重新开始游戏。`,
-      '切换地图'
+      t('switch_map_confirm_message', mapName),
+      t('switch_map_title')
     );
 
     if (!confirmed) return;
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (response.ok) {
         const message = await response.text();
-        showNotification(message, '地图切换成功');
+        showNotification(message, t('switch_map_success'));
         rconMapsDialog.close();
       } else {
         throw new Error(await response.text());
@@ -412,13 +412,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // 踢出用户处理
   async function kickUser(userName, userId) {
     if (!serverAPI.password || serverAPI.password === '') {
-      showWarning('请先输入管理密码！');
+      showWarning(t('enter_password_first'));
       return;
     }
 
     const confirmed = await confirmAction(
-      `确定要踢出玩家 "${userName}" (#${userId}) 吗？`,
-      '踢出玩家'
+      t('kick_user_confirm_message', userName, userId),
+      t('kick_user_title')
     );
 
     if (!confirmed) return;
@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (response.ok) {
         const message = await response.text();
-        showNotification(message, '踢出成功');
+        showNotification(message, t('kick_user_success'));
         // 刷新服务器状态
         if (window.mainServerStatus) {
           window.mainServerStatus.loadServerStatus();
@@ -462,12 +462,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // 获取用户游戏时长处理
   async function getUserPlaytime(userName, steamId) {
     if (!serverAPI.password || serverAPI.password === '') {
-      showWarning('请先输入管理密码！');
+      showWarning(t('enter_password_first'));
       return;
     }
 
     if (!steamId || steamId === '') {
-      showWarning('该玩家没有有效的Steam ID，无法获取游戏时长！');
+      showWarning(t('no_steam_id'));
       return;
     }
 
@@ -488,14 +488,14 @@ document.addEventListener('DOMContentLoaded', function () {
       if (response.ok) {
         const data = await response.json();
         const hours = Math.round(data.playtime * 10) / 10; // 保留一位小数
-        showNotification(`玩家 "${userName}" 的Left 4 Dead 2游戏时长: ${hours} 小时`, '游戏时长');
+        showNotification(t('playtime_message', userName, hours), t('playtime_title'));
       } else {
         // 处理错误响应，可能是JSON也可能是纯文本
         let errorMessage;
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           const errorData = await response.json();
-          errorMessage = errorData.error || '获取游戏时长失败';
+          errorMessage = errorData.error || t('get_playtime_failed');
         } else {
           errorMessage = await response.text();
         }
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const fileList = document.getElementById('file-list');
 
     if (this.files.length > 0) {
-      fileCount.textContent = `已选择 ${this.files.length} 个文件`;
+      fileCount.textContent = t('file_selected_count', this.files.length);
       fileList.innerHTML = '';
 
       Array.from(this.files).forEach((file) => {
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // 通过检查事件是否是人工触发的来判断
       if (e.isTrusted === false) {
         // 这是拖拽触发的事件，显示拖拽成功提示
-        showInfo(`已通过拖拽选择 ${this.files.length} 个文件`);
+        showInfo(t('drag_drop_info', this.files.length));
       }
     } else {
       fileInfo.classList.remove('show');
@@ -613,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 只显示一次提示，不重复显示
         // 移除了原来的showInfo和showWarning调用，避免与change事件的处理重复
       } else {
-        showError('请拖拽 .vpk 或 .zip 格式的地图文件');
+        showError(t('drag_drop_error'));
       }
     }
   }
@@ -660,15 +660,15 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       isAutoRefreshActive = false;
       btn.classList.remove('active');
-      btn.innerHTML = '⏱️ 自动刷新';
-      btn.title = '开启自动刷新 (每5秒)';
-      showInfo('已关闭自动刷新');
+      btn.innerHTML = t('start_refresh');
+      btn.title = t('start_refresh_title');
+      showInfo(t('auto_refresh_off'));
     } else {
       // 开始自动刷新
       isAutoRefreshActive = true;
       btn.classList.add('active');
-      btn.innerHTML = '⏹️ 停止刷新';
-      btn.title = '关闭自动刷新';
+      btn.innerHTML = t('stop_refresh');
+      btn.title = t('stop_refresh_title');
 
       // 立即刷新一次
       mainServerStatus.loadServerStatus();
@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', function () {
         mainServerStatus.loadServerStatus();
       }, 5000);
 
-      showNotification('已开启自动刷新，每5秒更新一次状态');
+      showNotification(t('auto_refresh_on'));
     }
   }
 

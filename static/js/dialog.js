@@ -15,7 +15,7 @@ class ConfirmDialog {
     });
   }
 
-  show(message, title = '确认操作') {
+  show(message, title = t('confirm_action')) {
     return new Promise((resolve) => {
       this.titleElement.textContent = title;
       this.messageElement.textContent = message;
@@ -297,7 +297,7 @@ class RconMapsDialog {
         if (!isOfficialCampaign) {
           // 添加自定义地图
           allMaps.push({
-            Title: serverCampaign.Title || '未知战役',
+            Title: serverCampaign.Title || t('unknown_campaign'),
             Chapters: serverCampaign.Chapters || [],
             IsCustom: true,
           });
@@ -308,7 +308,7 @@ class RconMapsDialog {
       if (Array.isArray(serverMaps.campaigns)) {
         serverMaps.campaigns.forEach((campaign) => {
           allMaps.push({
-            Title: campaign.Title || '未知战役',
+            Title: campaign.Title || t('unknown_campaign'),
             Chapters: campaign.Chapters || [],
             IsCustom: true,
           });
@@ -328,17 +328,17 @@ class RconMapsDialog {
 
   formatGameModes(modes) {
     if (!modes || modes.length === 0) {
-      return '<span style="color: #999;">未知</span>';
+      return `<span style="color: #999;">${t('unknown_mode')}</span>`;
     }
 
     const modeMapping = {
-      coop: '战役模式',
-      realism: '写实模式',
-      versus: '对抗模式',
-      survival: '生存模式',
-      scavenge: '清道夫模式',
-      halftank: '坦克模式',
-      brawler: '格斗模式',
+      coop: t('mode_coop'),
+      realism: t('mode_realism'),
+      versus: t('mode_versus'),
+      survival: t('mode_survival'),
+      scavenge: t('mode_scavenge'),
+      halftank: t('mode_halftank'),
+      brawler: t('mode_brawler'),
     };
 
     const formattedModes = modes
@@ -360,7 +360,7 @@ class RconMapsDialog {
     this.content.innerHTML = `
       <div class="rcon-maps-loading">
         <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-        <div>加载地图列表中...</div>
+        <div>${t('loading_maps')}</div>
       </div>
     `;
   }
@@ -369,9 +369,11 @@ class RconMapsDialog {
     this.content.innerHTML = `
       <div class="rcon-maps-error">
         <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
-        <div style="font-weight: 600; margin-bottom: 10px;">加载失败</div>
+        <div style="font-weight: 600; margin-bottom: 10px;">${t('load_failed')}</div>
         <div>${message}</div>
-        <button class="btn btn-primary" style="margin-top: 20px;" onclick="rconMapsDialog.loadRconMaps()">重试</button>
+        <button class="btn btn-primary" style="margin-top: 20px;" onclick="rconMapsDialog.loadRconMaps()">${t(
+          'retry'
+        )}</button>
       </div>
     `;
   }
@@ -381,8 +383,8 @@ class RconMapsDialog {
       this.content.innerHTML = `
         <div class="rcon-maps-error">
           <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
-          <div style="font-weight: 600; margin-bottom: 10px;">暂无地图</div>
-          <div>服务器上没有找到任何地图</div>
+          <div style="font-weight: 600; margin-bottom: 10px;">${t('no_maps_title')}</div>
+          <div>${t('no_maps_message')}</div>
         </div>
       `;
       return;
@@ -395,30 +397,30 @@ class RconMapsDialog {
       .map((campaign) => {
         const isOfficial = !campaign.IsCustom;
         const campaignIcon = isOfficial ? '🏛️' : '🗺️';
-        const campaignTitle = String(campaign.Title || '未知战役');
+        const campaignTitle = String(campaign.Title || t('unknown_campaign'));
         const campaignId = `campaign-${campaignTitle.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
         const chaptersHtml = (campaign.Chapters || [])
           .map((chapter) => {
             // 处理游戏模式显示
             const modes = chapter.Modes || [];
-            const modeText = modes.length > 0 ? modes.join(', ') : '未知';
+            const modeText = modes.length > 0 ? modes.join(', ') : t('unknown_mode');
             const modeDisplayText = this.formatGameModes(modes);
 
             return `
           <div class="rcon-chapter-item">
             <div class="rcon-chapter-info">
               <span class="rcon-chapter-name">${String(
-                chapter.Title || chapter.Code || '未知章节'
+                chapter.Title || chapter.Code || t('unknown_chapter')
               )}</span>
               <div class="rcon-chapter-modes">
-                <span class="mode-label">🎮 支持模式:</span>
+                <span class="mode-label">${t('supported_modes')}</span>
                 <span class="mode-text">${modeDisplayText}</span>
               </div>
             </div>
             <button class="btn-switch" onclick="changeMapHandler('${String(
               chapter.Code || ''
-            )}')">切换</button>
+            )}')">${t('switch')}</button>
           </div>
         `;
           })
@@ -432,11 +434,14 @@ class RconMapsDialog {
                 ${campaignIcon} ${campaignTitle}
                 ${
                   isOfficial
-                    ? '<span class="official-badge">(官方)</span>'
-                    : '<span class="custom-badge">(自定义)</span>'
+                    ? `<span class="official-badge">${t('official_badge')}</span>`
+                    : `<span class="custom-badge">${t('custom_badge')}</span>`
                 }
               </span>
-              <span class="rcon-chapter-count">${(campaign.Chapters || []).length} 章节</span>
+              <span class="rcon-chapter-count">${t(
+                'chapter_count',
+                (campaign.Chapters || []).length
+              )}</span>
             </div>
             <div class="rcon-chapters-container" id="${campaignId}-chapters" style="display: none;">
               ${chaptersHtml}
@@ -450,9 +455,7 @@ class RconMapsDialog {
       <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <div style="color: #667eea; font-weight: 600; font-size: 14px;">
-            📊 地图统计：总共 ${
-              this.allMaps.length
-            } 个战役 (官方: ${officialCount}, 自定义: ${customCount})
+            ${t('map_stats', this.allMaps.length, officialCount, customCount)}
           </div>
           <button onclick="rconMapsDialog.toggleOfficialMaps()" 
                   style="padding: 6px 12px; background: ${
@@ -460,13 +463,11 @@ class RconMapsDialog {
                   }; 
                          color: white; border: none; border-radius: 6px; font-size: 12px; 
                          font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-            ${this.hideOfficialMaps ? '显示官方地图' : '隐藏官方地图'}
+            ${this.hideOfficialMaps ? t('show_official_maps') : t('hide_official_maps')}
           </button>
         </div>
         <div style="color: #666; font-size: 14px;">
-          当前显示 ${
-            maps.length
-          } 个战役，点击切换按钮切换到对应章节，如果切换失败请检查是否已经重启服务器，如果仍然失败请联系管理员排查问题。
+          ${t('map_list_tip', maps.length)}
         </div>
       </div>
       ${mapsHtml}
@@ -547,7 +548,7 @@ class ServerStatusDialog {
     this.content.innerHTML = `
       <div class="status-loading">
         <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-        <div>获取服务器状态中...</div>
+        <div>${t('fetching_status')}</div>
       </div>
     `;
   }
@@ -556,7 +557,7 @@ class ServerStatusDialog {
     this.content.innerHTML = `
       <div class="status-error">
         <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
-        <div style="font-weight: 600; margin-bottom: 10px;">获取状态失败</div>
+        <div style="font-weight: 600; margin-bottom: 10px;">${t('fetching_status_failed')}</div>
         <div>${message}</div>
       </div>
     `;
@@ -585,7 +586,9 @@ class ServerStatusDialog {
               <div class="status-property-content">
                 <div class="status-property-value-with-button">
                   <span class="status-property-value">${data.value}</span>
-                  <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="更改难度">
+                  <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="${t(
+                    'change_difficulty'
+                  )}">
                     ⚙️
                   </button>
                 </div>
@@ -601,7 +604,9 @@ class ServerStatusDialog {
               <div class="status-property-content">
                 <div class="status-property-value-with-button">
                   <span class="status-property-value">${data.value}</span>
-                  <button class="difficulty-change-btn" onclick="showGameModeChangeDialog()" title="更改模式">
+                  <button class="difficulty-change-btn" onclick="showGameModeChangeDialog()" title="${t(
+                    'change_mode'
+                  )}">
                     ⚙️
                   </button>
                 </div>
@@ -640,12 +645,12 @@ class ServerStatusDialog {
       propertiesHtml += `
         <div class="status-property-box">
           <div class="status-property-header">
-            👥 在线用户 (${userCount} 人)
+            ${t('online_users_count', userCount)}
           </div>
           <div class="status-property-content">
             ${
               userCount === 0
-                ? '<div class="users-empty">🚫 当前无在线用户</div>'
+                ? `<div class="users-empty">${t('no_online_users')}</div>`
                 : `<div class="users-container${singleUserClass}">${usersData.users
                     .map((user, index) => this.createUserCard(user, index + 1))
                     .join('')}</div>`
@@ -658,10 +663,10 @@ class ServerStatusDialog {
     this.content.innerHTML = `
       <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
         <div style="color: #667eea; font-weight: 600; font-size: 14px; margin-bottom: 8px;">
-          📊 服务器实时状态
+          ${t('server_realtime_status')}
         </div>
         <div style="color: #666; font-size: 12px;">
-          最后更新时间: ${new Date().toLocaleString()}
+          ${t('last_updated', new Date().toLocaleString())}
         </div>
       </div>
       ${propertiesHtml}
@@ -669,7 +674,7 @@ class ServerStatusDialog {
   }
 
   createUserCard(user, userNumber) {
-    const userName = user.name || user.Name || `用户${userNumber}`;
+    const userName = user.name || user.Name || t('user_default_name', userNumber);
     const userInitial = userName.charAt(0).toUpperCase();
     const userId = user.id || user.Id || userNumber;
 
@@ -686,10 +691,12 @@ class ServerStatusDialog {
           <div class="user-actions">
             <button class="user-playtime-btn" onclick="getUserPlaytime('${userName}', '${
       user.steamid || user.SteamId || ''
-    }')" title="获取游戏时长" ${!(user.steamid || user.SteamId) ? 'disabled' : ''}>
+    }')" title="${t('get_playtime')}" ${!(user.steamid || user.SteamId) ? 'disabled' : ''}>
               ⏱️
             </button>
-            <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="踢出玩家">
+            <button class="user-kick-btn" onclick="kickUser('${userName}', ${userId})" title="${t(
+      'kick_player'
+    )}">
               🥾
             </button>
           </div>
@@ -699,7 +706,7 @@ class ServerStatusDialog {
             user.steamid || user.SteamId
               ? `
             <div class="user-detail-item">
-              <span class="user-detail-label">🆔 Steam</span>
+              <span class="user-detail-label">${t('steam_id')}</span>
               <span class="user-detail-value steamid" title="${
                 user.steamid || user.SteamId
               }">${this.formatSteamId(user.steamid || user.SteamId)}</span>
@@ -711,7 +718,7 @@ class ServerStatusDialog {
             user.ip || user.Ip
               ? `
             <div class="user-detail-item">
-              <span class="user-detail-label">🌐 IP</span>
+              <span class="user-detail-label">${t('ip_address')}</span>
               <span class="user-detail-value">${(user.ip || user.Ip).split(':')[0]}</span>
             </div>
           `
@@ -721,7 +728,7 @@ class ServerStatusDialog {
             user.status || user.Status
               ? `
             <div class="user-detail-item">
-              <span class="user-detail-label">🎮 状态</span>
+              <span class="user-detail-label">${t('status')}</span>
               <span class="user-detail-value">${this.formatUserStatus(
                 user.status || user.Status
               )}</span>
@@ -733,7 +740,7 @@ class ServerStatusDialog {
             user.delay !== undefined || user.Delay !== undefined
               ? `
             <div class="user-detail-item">
-              <span class="user-detail-label">📡 延迟</span>
+              <span class="user-detail-label">${t('latency')}</span>
               <span class="user-detail-value">${user.delay || user.Delay}ms</span>
             </div>
           `
@@ -743,7 +750,7 @@ class ServerStatusDialog {
             user.loss !== undefined || user.Loss !== undefined
               ? `
             <div class="user-detail-item">
-              <span class="user-detail-label">📉 丢包</span>
+              <span class="user-detail-label">${t('packet_loss')}</span>
               <span class="user-detail-value">${user.loss || user.Loss}%</span>
             </div>
           `
@@ -753,7 +760,7 @@ class ServerStatusDialog {
             user.duration || user.Duration
               ? `
             <div class="user-detail-item">
-              <span class="user-detail-label">⏱️ 时长</span>
+              <span class="user-detail-label">${t('duration')}</span>
               <span class="user-detail-value">${user.duration || user.Duration}</span>
             </div>
           `
@@ -763,7 +770,7 @@ class ServerStatusDialog {
             user.linkrate !== undefined || user.LinkRate !== undefined
               ? `
             <div class="user-detail-item">
-              <span class="user-detail-label">🔗 连接速率</span>
+              <span class="user-detail-label">${t('link_rate')}</span>
               <span class="user-detail-value">${this.formatLinkRate(
                 user.linkrate || user.LinkRate
               )}</span>
@@ -795,7 +802,7 @@ class ServerStatusDialog {
             result[normalizedKey] = {
               label: key.trim(),
               value: value,
-              icon: '���',
+              icon: '📝',
             };
           }
         });
@@ -808,7 +815,7 @@ class ServerStatusDialog {
       // 处理服务器名称
       if (data.hostname || data.Hostname) {
         result.Hostname = {
-          label: '服务器名称',
+          label: t('server_name'),
           value: data.hostname || data.Hostname,
           icon: '🏠',
         };
@@ -817,7 +824,7 @@ class ServerStatusDialog {
       // 处理地图
       if (data.map || data.Map) {
         result.Map = {
-          label: '当前地图',
+          label: t('current_map'),
           value: data.map || data.Map,
           icon: '🗺️',
         };
@@ -825,18 +832,47 @@ class ServerStatusDialog {
 
       // 处理游戏模式
       if (data.gameMode || data.GameMode) {
+        const modeValue = data.gameMode || data.GameMode;
+        const modeMap = {
+          合作: t('gamemode_coop'),
+          Cooperative: t('gamemode_coop'),
+          'Co-op': t('gamemode_coop'),
+          写实: t('gamemode_realism'),
+          Realism: t('gamemode_realism'),
+          生存: t('gamemode_survival'),
+          Survival: t('gamemode_survival'),
+          对抗: t('gamemode_versus'),
+          Versus: t('gamemode_versus'),
+          拾荒: t('gamemode_scavenge'),
+          清道夫: t('gamemode_scavenge'),
+          Scavenge: t('gamemode_scavenge'),
+          坚守: t('gamemode_holdout'),
+          Holdout: t('gamemode_holdout'),
+        };
         result.GameMode = {
-          label: '游戏模式',
-          value: data.gameMode || data.GameMode,
+          label: t('game_mode'),
+          value: modeMap[modeValue] || modeValue,
           icon: '🎮',
         };
       }
 
       // 处理难度
       if (data.difficulty || data.Difficulty) {
+        const difficultyValue = data.difficulty || data.Difficulty;
+        const difficultyMap = {
+          简单: t('difficulty_easy'),
+          Easy: t('difficulty_easy'),
+          普通: t('difficulty_normal'),
+          Normal: t('difficulty_normal'),
+          高级: t('difficulty_hard'),
+          Hard: t('difficulty_hard'),
+          专家: t('difficulty_expert'),
+          Expert: t('difficulty_expert'),
+          Impossible: t('difficulty_expert'),
+        };
         result.Difficulty = {
-          label: '游戏难度',
-          value: data.difficulty || data.Difficulty,
+          label: t('game_difficulty'),
+          value: difficultyMap[difficultyValue] || difficultyValue,
           icon: '⚔️',
         };
       }
@@ -844,7 +880,7 @@ class ServerStatusDialog {
       // 处理玩家数
       if (data.players || data.Players) {
         result.Players = {
-          label: '在线玩家',
+          label: t('online_players'),
           value: data.players || data.Players,
           icon: '👥',
         };
@@ -854,7 +890,7 @@ class ServerStatusDialog {
       const users = data.users || data.Users;
       if (users && Array.isArray(users)) {
         result.Users = {
-          label: '在线用户',
+          label: t('online_users'),
           users: users,
           icon: '👥',
         };
@@ -868,12 +904,12 @@ class ServerStatusDialog {
   formatUserStatus(status) {
     if (typeof status === 'string') {
       const statusNames = {
-        active: '🎮 活跃',
-        idle: '😴 空闲',
-        dead: '💀 死亡',
-        spectator: '👀 观察',
-        connecting: '🔄 连接中',
-        disconnected: '❌ 已断开',
+        active: t('status_active'),
+        idle: t('status_idle'),
+        dead: t('status_dead'),
+        spectator: t('status_spectator'),
+        connecting: t('status_connecting'),
+        disconnected: t('status_disconnected'),
       };
       return statusNames[status.toLowerCase()] || `🔧 ${status}`;
     }
@@ -1106,7 +1142,9 @@ class MainServerStatus {
               <div class="status-property-content">
                 <div class="status-property-value-with-button">
                   <span class="status-property-value">${data.value}</span>
-                  <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="更改难度">
+                  <button class="difficulty-change-btn" onclick="showDifficultyChangeDialog()" title="${t(
+                    'change_difficulty'
+                  )}">
                     ⚙️
                   </button>
                 </div>
@@ -1122,7 +1160,9 @@ class MainServerStatus {
               <div class="status-property-content">
                 <div class="status-property-value-with-button">
                   <span class="status-property-value">${data.value}</span>
-                  <button class="difficulty-change-btn" onclick="showGameModeChangeDialog()" title="更改模式">
+                  <button class="difficulty-change-btn" onclick="showGameModeChangeDialog()" title="${t(
+                    'change_mode'
+                  )}">
                     ⚙️
                   </button>
                 </div>
@@ -1161,12 +1201,12 @@ class MainServerStatus {
       propertiesHtml += `
         <div class="status-property-box">
           <div class="status-property-header">
-            👥 在线用户 (${userCount} 人)
+            ${t('online_users_count', userCount)}
           </div>
           <div class="status-property-content">
             ${
               userCount === 0
-                ? '<div class="users-empty">🚫 当前无在线用户</div>'
+                ? `<div class="users-empty">${t('no_online_users')}</div>`
                 : `<div class="users-container${singleUserClass}">${usersData.users
                     .map((user, index) => this.createUserCard(user, index + 1))
                     .join('')}</div>`
@@ -1179,10 +1219,10 @@ class MainServerStatus {
     this.content.innerHTML = `
       <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
         <div style="color: #667eea; font-weight: 600; font-size: 14px; margin-bottom: 8px;">
-          📊 服务器实时状态
+          ${t('server_realtime_status')}
         </div>
         <div style="color: #666; font-size: 12px;">
-          最后更新时间: ${new Date().toLocaleString()}
+          ${t('last_updated', new Date().toLocaleString())}
         </div>
       </div>
       ${propertiesHtml}
@@ -1340,12 +1380,12 @@ class AuthCodeDialog {
     const expired = this.expiredSelect.value;
 
     if (!serverAPI.password) {
-      showError('请先输入管理密码！');
+      showError(t('enter_admin_password_first'));
       return;
     }
 
     this.generateButton.disabled = true;
-    this.generateButton.textContent = '🔄 生成中...';
+    this.generateButton.textContent = t('generating');
 
     try {
       const formData = new FormData();
@@ -1360,16 +1400,16 @@ class AuthCodeDialog {
       if (response.ok) {
         const token = await response.text();
         this.showAuthCodeResult(token, expired);
-        showNotification('授权码生成成功！');
+        showNotification(t('auth_code_generated'));
       } else {
         const errorText = await response.text();
-        showError(`生成授权码失败: ${errorText}`);
+        showError(t('auth_code_generate_failed', errorText));
       }
     } catch (error) {
-      showError(`生成授权码失败: ${error.message}`);
+      showError(t('auth_code_generate_failed', error.message));
     } finally {
       this.generateButton.disabled = false;
-      this.generateButton.textContent = '🔑 生成授权码';
+      this.generateButton.textContent = t('generate_auth_code_btn');
     }
   }
 
@@ -1390,7 +1430,7 @@ class AuthCodeDialog {
 
       // 临时改变按钮文本
       const originalText = this.copyButton.textContent;
-      this.copyButton.textContent = '✅ 已复制';
+      this.copyButton.textContent = t('copied_check');
       this.copyButton.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
 
       setTimeout(() => {
@@ -1398,13 +1438,13 @@ class AuthCodeDialog {
         this.copyButton.style.background = '';
       }, 2000);
 
-      showNotification('授权码已复制到剪贴板！');
+      showNotification(t('auth_code_copied'));
     } catch (error) {
       // 如果剪贴板API不可用，使用传统方法
       this.tokenInput.select();
       this.tokenInput.setSelectionRange(0, 99999);
       document.execCommand('copy');
-      showNotification('授权码已复制到剪贴板！');
+      showNotification(t('auth_code_copied'));
     }
   }
 }
@@ -1547,14 +1587,14 @@ class DownloadManagementDialog {
       const response = await serverAPI.addDownloadTask(urlText);
 
       if (response.success) {
-        showNotification(`成功添加 ${urls.length} 个下载任务！`);
+        showNotification(t('download_tasks_added', urls.length));
         this.urlInput.value = '';
         this.refreshTasks();
       } else {
-        showError(response.message || '添加下载任务失败');
+        showError(response.message || t('add_download_task_failed'));
       }
     } catch (error) {
-      showError('添加下载任务失败: ' + error.message);
+      showError(t('add_download_task_failed') + ': ' + error.message);
     }
   }
 
@@ -1585,10 +1625,10 @@ class DownloadManagementDialog {
 
   async clearAllTasks() {
     const confirmed = await confirmAction(
-      '清空已完成任务',
-      '您确定要清空已完成下载任务吗？正在进行中的任务将保留。',
-      '清空',
-      '取消'
+      t('clear_completed_tasks'),
+      t('clear_completed_tasks_confirm'),
+      t('clear_btn'),
+      t('cancel')
     );
 
     if (!confirmed) return;
@@ -1597,22 +1637,22 @@ class DownloadManagementDialog {
       const response = await serverAPI.clearDownloadTasks();
 
       if (response.success) {
-        showNotification('已清空完成任务！');
+        showNotification(t('completed_tasks_cleared'));
         this.refreshTasks();
       } else {
-        showError(response.message || '清空任务失败');
+        showError(response.message || t('clear_tasks_failed'));
       }
     } catch (error) {
-      showError('清空任务失败: ' + error.message);
+      showError(t('clear_tasks_failed') + ': ' + error.message);
     }
   }
 
   async cancelTask(index) {
     const confirmed = await confirmAction(
-      '取消下载任务',
-      '您确定要取消这个下载任务吗？',
-      '取消任务',
-      '保留任务'
+      t('cancel_download_task'),
+      t('cancel_download_task_confirm'),
+      t('cancel_task_btn'),
+      t('keep_task_btn')
     );
 
     if (!confirmed) return;
@@ -1621,22 +1661,22 @@ class DownloadManagementDialog {
       const response = await serverAPI.cancelDownloadTask(index);
 
       if (response.success) {
-        showNotification('下载任务已取消！');
+        showNotification(t('download_task_cancelled'));
         this.refreshTasks();
       } else {
-        showError(response.message || '取消任务失败');
+        showError(response.message || t('cancel_task_failed'));
       }
     } catch (error) {
-      showError('取消任务失败: ' + error.message);
+      showError(t('cancel_task_failed') + ': ' + error.message);
     }
   }
 
   async restartTask(index) {
     const confirmed = await confirmAction(
-      '重新下载任务',
-      '您确定要重新下载这个任务吗？当前任务将被取消并重新开始。',
-      '重新下载',
-      '取消'
+      t('restart_download_task'),
+      t('restart_download_task_confirm'),
+      t('restart_download_btn'),
+      t('cancel')
     );
 
     if (!confirmed) return;
@@ -1645,13 +1685,13 @@ class DownloadManagementDialog {
       const response = await serverAPI.restartDownloadTask(index);
 
       if (response.success) {
-        showNotification('下载任务已重新开始！');
+        showNotification(t('download_task_restarted'));
         this.refreshTasks();
       } else {
-        showError(response.message || '重新下载失败');
+        showError(response.message || t('restart_download_failed'));
       }
     } catch (error) {
-      showError('重新下载失败: ' + error.message);
+      showError(t('restart_download_failed') + ': ' + error.message);
     }
   }
 
@@ -1677,9 +1717,9 @@ class DownloadManagementDialog {
       this.tasksList.innerHTML = `
         <div class="download-tasks-empty">
           <div class="icon">📥</div>
-          <div>暂无下载任务</div>
+          <div>${t('no_download_tasks')}</div>
           <div style="margin-top: 10px; font-size: 12px; color: #999;">
-            在上方输入下载链接添加任务
+            ${t('enter_download_url_above')}
           </div>
         </div>
       `;
@@ -1709,12 +1749,16 @@ class DownloadManagementDialog {
             <div class="download-task-actions">
               ${
                 task.status === 0 || task.status === 1 // 等待中或下载中状态显示取消按钮
-                  ? `<button class="download-task-cancel-btn" onclick="downloadManagementDialog.cancelTask(${index})" title="取消下载">❌</button>`
+                  ? `<button class="download-task-cancel-btn" onclick="downloadManagementDialog.cancelTask(${index})" title="${t(
+                      'cancel_download'
+                    )}">❌</button>`
                   : ''
               }
               ${
                 task.status === 1 || task.status === 3 // 下载中或失败状态显示重新下载按钮
-                  ? `<button class="download-task-restart-btn" onclick="downloadManagementDialog.restartTask(${index})" title="重新下载">🔄</button>`
+                  ? `<button class="download-task-restart-btn" onclick="downloadManagementDialog.restartTask(${index})" title="${t(
+                      'restart_download'
+                    )}">🔄</button>`
                   : ''
               }
             </div>
@@ -1740,7 +1784,7 @@ class DownloadManagementDialog {
               fileSize
                 ? `<span style="color: #666; font-size: 11px; ${
                     task.status === 1 ? 'margin-left: 8px;' : ''
-                  }">文件大小: ${fileSize}</span>`
+                  }">${t('file_size')}: ${fileSize}</span>`
                 : ''
             }
             ${
@@ -1814,12 +1858,12 @@ class DownloadManagementDialog {
 
   getStatusText(status) {
     const statusMap = {
-      0: '等待中', // DOWNLOAD_STATUS_PENDING
-      1: '下载中', // DOWNLOAD_STATUS_IN_PROGRESS
-      2: '已完成', // DOWNLOAD_STATUS_COMPLETED
-      3: '失败', // DOWNLOAD_STATUS_FAILED
+      0: t('download_status_pending'), // DOWNLOAD_STATUS_PENDING
+      1: t('download_status_downloading'), // DOWNLOAD_STATUS_IN_PROGRESS
+      2: t('download_status_completed'), // DOWNLOAD_STATUS_COMPLETED
+      3: t('download_status_failed'), // DOWNLOAD_STATUS_FAILED
     };
-    return statusMap[status] || '未知';
+    return statusMap[status] || t('download_status_unknown');
   }
 }
 
@@ -1909,19 +1953,19 @@ class DifficultyChangeDialog {
 
   async changeDifficulty() {
     if (!this.selectedDifficulty) {
-      showError('请选择一个难度！');
+      showError(t('select_difficulty'));
       return;
     }
 
     // 密码验证已经在显示弹框之前完成，这里直接使用
     if (!serverAPI.password) {
-      showError('密码已失效，请重新验证！');
+      showError(t('password_expired'));
       this.close();
       return;
     }
 
     this.confirmButton.disabled = true;
-    this.confirmButton.textContent = '🔄 更改中...';
+    this.confirmButton.textContent = t('changing');
 
     try {
       const formData = new FormData();
@@ -1935,7 +1979,7 @@ class DifficultyChangeDialog {
 
       if (response.ok) {
         const text = await response.text();
-        showNotification('难度更改成功！');
+        showNotification(t('difficulty_changed'));
         this.close();
 
         // 刷新服务器状态
@@ -1949,13 +1993,13 @@ class DifficultyChangeDialog {
         }, 1000);
       } else {
         const errorText = await response.text();
-        showError(`更改难度失败: ${errorText}`);
+        showError(t('change_difficulty_failed', errorText));
       }
     } catch (error) {
-      showError(`更改难度失败: ${error.message}`);
+      showError(t('change_difficulty_failed', error.message));
     } finally {
       this.confirmButton.disabled = false;
-      this.confirmButton.textContent = '⚔️ 确认更改难度';
+      this.confirmButton.textContent = t('confirm_change_difficulty_btn');
     }
   }
 }
@@ -2046,19 +2090,19 @@ class GameModeChangeDialog {
 
   async changeGameMode() {
     if (!this.selectedGameMode) {
-      showError('请选择一个游戏模式！');
+      showError(t('select_game_mode'));
       return;
     }
 
     // 密码验证已经在显示弹框之前完成，这里直接使用
     if (!serverAPI.password) {
-      showError('密码已失效，请重新验证！');
+      showError(t('password_expired'));
       this.close();
       return;
     }
 
     this.confirmButton.disabled = true;
-    this.confirmButton.textContent = '🔄 更改中...';
+    this.confirmButton.textContent = t('changing');
 
     try {
       const formData = new FormData();
@@ -2072,7 +2116,7 @@ class GameModeChangeDialog {
 
       if (response.ok) {
         const text = await response.text();
-        showNotification(text || '游戏模式更改成功！');
+        showNotification(text || t('game_mode_changed'));
         this.close();
 
         // 刷新服务器状态
@@ -2086,13 +2130,13 @@ class GameModeChangeDialog {
         }, 1000);
       } else {
         const errorText = await response.text();
-        showError(`更改游戏模式失败: ${errorText}`);
+        showError(t('change_game_mode_failed', errorText));
       }
     } catch (error) {
-      showError(`更改游戏模式失败: ${error.message}`);
+      showError(t('change_game_mode_failed', error.message));
     } finally {
       this.confirmButton.disabled = false;
-      this.confirmButton.textContent = '🎮 确认更改模式';
+      this.confirmButton.textContent = t('confirm_change_mode_btn');
     }
   }
 }
@@ -2175,19 +2219,19 @@ class RconCommandDialog {
     const command = this.commandInput.value.trim();
 
     if (!command) {
-      showWarning('请输入RCON命令！');
+      showWarning(t('enter_rcon_command'));
       return;
     }
 
     if (!serverAPI.password) {
-      showError('请先输入管理密码！');
+      showError(t('enter_admin_password_first'));
       return;
     }
 
     // 禁用输入和按钮
     this.executeButton.disabled = true;
     this.commandInput.disabled = true;
-    this.executeButton.textContent = '⏳ 执行中...';
+    this.executeButton.textContent = t('executing');
 
     try {
       const formData = new FormData();
@@ -2205,21 +2249,21 @@ class RconCommandDialog {
       this.addToHistory(command, result, response.ok);
 
       if (response.ok) {
-        showNotification('命令执行成功！');
+        showNotification(t('command_executed'));
       } else {
-        showError(`命令执行失败: ${result}`);
+        showError(t('command_execution_failed', result));
       }
 
       // 清空输入框
       this.commandInput.value = '';
     } catch (error) {
-      this.addToHistory(command, `网络错误: ${error.message}`, false);
-      showError(`命令执行失败: ${error.message}`);
+      this.addToHistory(command, t('network_error_msg', error.message), false);
+      showError(t('command_execution_failed', error.message));
     } finally {
       // 恢复输入和按钮
       this.executeButton.disabled = false;
       this.commandInput.disabled = false;
-      this.executeButton.textContent = '▶️ 执行';
+      this.executeButton.textContent = t('execute_btn');
       this.commandInput.focus();
     }
   }
@@ -2255,7 +2299,7 @@ class RconCommandDialog {
     // 输出
     const outputDiv = document.createElement('div');
     outputDiv.className = isSuccess ? 'rcon-result-output' : 'rcon-result-output rcon-result-error';
-    outputDiv.textContent = output || '(无输出)';
+    outputDiv.textContent = output || t('no_output');
     entry.appendChild(outputDiv);
 
     // 添加到容器顶部
@@ -2274,7 +2318,9 @@ class RconCommandDialog {
   }
 
   clearResult() {
-    this.resultContainer.innerHTML = '<div class="rcon-result-empty">等待命令执行...</div>';
+    this.resultContainer.innerHTML = `<div class="rcon-result-empty">${t(
+      'waiting_for_command'
+    )}</div>`;
     this.commandHistory = [];
   }
 }

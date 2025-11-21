@@ -11,7 +11,7 @@ class ServerAPI {
   // 验证密码是否正确
   async validatePassword() {
     if (!this.password || this.password === '') {
-      return { success: false, message: '密码不能为空！' };
+      return { success: false, message: t('password_empty') };
     }
 
     try {
@@ -26,19 +26,19 @@ class ServerAPI {
       const text = await response.text();
 
       if (response.ok) {
-        return { success: true, message: '密码验证成功' };
+        return { success: true, message: t('password_verified') };
       } else {
         return { success: false, message: text };
       }
     } catch (error) {
-      return { success: false, message: '网络错误: ' + error.message };
+      return { success: false, message: t('network_error', error.message) };
     }
   }
 
   // 基础请求方法
   fetchServer(path, mapName) {
     if (!this.password || this.password === '') {
-      return Promise.reject('密码不能为空！');
+      return Promise.reject(t('password_empty'));
     }
     const fd = new FormData();
     fd.append('password', this.password);
@@ -55,7 +55,7 @@ class ServerAPI {
   // 带文件上传的请求
   fetchServerWithFile(path, file) {
     if (!this.password || this.password === '') {
-      return Promise.reject(new Error('密码不能为空！'));
+      return Promise.reject(new Error(t('password_empty')));
     }
     const fd = new FormData();
     fd.append('password', this.password);
@@ -70,7 +70,7 @@ class ServerAPI {
   // 带进度回调的文件上传
   fetchServerWithFileProgress(path, file, progressCallback) {
     if (!this.password || this.password === '') {
-      return Promise.reject(new Error('密码不能为空！'));
+      return Promise.reject(new Error(t('password_empty')));
     }
 
     return new Promise((resolve, reject) => {
@@ -108,7 +108,7 @@ class ServerAPI {
 
       // 错误监听
       xhr.addEventListener('error', () => {
-        reject(new Error('网络错误'));
+        reject(new Error(t('network_error_msg', 'Network error')));
       });
 
       xhr.open('POST', path);
@@ -119,7 +119,7 @@ class ServerAPI {
   // 带地图名的请求
   fetchServerWithMapName(path, mapName) {
     if (!this.password || this.password === '') {
-      return Promise.reject(new Error('密码不能为空！'));
+      return Promise.reject(new Error(t('password_empty')));
     }
     const fd = new FormData();
     fd.append('password', this.password);
@@ -216,7 +216,7 @@ class ServerAPI {
   // 带URL的请求
   fetchServerWithUrl(path, url) {
     if (!this.password || this.password === '') {
-      return Promise.reject(new Error('密码不能为空！'));
+      return Promise.reject(new Error(t('password_empty')));
     }
     const fd = new FormData();
     fd.append('password', this.password);
@@ -231,7 +231,7 @@ class ServerAPI {
   // 带索引的请求
   fetchServerWithIndex(path, index) {
     if (!this.password || this.password === '') {
-      return Promise.reject(new Error('密码不能为空！'));
+      return Promise.reject(new Error(t('password_empty')));
     }
     const fd = new FormData();
     fd.append('password', this.password);
