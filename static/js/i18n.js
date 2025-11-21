@@ -660,10 +660,9 @@ function toggleLanguage() {
   // 更新按钮文本
   const langText = document.getElementById('lang-text');
   if (langText) {
-    langText.textContent = next === 'zh-CN' ? 'EN' : '中文';
+    langText.textContent = next === 'zh-CN' ? 'English' : '中文';
   }
 }
-
 function t(key, ...args) {
   const lang = getLanguage();
   let text = translations[lang][key] || key;
@@ -702,12 +701,6 @@ function applyTranslations() {
   if (t_map['title']) {
     document.title = t_map['title'];
   }
-
-  // Update language switch button text
-  const langBtn = document.getElementById('lang-switch');
-  if (langBtn) {
-    langBtn.textContent = t_map['switch_language'];
-  }
 }
 
 // Expose global functions
@@ -723,6 +716,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const langText = document.getElementById('lang-text');
   if (langText) {
     const current = getLanguage();
-    langText.textContent = current === 'zh-CN' ? 'EN' : '中文';
+    langText.textContent = current === 'zh-CN' ? 'English' : '中文';
   }
 });
