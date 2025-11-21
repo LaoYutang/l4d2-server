@@ -693,7 +693,12 @@ function applyTranslations() {
       }
       // Handle regular text content
       else {
-        element.textContent = t_map[key];
+        // 如果包含HTML标签，使用innerHTML，否则使用textContent
+        if (t_map[key].includes('<')) {
+          element.innerHTML = t_map[key];
+        } else {
+          element.textContent = t_map[key];
+        }
       }
     }
   });
