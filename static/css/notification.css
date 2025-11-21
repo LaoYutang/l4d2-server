@@ -9,11 +9,11 @@
 }
 
 .notification {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 15px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   backdrop-filter: blur(15px);
   border: 2px solid rgba(102, 126, 234, 0.3);
   transform: translateX(120%);
@@ -29,23 +29,23 @@
 }
 
 .notification.success {
-  border-color: rgba(17, 153, 142, 0.5);
-  box-shadow: 0 20px 40px rgba(17, 153, 142, 0.1), 0 0 0 1px rgba(17, 153, 142, 0.1);
+  border-color: rgba(40, 167, 69, 0.5);
+  box-shadow: 0 20px 40px rgba(40, 167, 69, 0.1), 0 0 0 1px rgba(40, 167, 69, 0.1);
 }
 
 .notification.error {
-  border-color: rgba(255, 107, 107, 0.5);
-  box-shadow: 0 20px 40px rgba(255, 107, 107, 0.1), 0 0 0 1px rgba(255, 107, 107, 0.1);
+  border-color: rgba(220, 53, 69, 0.5);
+  box-shadow: 0 20px 40px rgba(220, 53, 69, 0.1), 0 0 0 1px rgba(220, 53, 69, 0.1);
 }
 
 .notification.warning {
-  border-color: rgba(240, 147, 251, 0.5);
-  box-shadow: 0 20px 40px rgba(240, 147, 251, 0.1), 0 0 0 1px rgba(240, 147, 251, 0.1);
+  border-color: rgba(255, 193, 7, 0.5);
+  box-shadow: 0 20px 40px rgba(255, 193, 7, 0.1), 0 0 0 1px rgba(255, 193, 7, 0.1);
 }
 
 .notification.info {
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.1), 0 0 0 1px rgba(102, 126, 234, 0.1);
+  border-color: rgba(23, 162, 184, 0.5);
+  box-shadow: 0 20px 40px rgba(23, 162, 184, 0.1), 0 0 0 1px rgba(23, 162, 184, 0.1);
 }
 
 .notification-header {
@@ -68,21 +68,21 @@
 }
 
 .notification.success .notification-icon {
-  background: rgba(17, 153, 142, 0.1);
+  background: rgba(40, 167, 69, 0.1);
 }
 
 .notification.error .notification-icon {
-  background: rgba(255, 107, 107, 0.1);
+  background: rgba(220, 53, 69, 0.1);
 }
 
 .notification.warning .notification-icon {
-  background: rgba(240, 147, 251, 0.1);
+  background: rgba(255, 193, 7, 0.1);
 }
 
 .notification-title {
   font-weight: 700;
   font-size: 16px;
-  color: #333;
+  color: var(--text-main);
   flex: 1;
 }
 

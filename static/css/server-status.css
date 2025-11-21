@@ -5,10 +5,10 @@
 }
 
 .server-status-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
   padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
@@ -31,7 +31,7 @@
 .server-status-title {
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -54,7 +54,7 @@
   width: 20px;
   height: 20px;
   border: 2px solid rgba(102, 126, 234, 0.2);
-  border-left-color: #667eea;
+  border-left-color: var(--primary-color);
   border-radius: 50%;
   animation: mini-spin 1s linear infinite;
 }
@@ -66,10 +66,10 @@
 
 .status-refresh-btn {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: var(--primary-gradient);
+  color: var(--text-light);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -80,7 +80,7 @@
 
 .status-refresh-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 15px var(--primary-shadow);
 }
 
 .status-refresh-btn:active {
@@ -97,7 +97,7 @@
 /* 自动刷新按钮样式 */
 .auto-refresh-btn {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #28a745, #20c997);
+  background: var(--success-gradient);
   color: white;
   border: none;
   border-radius: 10px;
