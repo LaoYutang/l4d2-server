@@ -46,10 +46,10 @@ class NotificationSystem {
     };
 
     const titles = {
-      success: title || '成功',
-      error: title || '错误',
-      warning: title || '警告',
-      info: title || '信息',
+      success: title || t('success'),
+      error: title || t('error'),
+      warning: title || t('warning'),
+      info: title || t('info'),
     };
 
     notification.innerHTML = `

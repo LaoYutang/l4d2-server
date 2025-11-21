@@ -26,18 +26,68 @@ body {
 }
 
 .header {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
   margin-bottom: 40px;
+  padding: 0 10px;
 }
 
 .header h1 {
+  flex: 1;
+  text-align: center;
   font-size: 2.5rem;
   font-weight: 700;
   background: linear-gradient(135deg, #667eea, #764ba2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 10px;
+  margin: 0;
+}
+
+.lang-switch-btn {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.lang-switch-btn::before {
+  content: '🌐';
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.lang-switch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.lang-switch-btn:hover::before {
+  transform: rotate(360deg);
+}
+
+.lang-switch-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* 为了保持标题居中，在左侧添加一个占位元素 */
+.header::before {
+  content: '';
+  flex-shrink: 0;
+  width: 120px; /* 与按钮大致相同的宽度 */
 }
 
 /* 表单样式 */
