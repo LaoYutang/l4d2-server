@@ -25,8 +25,8 @@ WORKDIR /root/steamcmd
 RUN wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && \
   tar -zxvf steamcmd_linux.tar.gz && \
   rm steamcmd_linux.tar.gz
-RUN ./steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir /l4d2 +login anonymous +app_update 222860 validate +quit
-RUN ./steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /l4d2 +login anonymous +app_update 222860 validate +quit
+RUN for i in 1 2 3 4 5; do ./steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir /l4d2 +login anonymous +app_update 222860 validate +quit && break || sleep 15; done
+RUN for i in 1 2 3; do ./steamcmd.sh +@sSteamCmdForcePlatformType linux +force_install_dir /l4d2 +login anonymous +app_update 222860 validate +quit && break || sleep 15; done
 
 # 复制插件包
 COPY ./cauldron/left4dead2/ /l4d2/left4dead2
