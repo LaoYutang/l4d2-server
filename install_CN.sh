@@ -50,6 +50,7 @@ services:
   l4d2:
     image: laoyutang/l4d2:nightly
     container_name: l4d2
+    restart: unless-stopped
     ports:
       - "$game_port:27015"
       - "$game_port:27015/udp"
@@ -69,12 +70,14 @@ services:
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
     container_name: l4d2-manager
+    restart: unless-stopped
     ports:
       - "$manager_port:27020"
     volumes:
       - addons:/addons
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      - L4D2_RESTART_BY_RCON=true
       - L4D2_MANAGER_PASSWORD=$admin_password
       - L4D2_RCON_PASSWORD=$L4D2_RCON_PASSWORD
       - L4D2_RCON_URL=l4d2:27015
