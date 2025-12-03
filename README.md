@@ -7,6 +7,8 @@ Quick deployment for Left 4 Dead 2 dedicated server.
 A complete Left 4 Dead 2 server image with integrated Douban plugin pack and numerous high-quality plugins, ready to use out of the box!
 Web management interface eliminates the need to log into the server for map uploads and restarts - everything can be done through the web interface! Supports map switching, download tasks, and server status display.
 
+> Note: The new version of Docker has modified the sock API version. To restart L4D2 using Docker containers, Docker version must be <=28. The deployment methods below have been modified to use RCON for compatibility with all versions.
+
 ## One-Click Deployment
 Requires Docker and Docker Compose environment with ability to pull images from Docker Hub (Chinese users may need to configure mirror sources or proxies).
 
@@ -31,6 +33,7 @@ docker volume create addons
 docker volume create cfg
 docker run -d \
   --name l4d2 \
+  --restart unless-stopped \
   -p 27015:27015 \
   -p 27015:27015/udp \
   -v addons:/l4d2/left4dead2/addons \
@@ -42,9 +45,11 @@ docker run -d \
 # Map manager (optional)
 docker run -d \
   --name l4d2-manager \
+  --restart unless-stopped \
   -p 27020:27020 \
   -v addons:/addons \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -e L4D2_RESTART_BY_RCON=true \
   -e L4D2_MANAGER_PASSWORD=your_web_password \
   -e L4D2_RCON_URL=localhost:27015 \
   -e L4D2_RCON_PASSWORD=your_rcon_password \
@@ -66,6 +71,7 @@ services:
   l4d2:
     image: laoyutang/l4d2:latest
     container_name: l4d2
+    restart: unless-stopped
     ports:
       - "27015:27015"
       - "27015:27015/udp"
@@ -82,12 +88,14 @@ services:
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
     container_name: l4d2-manager
+    restart: unless-stopped
     ports:
       - "27020:27020"
     volumes:
       - addons:/addons
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      - L4D2_RESTART_BY_RCON=true
       - L4D2_MANAGER_PASSWORD=[your_web_password]
       - L4D2_RCON_URL=l4d2:27015
       - L4D2_RCON_PASSWORD=[your_rcon_password]
