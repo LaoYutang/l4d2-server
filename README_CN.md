@@ -4,6 +4,8 @@
 完整的求生之路2服务端镜像，内置了完整的豆瓣整合包和大量优质插件，开箱即用！
 管理界面，不再需要登录服务器传图重启，页面操作即可！支持切图、下载任务与服务器状态显示。
 
+> 新版本的docker修改了sock的api版本，使用docker容器方式重启l4d2需要docker版本<=28，下方部署方式已经全部修改为RCON方式，以兼容所有版本
+
 ## 一键部署
 需要docker与docker compose环境，需要能够拉取镜像源，国内需要配置镜像源或代理。
 ```sh
@@ -22,6 +24,7 @@ docker volume create addons
 docker volume create cfg
 docker run -d \
   --name l4d2 \
+  --restart unless-stopped \
   -p 27015:27015 \
   -p 27015:27015/udp \
   -v addons:/l4d2/left4dead2/addons \
@@ -33,9 +36,11 @@ docker run -d \
 # 地图管理器，可选
 docker run -d \
   --name l4d2-manager \
+  --restart unless-stopped \
   -p 27020:27020 \
   -v addons:/addons \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -e L4D2_RESTART_BY_RCON=true \
   -e L4D2_MANAGER_PASSWORD=设置上传地图的密码 \
   -e L4D2_RCON_URL=localhost:27015 \
   -e L4D2_RCON_PASSWORD=rcon密码 \
@@ -55,6 +60,7 @@ services:
   l4d2:
     image: laoyutang/l4d2:latest
     container_name: l4d2
+    restart: unless-stopped
     ports:
       - "27015:27015"
       - "27015:27015/udp"
@@ -71,12 +77,14 @@ services:
   l4d2-manager:
     image: laoyutang/l4d2-manager:latest
     container_name: l4d2-manager
+    restart: unless-stopped
     ports:
       - "27020:27020"
     volumes:
       - addons:/addons
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      - L4D2_RESTART_BY_RCON=true
       - L4D2_MANAGER_PASSWORD=[web管理密码]
       - L4D2_RCON_URL=l4d2:27015
       - L4D2_RCON_PASSWORD=[rcon密码]
