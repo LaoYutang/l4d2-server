@@ -77,6 +77,8 @@ func GetChapterList() []*Campaign {
 				continue
 			}
 
+			campaign.VpkName = entry.Name()
+
 			// 如果已经存在相同的战役，则跳过
 			exist := false
 			for _, cam := range temp {
@@ -152,6 +154,7 @@ func mergeUniqueModes(modes1, modes2 []string) []string {
 type Campaign struct {
 	Title    string
 	Chapters []*Chapter
+	VpkName  string
 }
 
 type Chapter struct {

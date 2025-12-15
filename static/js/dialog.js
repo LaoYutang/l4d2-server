@@ -61,8 +61,10 @@ class RconMapsDialog {
     this.overlay = document.getElementById('rcon-maps-overlay');
     this.dialog = document.getElementById('rcon-maps-dialog');
     this.content = document.getElementById('rcon-maps-content');
+    this.stats = document.getElementById('rcon-maps-stats');
     this.loading = document.getElementById('rcon-maps-loading');
     this.closeButton = document.getElementById('rcon-maps-close');
+    this.searchInput = document.getElementById('rcon-maps-search-input');
     this.hideOfficialMaps = false;
     this.allMaps = [];
 
@@ -234,6 +236,12 @@ class RconMapsDialog {
     this.closeButton.addEventListener('click', () => {
       this.close();
     });
+
+    if (this.searchInput) {
+      this.searchInput.addEventListener('input', () => {
+        this.filterAndDisplayMaps();
+      });
+    }
   }
 
   async show() {
@@ -265,7 +273,7 @@ class RconMapsDialog {
 
       // 将服务器地图和官方地图合并为统一格式
       this.allMaps = this.mergeMapData(serverMaps);
-      this.displayMaps(this.getFilteredMaps());
+      this.filterAndDisplayMaps();
     } catch (error) {
       this.showError(error.message || error);
     }
@@ -300,6 +308,7 @@ class RconMapsDialog {
             Title: serverCampaign.Title || t('unknown_campaign'),
             Chapters: serverCampaign.Chapters || [],
             IsCustom: true,
+            VpkName: serverCampaign.VpkName,
           });
         }
       });
@@ -311,6 +320,7 @@ class RconMapsDialog {
             Title: campaign.Title || t('unknown_campaign'),
             Chapters: campaign.Chapters || [],
             IsCustom: true,
+            VpkName: campaign.VpkName,
           });
         });
       }
@@ -324,6 +334,27 @@ class RconMapsDialog {
       return this.allMaps.filter((map) => map.IsCustom);
     }
     return this.allMaps;
+  }
+
+  filterAndDisplayMaps() {
+    let filteredMaps = this.allMaps;
+
+    // 过滤官方地图
+    if (this.hideOfficialMaps) {
+      filteredMaps = filteredMaps.filter((map) => map.IsCustom);
+    }
+
+    // 搜索过滤
+    const searchTerm = this.searchInput ? this.searchInput.value.toLowerCase().trim() : '';
+    if (searchTerm) {
+      filteredMaps = filteredMaps.filter((map) => {
+        const titleMatch = (map.Title || '').toLowerCase().includes(searchTerm);
+        const vpkMatch = (map.VpkName || '').toLowerCase().includes(searchTerm);
+        return titleMatch || vpkMatch;
+      });
+    }
+
+    this.displayMaps(filteredMaps);
   }
 
   formatGameModes(modes) {
@@ -353,10 +384,11 @@ class RconMapsDialog {
 
   toggleOfficialMaps() {
     this.hideOfficialMaps = !this.hideOfficialMaps;
-    this.displayMaps(this.getFilteredMaps());
+    this.filterAndDisplayMaps();
   }
 
   showLoading() {
+    if (this.stats) this.stats.innerHTML = '';
     this.content.innerHTML = `
       <div class="rcon-maps-loading">
         <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
@@ -366,6 +398,7 @@ class RconMapsDialog {
   }
 
   showError(message) {
+    if (this.stats) this.stats.innerHTML = '';
     this.content.innerHTML = `
       <div class="rcon-maps-error">
         <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
@@ -380,6 +413,7 @@ class RconMapsDialog {
 
   displayMaps(maps) {
     if (this.allMaps.length === 0) {
+      if (this.stats) this.stats.innerHTML = '';
       this.content.innerHTML = `
         <div class="rcon-maps-error">
           <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
@@ -430,12 +464,19 @@ class RconMapsDialog {
           <div class="rcon-campaign-item">
             <div class="rcon-campaign-header" onclick="rconMapsDialog.toggleCampaign('${campaignId}')">
               <span class="rcon-campaign-toggle" id="${campaignId}-toggle">▶</span>
-              <span class="rcon-campaign-name">
-                ${campaignIcon} ${campaignTitle}
+              <span class="rcon-campaign-name" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.2;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 1.1em;">
+                  ${campaignIcon} ${campaignTitle}
+                  ${
+                    isOfficial
+                      ? `<span class="official-badge">${t('official_badge')}</span>`
+                      : `<span class="custom-badge">${t('custom_badge')}</span>`
+                  }
+                </span>
                 ${
-                  isOfficial
-                    ? `<span class="official-badge">${t('official_badge')}</span>`
-                    : `<span class="custom-badge">${t('custom_badge')}</span>`
+                  !isOfficial && campaign.VpkName
+                    ? `<span style="color: #999; font-size: 0.75em; font-weight: normal; margin-top: 2px;">${campaign.VpkName}</span>`
+                    : ''
                 }
               </span>
               <span class="rcon-chapter-count">${t(
@@ -451,27 +492,30 @@ class RconMapsDialog {
       })
       .join('');
 
-    this.content.innerHTML = `
-      <div style="margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <div style="color: #667eea; font-weight: 600; font-size: 14px;">
-            ${t('map_stats', this.allMaps.length, officialCount, customCount)}
+    if (this.stats) {
+      this.stats.innerHTML = `
+        <div style="padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="color: #667eea; font-weight: 600; font-size: 14px;">
+              ${t('map_stats', this.allMaps.length, officialCount, customCount)}
+            </div>
+            <button onclick="rconMapsDialog.toggleOfficialMaps()" 
+                    style="padding: 6px 12px; background: ${
+                      this.hideOfficialMaps ? '#ff9a9e' : '#667eea'
+                    }; 
+                           color: white; border: none; border-radius: 6px; font-size: 12px; 
+                           font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+              ${this.hideOfficialMaps ? t('show_official_maps') : t('hide_official_maps')}
+            </button>
           </div>
-          <button onclick="rconMapsDialog.toggleOfficialMaps()" 
-                  style="padding: 6px 12px; background: ${
-                    this.hideOfficialMaps ? '#ff9a9e' : '#667eea'
-                  }; 
-                         color: white; border: none; border-radius: 6px; font-size: 12px; 
-                         font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-            ${this.hideOfficialMaps ? t('show_official_maps') : t('hide_official_maps')}
-          </button>
+          <div style="color: #666; font-size: 14px;">
+            ${t('map_list_tip', maps.length)}
+          </div>
         </div>
-        <div style="color: #666; font-size: 14px;">
-          ${t('map_list_tip', maps.length)}
-        </div>
-      </div>
-      ${mapsHtml}
-    `;
+      `;
+    }
+
+    this.content.innerHTML = mapsHtml;
   }
 
   toggleCampaign(campaignId) {
