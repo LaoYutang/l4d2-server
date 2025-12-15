@@ -138,6 +138,7 @@ const translations = {
     password_verification_failed: '密码验证失败',
     switch_map_confirm_message: '确定要切换到地图 "{0}" 吗？\n切换地图将重新开始游戏。',
     switch_map_title: '切换地图',
+    search_maps_placeholder: '搜索地图或文件名...',
     switch_map_success: '地图切换成功',
     kick_user_confirm_message: '确定要踢出玩家 "{0}" (#{1}) 吗？',
     kick_user_title: '踢出玩家',
