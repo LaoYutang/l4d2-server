@@ -300,6 +300,7 @@ class RconMapsDialog {
             Title: serverCampaign.Title || t('unknown_campaign'),
             Chapters: serverCampaign.Chapters || [],
             IsCustom: true,
+            VpkName: serverCampaign.VpkName,
           });
         }
       });
@@ -311,6 +312,7 @@ class RconMapsDialog {
             Title: campaign.Title || t('unknown_campaign'),
             Chapters: campaign.Chapters || [],
             IsCustom: true,
+            VpkName: campaign.VpkName,
           });
         });
       }
@@ -430,12 +432,19 @@ class RconMapsDialog {
           <div class="rcon-campaign-item">
             <div class="rcon-campaign-header" onclick="rconMapsDialog.toggleCampaign('${campaignId}')">
               <span class="rcon-campaign-toggle" id="${campaignId}-toggle">▶</span>
-              <span class="rcon-campaign-name">
-                ${campaignIcon} ${campaignTitle}
+              <span class="rcon-campaign-name" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.2;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 1.1em;">
+                  ${campaignIcon} ${campaignTitle}
+                  ${
+                    isOfficial
+                      ? `<span class="official-badge">${t('official_badge')}</span>`
+                      : `<span class="custom-badge">${t('custom_badge')}</span>`
+                  }
+                </span>
                 ${
-                  isOfficial
-                    ? `<span class="official-badge">${t('official_badge')}</span>`
-                    : `<span class="custom-badge">${t('custom_badge')}</span>`
+                  !isOfficial && campaign.VpkName
+                    ? `<span style="color: #999; font-size: 0.75em; font-weight: normal; margin-top: 2px;">${campaign.VpkName}</span>`
+                    : ''
                 }
               </span>
               <span class="rcon-chapter-count">${t(
