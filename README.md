@@ -108,6 +108,7 @@ services:
 ### L4D2 Server
 - `L4D2_TICK`: Game tickrate (optional, default: 60, options: 30/60/100)
 - `L4D2_RCON_PASSWORD`: RCON password (required)
+- `L4D2_PORT`: Game port (optional, default: 27015)
 
 ### L4D2 Manager
 - `L4D2_MANAGER_PASSWORD`: Web manager password (required)

@@ -65,7 +65,11 @@ else
     sed -i "s/^rcon_password .*/rcon_password \"laoyutangnb!\"/" /l4d2/left4dead2/cfg/server.cfg
 fi
 
+# 设置服务器端口，环境变量L4D2_PORT
+SERVER_PORT=${L4D2_PORT:-27015}
+echo "设置服务器端口为: ${SERVER_PORT}"
+
 echo "文件检查和初始化完成，启动服务器..."
 
 # 启动L4D2服务器
-cd /l4d2 && ./srcds_run -game left4dead2 -insecure -tickrate "${REAL_TICK}" -condebug +hostport 27015 +exec server.cfg
+cd /l4d2 && ./srcds_run -game left4dead2 -insecure -tickrate "${REAL_TICK}" -condebug +hostport "${SERVER_PORT}" +exec server.cfg

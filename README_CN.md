@@ -96,6 +96,7 @@ services:
 ### L4D2
 - L4D2_TICK: 游戏 tickrate，可选，默认为 60
 - L4D2_RCON_PASSWORD: RCON 密码，必填
+- L4D2_PORT: 游戏端口，可选，默认为 27015
 ### L4D2-MANAGER
 - L4D2_MANAGER_PASSWORD: 管理器密码，必填
 - L4D2_RCON_URL: RCON 地址，可选，否则不支持状态获取与切图功能
