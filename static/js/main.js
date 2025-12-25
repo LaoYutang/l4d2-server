@@ -592,8 +592,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // 过滤出支持的文件类型
       const validFiles = Array.from(files).filter((file) => {
-        const extension = file.name.toLowerCase().split('.').pop();
-        return extension === 'vpk' || extension === 'zip';
+        const extension = file.name.toLowerCase().split('.').pop().trim();
+        return (
+          extension === 'vpk' || extension === 'zip' || extension === 'rar' || extension === '7z'
+        );
       });
 
       if (validFiles.length > 0) {

@@ -28,10 +28,13 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	vpkReg := regexp.MustCompile(`\.(vpk|zip)$`)
+	vpkReg := regexp.MustCompile(`\.(vpk|zip|rar|7z)$`)
 	zipReg := regexp.MustCompile(`\.zip$`)
-	if !vpkReg.Match([]byte(file.Filename)) && !zipReg.Match([]byte(file.Filename)) {
-		c.String(http.StatusBadRequest, "错误的文件类型，只支持vpk或zip文件")
+	rarReg := regexp.MustCompile(`\.rar$`)
+	sevenZipReg := regexp.MustCompile(`\.7z$`)
+
+	if !vpkReg.Match([]byte(file.Filename)) {
+		c.String(http.StatusBadRequest, "错误的文件类型，只支持vpk, zip, rar, 7z文件")
 		return
 	}
 
@@ -43,6 +46,28 @@ func Upload(c *gin.Context) {
 	// 处理zip文件
 	if zipReg.Match([]byte(file.Filename)) {
 		if err := handleZipFile(c, file); err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+		c.String(http.StatusOK, "上传并解压成功！")
+		runtime.GC()
+		return
+	}
+
+	// 处理rar文件
+	if rarReg.Match([]byte(file.Filename)) {
+		if err := handleRarFile(c, file); err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+		c.String(http.StatusOK, "上传并解压成功！")
+		runtime.GC()
+		return
+	}
+
+	// 处理7z文件
+	if sevenZipReg.Match([]byte(file.Filename)) {
+		if err := handle7zFile(c, file); err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -89,4 +114,28 @@ func handleZipFile(c *gin.Context, file *multipart.FileHeader) error {
 
 	// 使用共用的zip文件处理方法
 	return ProcessZipFile(tempZipPath)
+}
+
+func handleRarFile(c *gin.Context, file *multipart.FileHeader) error {
+	// 保存临时rar文件
+	tempRarPath := filepath.Join(consts.BasePath, "temp_"+file.Filename)
+	if err := c.SaveUploadedFile(file, tempRarPath); err != nil {
+		return err
+	}
+	defer os.Remove(tempRarPath) // 清理临时文件
+
+	// 使用共用的rar文件处理方法
+	return ProcessRarFile(tempRarPath)
+}
+
+func handle7zFile(c *gin.Context, file *multipart.FileHeader) error {
+	// 保存临时7z文件
+	temp7zPath := filepath.Join(consts.BasePath, "temp_"+file.Filename)
+	if err := c.SaveUploadedFile(file, temp7zPath); err != nil {
+		return err
+	}
+	defer os.Remove(temp7zPath) // 清理临时文件
+
+	// 使用共用的7z文件处理方法
+	return Process7zFile(temp7zPath)
 }
