@@ -12,6 +12,8 @@ import (
 	"strings"
 
 	"github.com/axgle/mahonia"
+	"github.com/bodgit/sevenzip"
+	"github.com/nwaples/rardecode"
 )
 
 var chineseDecoder = mahonia.NewDecoder("gbk")
@@ -85,21 +87,33 @@ func sanitizeFilename(filename string) string {
 	return cleanName + ext
 }
 
-// ProcessFile 处理文件（vpk或zip），统一的文件处理入口
+// ProcessFile 处理文件（vpk或zip或rar或7z），统一的文件处理入口
 func ProcessFile(filePath string) error {
 	fileName := filepath.Base(filePath)
 
 	// 检查文件类型
 	vpkReg := regexp.MustCompile(`\.vpk$`)
 	zipReg := regexp.MustCompile(`\.zip$`)
+	rarReg := regexp.MustCompile(`\.rar$`)
+	sevenZipReg := regexp.MustCompile(`\.7z$`)
 
-	if !vpkReg.MatchString(fileName) && !zipReg.MatchString(fileName) {
-		return errors.New("不支持的文件类型，只支持vpk或zip文件")
+	if !vpkReg.MatchString(fileName) && !zipReg.MatchString(fileName) && !rarReg.MatchString(fileName) && !sevenZipReg.MatchString(fileName) {
+		return errors.New("不支持的文件类型，只支持vpk, zip, rar, 7z文件")
 	}
 
 	// 处理zip文件 - 解压并提取vpk文件
 	if zipReg.MatchString(fileName) {
 		return ProcessZipFile(filePath)
+	}
+
+	// 处理rar文件
+	if rarReg.MatchString(fileName) {
+		return ProcessRarFile(filePath)
+	}
+
+	// 处理7z文件
+	if sevenZipReg.MatchString(fileName) {
+		return Process7zFile(filePath)
 	}
 
 	// 处理vpk文件 - 直接移动到目标目录
@@ -148,6 +162,136 @@ func ProcessZipFile(zipPath string) error {
 
 	if len(extractedFiles) == 0 {
 		return errors.New("zip文件中未找到vpk文件")
+	}
+
+	// 记录所有解压的vpk文件
+	for _, fileName := range extractedFiles {
+		if err := recordMap(fileName); err != nil {
+			return fmt.Errorf("记录地图失败: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// ProcessRarFile 处理rar文件
+func ProcessRarFile(rarPath string) error {
+	// 打开rar文件
+	file, err := os.Open(rarPath)
+	if err != nil {
+		return fmt.Errorf("打开rar文件失败: %v", err)
+	}
+	defer file.Close()
+
+	rr, err := rardecode.NewReader(file, "")
+	if err != nil {
+		return fmt.Errorf("创建rar读取器失败: %v", err)
+	}
+
+	vpkReg := regexp.MustCompile(`\.vpk$`)
+	var extractedFiles []string
+
+	for {
+		header, err := rr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("读取rar内容失败: %v", err)
+		}
+
+		if header.IsDir {
+			continue
+		}
+
+		if vpkReg.MatchString(header.Name) {
+			// 清理文件名
+			cleanName := sanitizeFilename(filepath.Base(header.Name))
+
+			// 检查文件是否已存在
+			if err := checkMapExists(cleanName); err != nil {
+				return err
+			}
+
+			// 解压文件到目标目录
+			destPath := filepath.Join(consts.BasePath, cleanName)
+			outFile, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			if err != nil {
+				return fmt.Errorf("创建目标文件失败: %v", err)
+			}
+
+			if _, err := io.Copy(outFile, rr); err != nil {
+				outFile.Close()
+				return fmt.Errorf("写入文件失败: %v", err)
+			}
+			outFile.Close()
+
+			extractedFiles = append(extractedFiles, cleanName)
+		}
+	}
+
+	if len(extractedFiles) == 0 {
+		return errors.New("rar文件中未找到vpk文件")
+	}
+
+	// 记录所有解压的vpk文件
+	for _, fileName := range extractedFiles {
+		if err := recordMap(fileName); err != nil {
+			return fmt.Errorf("记录地图失败: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// Process7zFile 处理7z文件
+func Process7zFile(sevenZipPath string) error {
+	r, err := sevenzip.OpenReader(sevenZipPath)
+	if err != nil {
+		return fmt.Errorf("打开7z文件失败: %v", err)
+	}
+	defer r.Close()
+
+	vpkReg := regexp.MustCompile(`\.vpk$`)
+	var extractedFiles []string
+
+	for _, f := range r.File {
+		if vpkReg.MatchString(f.Name) {
+			// 清理文件名
+			cleanName := sanitizeFilename(filepath.Base(f.Name))
+
+			// 检查文件是否已存在
+			if err := checkMapExists(cleanName); err != nil {
+				return err
+			}
+
+			// 解压文件到目标目录
+			destPath := filepath.Join(consts.BasePath, cleanName)
+
+			rc, err := f.Open()
+			if err != nil {
+				return fmt.Errorf("打开7z内部文件失败: %v", err)
+			}
+
+			outFile, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+			if err != nil {
+				rc.Close()
+				return fmt.Errorf("创建目标文件失败: %v", err)
+			}
+
+			_, err = io.Copy(outFile, rc)
+			outFile.Close()
+			rc.Close()
+			if err != nil {
+				return fmt.Errorf("写入文件失败: %v", err)
+			}
+
+			extractedFiles = append(extractedFiles, cleanName)
+		}
+	}
+
+	if len(extractedFiles) == 0 {
+		return errors.New("7z文件中未找到vpk文件")
 	}
 
 	// 记录所有解压的vpk文件
