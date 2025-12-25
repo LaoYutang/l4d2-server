@@ -129,7 +129,7 @@ services:
 
 ### Using Map Manager (Recommended)
 1. Access web interface: `http://your_ip:27020`
-2. Select map VPK or ZIP files (multiple selection supported)
+2. Select map VPK or ZIP/RAR/7Z files (multiple selection supported)
 3. Click upload
 4. Click restart server to reload maps
 5. Click view to load maps list, then switch to desired map
