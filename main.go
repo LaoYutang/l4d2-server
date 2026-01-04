@@ -64,5 +64,9 @@ func main() {
 	router.POST("/getUserPlaytime", middlewares.Auth(privateKey), controller.GetUserPlaytime)
 	router.POST("/rcon", middlewares.Auth(privateKey), controller.Rcon)
 
-	router.Run(":27020")
+	port := os.Getenv("L4D2_MANAGER_PORT")
+	if port == "" {
+		port = "27020"
+	}
+	router.Run(":" + port)
 }
