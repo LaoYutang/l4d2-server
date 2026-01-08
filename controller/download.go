@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"l4d2-manager/consts"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -142,7 +143,7 @@ func (dt *downloadTask) download() {
 	}
 
 	// 从URL中提取文件名
-	fileName := dt.getFileNameFromURL()
+	fileName := dt.determineFileName(resp)
 	if fileName == "" {
 		fileName = "downloaded_file"
 	}
@@ -232,6 +233,31 @@ func (dt *downloadTask) download() {
 		dt.speedUpdateTimer.Stop()
 	}
 
+	// 显式关闭文件以进行检查
+	file.Close()
+
+	// 检查是否为VPK文件（魔数检查）
+	if f, err := os.Open(filePath); err == nil {
+		magic := make([]byte, 4)
+		if _, err := io.ReadFull(f, magic); err == nil {
+			// VPK Signature: 0x55aa1234 (Little Endian: 34 12 aa 55)
+			if magic[0] == 0x34 && magic[1] == 0x12 && magic[2] == 0xaa && magic[3] == 0x55 {
+				f.Close() // 关闭以便重命名
+				// 如果不是以.vpk结束，则添加后缀
+				if filepath.Ext(filePath) != ".vpk" {
+					newPath := filePath + ".vpk"
+					if err := os.Rename(filePath, newPath); err == nil {
+						filePath = newPath
+					}
+				}
+			} else {
+				f.Close()
+			}
+		} else {
+			f.Close()
+		}
+	}
+
 	// 下载完成后处理文件
 	if err := ProcessFile(filePath); err != nil {
 		dt.message = fmt.Sprintf("文件处理失败: %v", err)
@@ -240,15 +266,31 @@ func (dt *downloadTask) download() {
 	}
 }
 
-// 从URL中提取文件名
-func (dt *downloadTask) getFileNameFromURL() string {
+// 确定文件名
+func (dt *downloadTask) determineFileName(resp *http.Response) string {
+	// 1. 尝试从Content-Disposition获取
+	contentDisposition := resp.Header.Get("Content-Disposition")
+	if contentDisposition != "" {
+		_, params, err := mime.ParseMediaType(contentDisposition)
+		if err == nil {
+			if filename, ok := params["filename"]; ok && filename != "" {
+				return filename
+			}
+		}
+	}
+
+	// 2. 从URL中提取文件名
 	// 移除查询参数
 	url := strings.Split(dt.url, "?")[0]
 	// 提取最后一部分作为文件名
 	parts := strings.Split(url, "/")
 	if len(parts) > 0 {
-		return parts[len(parts)-1]
+		name := parts[len(parts)-1]
+		if name != "" {
+			return name
+		}
 	}
+
 	return ""
 }
 
