@@ -1,3 +1,6 @@
+> [!WARNING]
+> This repository is no longer updated. Please check the refactored panel at [l4d2-server-next](https://github.com/LaoYutang/l4d2-server-next).
+
 # L4D2 Server
 
 [中文文档](./README_CN.md)
