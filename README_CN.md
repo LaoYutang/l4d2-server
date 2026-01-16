@@ -1,3 +1,6 @@
+> [!WARNING]
+> 该仓库已经停止更新，重构面板查看 [l4d2-server-next](https://github.com/LaoYutang/l4d2-server-next).
+
 # l4d2-server
 求生2服务器快速启动
 
