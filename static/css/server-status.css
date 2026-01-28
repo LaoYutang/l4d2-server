@@ -1,0 +1,538 @@
+/* 服务器状态卡片样式 */
+.server-status-section {
+  max-width: 1400px;
+  margin: 40px auto 0;
+}
+
+.server-status-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.server-status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.server-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  padding-bottom: 15px;
+}
+
+.server-status-title {
+  font-size: 24px;
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 标题容器样式 */
+.server-status-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 小loading指示器样式 */
+.server-status-mini-loading {
+  display: flex;
+  align-items: center;
+}
+
+.mini-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-left-color: var(--primary-color);
+  border-radius: 50%;
+  animation: mini-spin 1s linear infinite;
+}
+
+@keyframes mini-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.status-refresh-btn {
+  padding: 12px 20px;
+  background: var(--primary-gradient);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px var(--primary-shadow);
+}
+
+.status-refresh-btn:active {
+  transform: translateY(0);
+}
+
+/* 按钮容器样式 */
+.status-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 自动刷新按钮样式 */
+.auto-refresh-btn {
+  padding: 12px 20px;
+  background: var(--success-gradient);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auto-refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(40, 167, 69, 0.3);
+}
+
+.auto-refresh-btn:active {
+  transform: translateY(0);
+}
+
+.auto-refresh-btn.active {
+  background: linear-gradient(135deg, #dc3545, #fd7e14);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+
+.server-status-content {
+  min-height: 200px;
+}
+
+.server-status-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.server-status-error {
+  text-align: center;
+  padding: 40px;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+/* 基本信息容器 */
+.basic-info-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+/* 状态属性框样式 - 适用于主页面 */
+.server-status-content .status-property-box {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 15px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.server-status-content .status-property-box:hover {
+  background: rgba(102, 126, 234, 0.08);
+  border-color: rgba(102, 126, 234, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+}
+
+.server-status-content .status-property-header {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 15px 20px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.server-status-content .status-property-content {
+  padding: 20px;
+}
+
+.server-status-content .status-property-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  text-align: center;
+}
+
+/* 难度值带按钮的样式 */
+.server-status-content .status-property-value-with-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.server-status-content .status-property-value-with-button .status-property-value {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  padding: 0;
+  border: none;
+  text-align: left;
+}
+
+/* 用户框样式 - 适用于主页面 */
+.server-status-content .users-container {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  max-width: 100%;
+  justify-content: start;
+}
+
+.server-status-content .users-container.single-user {
+  justify-content: start;
+  grid-template-columns: minmax(320px, 400px);
+  max-width: 400px;
+}
+
+.server-status-content .user-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  padding: 15px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.server-status-content .user-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(102, 126, 234, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.1);
+}
+
+.server-status-content .user-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.server-status-content .user-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.server-status-content .user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.server-status-content .user-playtime-btn {
+  position: static;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #5352ed;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0.7;
+  transform: scale(1);
+  border: 1px solid rgba(83, 82, 237, 0.2);
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+
+.server-status-content .user-card:hover .user-playtime-btn {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.server-status-content .user-playtime-btn:hover {
+  background: linear-gradient(135deg, #5352ed, #3c40c6) !important;
+  color: white !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 15px rgba(83, 82, 237, 0.4);
+  opacity: 1;
+  border-color: #5352ed;
+}
+
+.server-status-content .user-playtime-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.server-status-content .user-playtime-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: scale(0.9);
+  background: rgba(200, 200, 200, 0.5) !important;
+  color: #999 !important;
+}
+
+.server-status-content .user-kick-btn {
+  position: static;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #ff4757;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0.7;
+  transform: scale(1);
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+
+.server-status-content .user-card:hover .user-kick-btn {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.server-status-content .user-kick-btn:hover {
+  background: linear-gradient(135deg, #ff4757, #ff3838) !important;
+  color: white !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+  opacity: 1;
+  border-color: #ff4757;
+}
+
+.server-status-content .user-kick-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.server-status-content .user-kick-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: scale(0.9);
+  background: rgba(200, 200, 200, 0.5) !important;
+  color: #999 !important;
+}
+
+.server-status-content .user-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.server-status-content .user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.server-status-content .user-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.server-status-content .user-id {
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.server-status-content .user-details {
+  display: grid;
+  gap: 6px;
+}
+
+.server-status-content .user-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.server-status-content .user-detail-label {
+  color: #555;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.server-status-content .user-detail-value {
+  color: #333;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.server-status-content .steamid {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-status-content .users-empty {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  border: 1px dashed rgba(102, 126, 234, 0.2);
+}
+
+/* 响应式设计 */
+@media (min-width: 1600px) {
+  .server-status-section {
+    max-width: 1500px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .server-status-section {
+    max-width: 1700px;
+  }
+}
+
+/* 平板和小屏幕优化 - 单列显示 */
+@media (max-width: 900px) {
+  .server-status-content .users-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .server-status-content .users-container.single-user {
+    grid-template-columns: 1fr !important;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .server-status-section {
+    margin: 30px 10px 0;
+  }
+  
+  .server-status-card {
+    padding: 20px;
+  }
+  
+  .server-status-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .server-status-title-container {
+    justify-content: center;
+  }
+
+  .status-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .status-refresh-btn,
+  .auto-refresh-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .basic-info-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .server-status-content .users-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .server-status-content .users-container.single-user {
+    grid-template-columns: 1fr !important;
+    max-width: 100%;
+  }
+}

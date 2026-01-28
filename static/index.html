@@ -1,141 +1,785 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>L4D2地图管理</title>
-    <style>
-      .loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 100vw;
-        z-index: 1000;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        background-color: #ffffffaa;
-      }
-    </style>
+    <title>L4D2管理器</title>
+
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/loading.css" />
+    <link rel="stylesheet" href="css/notification.css" />
+    <link rel="stylesheet" href="css/dialog.css" />
+    <link rel="stylesheet" href="css/server-status.css" />
+    <link rel="stylesheet" href="css/footer.css" />
+    <script src="js/i18n.js"></script>
   </head>
   <body>
+    <div class="container">
+      <div class="header">
+        <h1 data-i18n="title">L4D2管理器</h1>
+        <button id="lang-switch" class="lang-switch-btn" onclick="toggleLanguage()">
+          <span id="lang-text">English</span>
+        </button>
+      </div>
 
-    <label>密码</label>
-    <input id="password" type="password"></input>
-    <br></br>
-    <label>地图</label>
-    <input id="map" type="file" accept=".vpk"></input>
-    <br></br>
-    <button id="upload" onclick="uploadHandler()">上传地图</button>
-    <button id="restart" onclick="restartHandler()">重启服务器</button>
-    <button id="clear" onclick="clearHandler()">清空地图目录</button>
+      <div class="form-section">
+        <div class="form-group">
+          <label data-i18n="password_label">密码</label>
+          <input
+            id="password"
+            type="password"
+            data-i18n="password_placeholder"
+            placeholder="请输入管理密码或授权码"
+          />
+        </div>
+      </div>
 
-    <br></br>
-
-    <div>服务器地图列表</div>
-    <div id="list"></div>
-
-
-    <div id="loading" class="loading">
-      <img src="./images/loading.gif"></img>
-      <div id="loading-text"></div>
+      <div class="button-group">
+        <button
+          id="map-management"
+          class="btn btn-primary"
+          onclick="showMapManagementHandler()"
+          data-i18n="map_management"
+        >
+          🗺️ 地图管理
+        </button>
+        <button id="restart" class="btn btn-warning" data-i18n="restart_server">
+          🔄 重启服务器
+        </button>
+        <button
+          id="rcon-maps"
+          class="btn btn-primary"
+          onclick="showRconMapsHandler()"
+          data-i18n="switch_map"
+        >
+          🎮 切换地图
+        </button>
+        <button
+          id="rcon-command"
+          class="btn btn-info"
+          onclick="showRconCommandHandler()"
+          data-i18n="rcon_command"
+        >
+          🎛️ RCON命令
+        </button>
+        <button
+          id="auth-code"
+          class="btn btn-success"
+          onclick="showAuthCodeHandler()"
+          data-i18n="generate_auth_code"
+        >
+          🔑 生成授权码
+        </button>
+      </div>
     </div>
-    <script>
-      const upload = document.getElementById("upload")
-      const restart = document.getElementById("restart")
-      const clear = document.getElementById("clear")
-      const password = document.getElementById("password")
-      const map = document.getElementById("map")
-      const list = document.getElementById("list")
 
-      // 更新list
-      const updateList= () => {
-        fetch("/list", {
-        method: "post"
-      }).then(async res => {
-        const text = await res.text()
-        list.innerText = text
-      }).catch(err => {
-        alert(err)
-      })
-      }
-      updateList()
+    <!-- 服务器状态卡片 -->
+    <div class="server-status-section">
+      <div class="server-status-card">
+        <div class="server-status-header">
+          <div class="server-status-title-container">
+            <div class="server-status-title" data-i18n="server_status">🖥️ 服务器状态</div>
+            <div
+              id="server-status-mini-loading"
+              class="server-status-mini-loading"
+              style="display: none"
+            >
+              <div class="mini-loading-spinner"></div>
+            </div>
+          </div>
+          <div class="status-buttons">
+            <button
+              id="status-refresh-main"
+              class="status-refresh-btn"
+              onclick="refreshServerStatus()"
+              data-i18n="refresh_status"
+            >
+              🔄 刷新状态
+            </button>
+            <button
+              id="auto-refresh-toggle"
+              class="auto-refresh-btn"
+              onclick="toggleAutoRefresh()"
+              data-i18n="auto_refresh_title"
+              title="开启/关闭自动刷新 (每5秒)"
+            >
+              <span data-i18n="auto_refresh">⏱️ 自动刷新</span>
+            </button>
+          </div>
+        </div>
+        <div id="server-status-content" class="server-status-content">
+          <div id="server-status-loading" class="server-status-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div data-i18n="fetching_status">获取服务器状态中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      const uploadHandler = () => {
-        if (map.files.length === 0) {
-          alert("未选择文件！")
-          return
-        }
-        showLoading("上传中...")
-        fetchServer("/upload").then(async res => {
-          const text = await res.text()
-          updateList()
-          alert(text)
-        }).catch(err => {
-          alert(err)
-        }).finally(() => {
-          hiddenLoading()
-        })
-      }
+    <!-- 加载动画 -->
+    <div id="loading" class="loading">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-dots">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <div id="loading-text" class="loading-text" data-i18n="loading">加载中...</div>
+        <div class="loading-progress">
+          <div id="loading-progress-bar" class="loading-progress-bar"></div>
+          <div id="loading-progress-text" class="loading-progress-text">0%</div>
+        </div>
+      </div>
+    </div>
 
-      const restartHandler = () => {
-        const ok = confirm("确认是否重启服务器！")
-        if (!ok) return
+    <!-- 通知容器 -->
+    <div id="notification-container" class="notification-container"></div>
 
-        showLoading("重启中...")
-        fetchServer("/restart").then(async res => {
-          const text = await res.text()
-          alert(text)
-        }).catch(err => {
-          alert(err)
-        }).finally(() => {
-          hiddenLoading()
-        })
-      }
+    <!-- 地图管理弹框 -->
+    <div id="map-management-overlay" class="map-management-overlay">
+      <div id="map-management-dialog" class="map-management-dialog">
+        <div class="map-management-header">
+          <div class="map-management-title" data-i18n="map_management_dialog_title">
+            🗺️ 地图管理
+          </div>
+          <button id="map-management-close" class="map-management-close">×</button>
+        </div>
+        <div class="map-management-content">
+          <!-- 文件上传区域 -->
+          <div class="upload-section">
+            <div class="form-group">
+              <label data-i18n="map_file_label">地图文件</label>
+              <div class="file-input-wrapper">
+                <input id="map" type="file" accept=".vpk,.zip,.rar,.7z" multiple />
+                <div class="file-input-button" onclick="document.getElementById('map').click()">
+                  <span class="file-input-icon">📁</span>
+                  <div class="file-input-text" data-i18n="select_map_file">选择地图文件</div>
+                  <div class="file-input-hint" data-i18n="file_format_hint">
+                    支持 vpk/zip/rar/7z 格式，可多选，可拖拽上传
+                  </div>
+                </div>
+                <div id="file-selected-info" class="file-selected-info">
+                  <div id="file-count" class="file-count"></div>
+                  <div id="file-list" class="file-list"></div>
+                </div>
+              </div>
+            </div>
 
-      const clearHandler = () => {
-        const ok = confirm("确认是否清空地图目录！")
-        if (!ok) return
-        showLoading("清理中...")
-        fetchServer("/clear").then(async res => {
-          const text = await res.text()
-          updateList()
-          alert(text)
-        }).catch(err => {
-          alert(err)
-        }).finally(() => {
-          hiddenLoading()
-        })
-      }
+            <!-- 操作按钮 -->
+            <div class="map-actions">
+              <button id="upload" class="btn btn-primary" data-i18n="upload_map_btn">
+                📤 上传地图
+              </button>
+              <button id="clear" class="btn btn-danger" data-i18n="clear_directory_btn">
+                🗑️ 清空目录
+              </button>
+              <button
+                id="download-management"
+                class="btn btn-info"
+                data-i18n="download_management_btn"
+              >
+                📥 下载任务管理
+              </button>
+            </div>
+          </div>
 
-      const loadingText = document.getElementById("loading-text")
-      const loading = document.getElementById("loading")
-      function showLoading (text) {
-        loadingText.innerText = text
-        loading.style.display = "flex"
-      }
-      function hiddenLoading () {
-        loading.style.display = "none"
-      }
+          <!-- 地图列表区域 -->
+          <div class="map-list-section">
+            <div class="map-list-header">
+              <div class="header-left">
+                <div class="section-title" data-i18n="server_map_list">服务器地图列表</div>
+                <div class="map-count-display">
+                  <span id="map-count-text">总计: 0 个文件</span>
+                </div>
+              </div>
+              <div class="header-right">
+                <div class="filter-input-wrapper">
+                  <input
+                    id="map-filter"
+                    type="text"
+                    data-i18n="filter_maps_placeholder"
+                    placeholder="筛选地图..."
+                    class="filter-input"
+                  />
+                  <button
+                    id="clear-filter"
+                    class="clear-filter-btn"
+                    data-i18n="clear_filter_title"
+                    title="清空筛选"
+                  >
+                    ×
+                  </button>
+                </div>
+                <button
+                  id="refresh-map-list"
+                  class="btn btn-secondary"
+                  data-i18n="refresh_map_list_title"
+                  title="刷新地图列表"
+                >
+                  <span data-i18n="refresh_btn">🔄 刷新</span>
+                </button>
+              </div>
+            </div>
+            <div id="modal-list" class="map-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      function fetchServer(path) {
-        if (password.value === "") {
-          return Promise.reject("密码不能为空！")
-        }
-        const fd = new FormData()
-        fd.append("password", password.value)
-        if (path === '/upload') {
-          fd.append("map", map.files[0])
-        }
-        
-        return fetch(path, {
-          method: "POST",
-          body: fd,
-        })
-      }
+    <!-- 确认对话框 -->
+    <div id="confirm-overlay" class="confirm-overlay">
+      <div id="confirm-dialog" class="confirm-dialog">
+        <div class="confirm-icon">⚠️</div>
+        <div id="confirm-title" class="confirm-title" data-i18n="confirm_action">确认操作</div>
+        <div id="confirm-message" class="confirm-message">您确定要执行此操作吗？</div>
+        <div class="confirm-actions">
+          <button id="confirm-yes" class="confirm-btn confirm-btn-primary" data-i18n="confirm">
+            确认
+          </button>
+          <button id="confirm-no" class="confirm-btn confirm-btn-secondary" data-i18n="cancel">
+            取消
+          </button>
+        </div>
+      </div>
+    </div>
 
-    </script>
+    <!-- RCON地图列表模态框 -->
+    <div id="rcon-maps-overlay" class="rcon-maps-overlay">
+      <div id="rcon-maps-dialog" class="rcon-maps-dialog">
+        <div class="rcon-maps-header">
+          <div class="rcon-maps-title" data-i18n="campaign_map_list">🎮 战役地图列表</div>
+          <button id="rcon-maps-close" class="rcon-maps-close">×</button>
+        </div>
+        <div id="rcon-maps-stats" style="margin-bottom: 10px; padding-right: 10px"></div>
+        <div class="rcon-maps-search" style="margin-bottom: 15px; padding-right: 10px">
+          <input
+            type="text"
+            id="rcon-maps-search-input"
+            class="form-input"
+            data-i18n-placeholder="search_maps_placeholder"
+            placeholder="搜索地图或文件名..."
+            style="width: 100%"
+          />
+        </div>
+        <div id="rcon-maps-content" class="rcon-maps-content">
+          <div id="rcon-maps-loading" class="rcon-maps-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div data-i18n="loading_maps">加载地图列表中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 服务器状态弹框 -->
+    <div id="status-overlay" class="status-overlay">
+      <div id="status-dialog" class="status-dialog">
+        <div class="status-header">
+          <div class="status-title">🖥️ 服务器状态</div>
+          <button id="status-close" class="status-close">×</button>
+        </div>
+        <div id="status-content" class="status-content">
+          <div id="status-loading" class="status-loading">
+            <div
+              class="loading-spinner"
+              style="width: 40px; height: 40px; margin: 0 auto 20px"
+            ></div>
+            <div>获取服务器状态中...</div>
+          </div>
+        </div>
+        <button
+          id="status-refresh"
+          class="status-refresh"
+          onclick="serverStatusDialog.loadServerStatus()"
+        >
+          🔄 刷新状态
+        </button>
+      </div>
+    </div>
+
+    <!-- 授权码管理弹框 -->
+    <div id="auth-code-overlay" class="auth-code-overlay">
+      <div id="auth-code-dialog" class="auth-code-dialog">
+        <div class="auth-code-header">
+          <div class="auth-code-title" data-i18n="auth_code_dialog_title">🔑 生成临时授权码</div>
+          <button id="auth-code-close" class="auth-code-close">×</button>
+        </div>
+        <div class="auth-code-content">
+          <div class="form-group">
+            <label data-i18n="auth_code_expiry">有效期 (小时)</label>
+            <select id="auth-code-expired" class="form-select">
+              <option value="1" data-i18n="auth_code_1h">1小时</option>
+              <option value="2" data-i18n="auth_code_2h">2小时</option>
+              <option value="6" data-i18n="auth_code_6h">6小时</option>
+              <option value="12" data-i18n="auth_code_12h">12小时</option>
+              <option value="24" data-i18n="auth_code_24h">24小时</option>
+              <option value="72" data-i18n="auth_code_72h">72小时</option>
+              <option value="168" data-i18n="auth_code_7d">7天</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button
+              id="generate-auth-code"
+              class="btn btn-primary full-width"
+              data-i18n="generate_auth_code_btn"
+            >
+              🔑 生成授权码
+            </button>
+          </div>
+          <div id="auth-code-result" class="auth-code-result" style="display: none">
+            <div class="form-group">
+              <label data-i18n="auth_code_label">授权码</label>
+              <div class="auth-code-display">
+                <input id="auth-code-token" type="text" readonly class="auth-code-input" />
+                <button id="copy-auth-code" class="btn btn-copy">📋 复制</button>
+              </div>
+            </div>
+            <div class="auth-code-info">
+              <p>⚠️ 此授权码具有管理员权限，请妥善保管</p>
+              <p>🕒 有效期至：<span id="auth-code-expires"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 难度更改弹框 -->
+    <div id="difficulty-change-overlay" class="difficulty-change-overlay">
+      <div id="difficulty-change-dialog" class="difficulty-change-dialog">
+        <div class="difficulty-change-header">
+          <div class="difficulty-change-title" data-i18n="difficulty_dialog_title">
+            ⚔️ 更改游戏难度
+          </div>
+          <button id="difficulty-change-close" class="difficulty-change-close">×</button>
+        </div>
+        <div class="difficulty-change-content">
+          <div class="form-group">
+            <label data-i18n="select_difficulty_label">选择难度</label>
+            <div class="difficulty-options">
+              <button class="difficulty-option" data-difficulty="简单">
+                <div class="difficulty-icon">🟢</div>
+                <div class="difficulty-label" data-i18n="difficulty_easy">简单</div>
+                <div class="difficulty-desc">Easy</div>
+              </button>
+              <button class="difficulty-option" data-difficulty="普通">
+                <div class="difficulty-icon">🟡</div>
+                <div class="difficulty-label" data-i18n="difficulty_normal">普通</div>
+                <div class="difficulty-desc">Normal</div>
+              </button>
+              <button class="difficulty-option" data-difficulty="高级">
+                <div class="difficulty-icon">🟠</div>
+                <div class="difficulty-label" data-i18n="difficulty_hard">高级</div>
+                <div class="difficulty-desc">Hard</div>
+              </button>
+              <button class="difficulty-option" data-difficulty="专家">
+                <div class="difficulty-icon">🔴</div>
+                <div class="difficulty-label" data-i18n="difficulty_expert">专家</div>
+                <div class="difficulty-desc">Impossible</div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="difficulty-change-footer">
+          <button
+            id="change-difficulty-confirm"
+            class="btn btn-primary full-width"
+            disabled
+            data-i18n="confirm_change_difficulty_btn"
+          >
+            ⚔️ 确认更改难度
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 游戏模式更改弹框 -->
+    <div id="gamemode-change-overlay" class="gamemode-change-overlay">
+      <div id="gamemode-change-dialog" class="gamemode-change-dialog">
+        <div class="gamemode-change-header">
+          <div class="gamemode-change-title" data-i18n="gamemode_dialog_title">🎮 更改游戏模式</div>
+          <button id="gamemode-change-close" class="gamemode-change-close">×</button>
+        </div>
+        <div class="gamemode-change-content">
+          <div class="form-group">
+            <label data-i18n="select_gamemode_label">基础模式</label>
+            <div class="gamemode-options">
+              <button class="gamemode-option" data-gamemode="合作">
+                <div class="gamemode-icon">🏃</div>
+                <div class="gamemode-label" data-i18n="gamemode_coop">合作</div>
+                <div class="gamemode-desc">Cooperative</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="写实">
+                <div class="gamemode-icon">💀</div>
+                <div class="gamemode-label" data-i18n="gamemode_realism">写实</div>
+                <div class="gamemode-desc">Realism</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="生存">
+                <div class="gamemode-icon">🛡️</div>
+                <div class="gamemode-label" data-i18n="gamemode_survival">生存</div>
+                <div class="gamemode-desc">Survival</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="对抗">
+                <div class="gamemode-icon">⚔️</div>
+                <div class="gamemode-label" data-i18n="gamemode_versus">对抗</div>
+                <div class="gamemode-desc">Versus</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="拾荒">
+                <div class="gamemode-icon">⛽</div>
+                <div class="gamemode-label" data-i18n="gamemode_scavenge">清道夫</div>
+                <div class="gamemode-desc">Scavenge</div>
+              </button>
+              <button class="gamemode-option" data-gamemode="坚守">
+                <div class="gamemode-icon">🏰</div>
+                <div class="gamemode-label" data-i18n="gamemode_holdout">坚守</div>
+                <div class="gamemode-desc">Holdout</div>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-i18n="mutation_mode_label">突变模式</label>
+            <div class="gamemode-options gamemode-mutations">
+              <button class="gamemode-option gamemode-mutation" data-gamemode="地球上最后一人">
+                <div class="gamemode-label" data-i18n="mutation_lastmanonearth">地球上最后一人</div>
+                <div class="gamemode-desc">Last Man on Earth</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="爆头！">
+                <div class="gamemode-label" data-i18n="mutation_headshot">爆头！</div>
+                <div class="gamemode-desc">Headshot!</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="血流不止">
+                <div class="gamemode-label" data-i18n="mutation_bleedout">血流不止</div>
+                <div class="gamemode-desc">Bleed Out</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="绝境求生">
+                <div class="gamemode-label" data-i18n="mutation_hardeight">绝境求生</div>
+                <div class="gamemode-desc">Hard Eight</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="四剑客">
+                <div class="gamemode-label" data-i18n="mutation_fourswordsmen">四剑客</div>
+                <div class="gamemode-desc">Four Swordsmen</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="链锯屠杀">
+                <div class="gamemode-label" data-i18n="mutation_chainsawmassacre">链锯屠杀</div>
+                <div class="gamemode-desc">Chainsaw Massacre</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="铁人">
+                <div class="gamemode-label" data-i18n="mutation_ironman">铁人</div>
+                <div class="gamemode-desc">Iron Man</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="地球上最后侏儒">
+                <div class="gamemode-label" data-i18n="mutation_lastgnomeonearth">
+                  地球上最后侏儒
+                </div>
+                <div class="gamemode-desc">Last Gnome on Earth</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="仅容一人">
+                <div class="gamemode-label" data-i18n="mutation_roomforone">仅容一人</div>
+                <div class="gamemode-desc">Room for One</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="医疗末日">
+                <div class="gamemode-label" data-i18n="mutation_healthpackalypse">医疗末日</div>
+                <div class="gamemode-desc">Healthpackalypse!</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="写实对抗">
+                <div class="gamemode-label" data-i18n="mutation_realismversus">写实对抗</div>
+                <div class="gamemode-desc">Realism Versus</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="跟随公升">
+                <div class="gamemode-label" data-i18n="mutation_followtheliter">跟随公升</div>
+                <div class="gamemode-desc">Follow the Liter</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="碎尸盛宴">
+                <div class="gamemode-label" data-i18n="mutation_gibfest">碎尸盛宴</div>
+                <div class="gamemode-desc">Gib Fest</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="对抗生存">
+                <div class="gamemode-label" data-i18n="mutation_versussurvival">对抗生存</div>
+                <div class="gamemode-desc">Versus Survival</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="猎杀派对">
+                <div class="gamemode-label" data-i18n="mutation_huntingparty">猎杀派对</div>
+                <div class="gamemode-desc">Hunting Party</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="孤胆枪手">
+                <div class="gamemode-label" data-i18n="mutation_lonegunman">孤胆枪手</div>
+                <div class="gamemode-desc">Lone Gunman</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="失血对抗">
+                <div class="gamemode-label" data-i18n="mutation_bleedoutversus">失血对抗</div>
+                <div class="gamemode-desc">Bleed Out Versus</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="无尽坦克！">
+                <div class="gamemode-label" data-i18n="mutation_taaannnkk">无尽坦克！</div>
+                <div class="gamemode-desc">Taaannnkk!</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="治疗侏儒">
+                <div class="gamemode-label" data-i18n="mutation_healinggnome">治疗侏儒</div>
+                <div class="gamemode-desc">Healing Gnome</div>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-i18n="community_mode_label">社区模式</label>
+            <div class="gamemode-options gamemode-mutations">
+              <button class="gamemode-option gamemode-mutation" data-gamemode="特感速递">
+                <div class="gamemode-label" data-i18n="community_specialdelivery">特感速递</div>
+                <div class="gamemode-desc">Special Delivery</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="流感季节">
+                <div class="gamemode-label" data-i18n="community_fluseason">流感季节</div>
+                <div class="gamemode-desc">Flu Season</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="骑乘派对">
+                <div class="gamemode-label" data-i18n="community_ridingmysurvivor">骑乘派对</div>
+                <div class="gamemode-desc">Riding My Survivor</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="梦魇">
+                <div class="gamemode-label" data-i18n="community_nightmare">梦魇</div>
+                <div class="gamemode-desc">Nightmare</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="死亡之门">
+                <div class="gamemode-label" data-i18n="community_deathsdoor">死亡之门</div>
+                <div class="gamemode-desc">Death's Door</div>
+              </button>
+              <button class="gamemode-option gamemode-mutation" data-gamemode="Confogl">
+                <div class="gamemode-label" data-i18n="community_confogl">Confogl</div>
+                <div class="gamemode-desc">Confogl</div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="gamemode-change-footer">
+          <button
+            id="change-gamemode-confirm"
+            class="btn btn-primary full-width"
+            disabled
+            data-i18n="confirm_change_mode_btn"
+          >
+            🎮 确认更改模式
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RCON命令弹框 -->
+    <div id="rcon-command-overlay" class="rcon-command-overlay">
+      <div id="rcon-command-dialog" class="rcon-command-dialog">
+        <div class="rcon-command-header">
+          <div class="rcon-command-title" data-i18n="rcon_dialog_title">🏛️ RCON命令控制台</div>
+          <button id="rcon-command-close" class="rcon-command-close">×</button>
+        </div>
+        <div class="rcon-command-content">
+          <div class="form-group">
+            <label data-i18n="rcon_command_label">RCON命令</label>
+            <div class="rcon-command-input-wrapper">
+              <input
+                id="rcon-command-input"
+                type="text"
+                data-i18n="rcon_command_placeholder"
+                placeholder="输入RCON命令"
+                class="form-input"
+              />
+              <button id="execute-rcon-command" class="btn btn-primary" data-i18n="execute_btn">
+                ▶️ 执行
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="rcon-result-header">
+              <label data-i18n="rcon_result_label">执行结果</label>
+              <button
+                id="clear-rcon-result"
+                class="btn btn-text rcon-clear-btn"
+                data-i18n="clear_btn_text"
+              >
+                🗑️ 清空
+              </button>
+            </div>
+            <div id="rcon-command-result" class="rcon-command-result">
+              <div class="rcon-result-empty" data-i18n="waiting_for_command">等待命令执行...</div>
+            </div>
+          </div>
+          <div class="rcon-command-tips">
+            <div class="tips-title" data-i18n="rcon_tips_title">💡 常用命令提示:</div>
+            <div class="tips-content">
+              <div class="tip-item" onclick="setRconCommand('status')">
+                <code>status</code>
+                <span class="tip-description" data-i18n="rcon_tip_status">查看服务器状态</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('z_difficulty ')">
+                <code>z_difficulty</code>
+                <span class="tip-description" data-i18n="rcon_tip_difficulty">查看当前难度</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sm_cvar mp_gamemode ')">
+                <code>sm_cvar mp_gamemode</code>
+                <span class="tip-description" data-i18n="rcon_tip_gamemode">查看/设置游戏模式</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sv_maxplayers ')">
+                <code>sv_maxplayers</code>
+                <span class="tip-description" data-i18n="rcon_tip_maxplayers">设置人数上限</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sv_visiblemaxplayers ')">
+                <code>sv_visiblemaxplayers</code>
+                <span class="tip-description" data-i18n="rcon_tip_visiblemaxplayers"
+                  >设置人数上限显示</span
+                >
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sm_timer ')">
+                <code>sm_timer</code>
+                <span class="tip-description" data-i18n="rcon_tip_timer">多特时间控制</span>
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sm_cvar sar_respawn_survivor_limit ')">
+                <code>sm_cvar sar_respawn_survivor_limit</code>
+                <span class="tip-description" data-i18n="rcon_tip_respawn_limit"
+                  >自动复活次数设置</span
+                >
+              </div>
+              <div class="tip-item" onclick="setRconCommand('sm_cvar sar_respawn_survivor_time ')">
+                <code>sm_cvar sar_respawn_survivor_time</code>
+                <span class="tip-description" data-i18n="rcon_tip_respawn_time">自动复活时间</span>
+              </div>
+              <div
+                class="tip-item"
+                onclick="setRconCommand('sm_cvar sar_respawn_survivor_time_add ')"
+              >
+                <code>sm_cvar sar_respawn_survivor_time_add</code>
+                <span class="tip-description" data-i18n="rcon_tip_respawn_time_add"
+                  >自动复活时间递增</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 下载任务管理弹框 -->
+    <div id="download-management-overlay" class="download-management-overlay">
+      <div id="download-management-dialog" class="download-management-dialog">
+        <div class="download-management-header">
+          <div class="download-management-title" data-i18n="download_management_dialog_title">
+            📥 下载任务管理
+          </div>
+          <button id="download-management-close" class="download-management-close">×</button>
+        </div>
+        <div class="download-management-content">
+          <!-- 添加下载任务区域 -->
+          <div class="download-add-section">
+            <div class="section-title" data-i18n="add_download_task_title">📥 添加下载任务</div>
+            <div class="form-group">
+              <label data-i18n="download_url_label">下载链接</label>
+              <textarea
+                id="download-url"
+                data-i18n="download_url_placeholder"
+                placeholder="仅支持 HTTP 或 HTTPS 开头的链接。支持多个下载链接，每行链接http开头即可。"
+                class="form-textarea"
+                rows="4"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <button
+                id="add-download-task"
+                class="btn btn-primary full-width"
+                data-i18n="add_task_btn"
+              >
+                ➕ 添加下载任务
+              </button>
+            </div>
+          </div>
+
+          <!-- 任务列表区域 -->
+          <div class="download-list-section">
+            <div class="download-list-header">
+              <div class="section-title" data-i18n="task_list_title">📋 任务列表</div>
+              <div class="download-actions">
+                <button
+                  id="refresh-download-tasks"
+                  class="btn btn-secondary"
+                  data-i18n="refresh_btn"
+                >
+                  🔄 刷新
+                </button>
+                <button
+                  id="clear-download-tasks"
+                  class="btn btn-danger"
+                  data-i18n="clear_completed_btn"
+                >
+                  🗑️ 清空已完成任务
+                </button>
+              </div>
+            </div>
+            <div id="download-tasks-list" class="download-tasks-list">
+              <div id="download-tasks-loading" class="download-tasks-loading">
+                <div
+                  class="loading-spinner"
+                  style="width: 30px; height: 30px; margin: 0 auto 15px"
+                ></div>
+                <div data-i18n="loading_task_list">加载任务列表中...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 页面底部信息 -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <div class="footer-title" data-i18n="footer_open_source">📖 开源信息</div>
+          <div class="footer-links">
+            <a
+              href="https://github.com/LaoYutang/l4d2-server"
+              target="_blank"
+              class="footer-link"
+              data-i18n="footer_github"
+            >
+              🔗 GitHub 仓库
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <div class="footer-title" data-i18n="footer_license">⚖️ 开源协议</div>
+          <div class="footer-text" data-i18n="footer_license_text">
+            本项目基于 Apache License 2.0 开源协议发布<br />
+            欢迎贡献代码和提出建议
+          </div>
+        </div>
+        <div class="footer-section">
+          <div class="footer-title" data-i18n="footer_project_info">ℹ️ 项目信息</div>
+          <div class="footer-text" data-i18n="footer_project_desc">
+            L4D2 服务器管理工具<br />
+            © 2025 开源社区贡献
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          <span data-i18n="footer_copyright">Made with ❤️ by the community |</span>
+          <a
+            href="https://github.com/LaoYutang/l4d2-server/blob/master/LICENSE"
+            target="_blank"
+            class="footer-link"
+            data-i18n="footer_view_license"
+          >
+            查看许可证
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript 文件 -->
+    <script src="js/notification.js"></script>
+    <script src="js/dialog.js"></script>
+    <script src="js/server-api.js"></script>
+    <script src="js/main.js"></script>
   </body>
 </html>
